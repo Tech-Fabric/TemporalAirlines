@@ -3,21 +3,22 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Temporalio" Version="1.0.0" />
     <PackageReference Include="Temporalio.Extensions.Hosting" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TemporalAirlinesConcept.Common\TemporalAirlinesConcept.Common.csproj" />
-    <ProjectReference Include="..\TemporalAirlinesConcept.Configuration\TemporalAirlinesConcept.Configuration.csproj" />
+    <ProjectReference Include="..\TemporalAirlinesConcept.DAL\TemporalAirlinesConcept.DAL.csproj" />
     <ProjectReference Include="..\TemporalAirlinesConcept.Services\TemporalAirlinesConcept.Services.csproj" />
   </ItemGroup>
 

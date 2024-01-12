@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporalAirlinesConcept.Common", "TemporalAirlinesConcept.Common\TemporalAirlinesConcept.Common.csproj", "{9DA8CBFB-9CD8-4A16-B585-406EDFFCC0E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Common", "TemporalAirlinesConcept.Common\TemporalAirlinesConcept.Common.csproj", "{9DA8CBFB-9CD8-4A16-B585-406EDFFCC0E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporalAirlinesConcept.DAL", "TemporalAirlinesConcept.DAL\TemporalAirlinesConcept.DAL.csproj", "{C434BCC5-D2F3-4157-B42B-21A25930F8A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.DAL", "TemporalAirlinesConcept.DAL\TemporalAirlinesConcept.DAL.csproj", "{C434BCC5-D2F3-4157-B42B-21A25930F8A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporalAirlinesConcept.Services", "TemporalAirlinesConcept.Services\TemporalAirlinesConcept.Services.csproj", "{DB2637BD-CF24-4F27-A506-D46703991735}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Services", "TemporalAirlinesConcept.Services\TemporalAirlinesConcept.Services.csproj", "{DB2637BD-CF24-4F27-A506-D46703991735}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporalAirlinesConcept.Worker", "TemporalAirlinesConcept.Worker\TemporalAirlinesConcept.Worker.csproj", "{9ED537E0-BB40-4CB5-B4C4-8F9F2D1287C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Worker", "TemporalAirlinesConcept.Worker\TemporalAirlinesConcept.Worker.csproj", "{9ED537E0-BB40-4CB5-B4C4-8F9F2D1287C0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "temporal-server", "temporal-server", "{BC3DB353-D64D-44B3-A713-99192D0242DE}"
 	ProjectSection(SolutionItems) = preProject
@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dynamicconfig", "dynamiccon
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Api", "TemporalAirlinesConcept.Api\TemporalAirlinesConcept.Api.csproj", "{BA191BB5-385B-481C-A368-243791F50CBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporalAirlinesConcept.Configuration", "TemporalAirlinesConcept.Configuration\TemporalAirlinesConcept.Configuration.csproj", "{13152A05-BF9D-4848-94CB-CD4BC4AB697D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{BA191BB5-385B-481C-A368-243791F50CBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA191BB5-385B-481C-A368-243791F50CBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA191BB5-385B-481C-A368-243791F50CBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13152A05-BF9D-4848-94CB-CD4BC4AB697D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13152A05-BF9D-4848-94CB-CD4BC4AB697D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13152A05-BF9D-4848-94CB-CD4BC4AB697D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13152A05-BF9D-4848-94CB-CD4BC4AB697D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

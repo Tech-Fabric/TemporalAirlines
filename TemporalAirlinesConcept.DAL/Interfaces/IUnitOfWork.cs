@@ -1,12 +1,8 @@
 ﻿namespace TemporalAirlinesConcept.DAL.Interfaces;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork
 {
-    IRepository<T> Repository<T>() where T : class;
-
-    int SaveChanges();
-
-    Task<int> SaveChangesAsync();
-
-    Task<int> ExecSqlAsync(string sql);
+    IFlightRepository GetFlightRepository();
+    ITicketRepository GetTicketRepository();
+    IUserRepository GetUserRepository();
 }
