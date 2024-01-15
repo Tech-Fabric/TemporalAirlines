@@ -1,6 +1,6 @@
-﻿using TemporalAirlinesConcept.Common.Extensions;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
 
 // Run worker until cancelled
 Console.WriteLine("Running worker");
@@ -22,12 +22,14 @@ async Task RunWorkerAsync()
     IHost host = Host.CreateDefaultBuilder(args)
         .ConfigureLogging(ctx =>
             ctx.AddSimpleConsole().SetMinimumLevel(LogLevel.Information))
-        .ConfigureServices(ctx =>
-            ctx
-                // Add the services
-                .ConfigureServices()
-                // Add the worker
-                .ConfigureTemporalWorker())
+        .ConfigureServices((hostContext, services) =>
+            {
+                services
+                    // Add the services
+                    .ConfigureServices(hostContext.Configuration)
+                    // Add the worker
+                    .ConfigureTemporalWorker();
+            })
         .Build();
 
     await host.RunAsync();

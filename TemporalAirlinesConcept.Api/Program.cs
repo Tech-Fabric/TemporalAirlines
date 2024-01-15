@@ -1,4 +1,4 @@
-using TemporalAirlinesConcept.Common.Extensions;
+using TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,12 +9,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.ConfigureServices();
-//builder.Services.ConfigureTemporalClient();
+builder.Services.ConfigureServices(builder.Configuration);
+builder.Services.ConfigureTemporalClient();
 
 // Worker for testing
-//builder.Services.ConfigureTemporalWorker();
-
+builder.Services.ConfigureTemporalWorker();
 
 var app = builder.Build();
 
