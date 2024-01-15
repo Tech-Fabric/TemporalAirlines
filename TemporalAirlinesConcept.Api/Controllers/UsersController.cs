@@ -35,8 +35,9 @@ namespace TemporalAirlinesConcept.Api.Controllers
 
             return Ok(user);
         }
+
         // POST: api/users
-        [HttpPost()]
+        [HttpPost]
         public async Task<IActionResult> CreateUser(UserRegistrationModel model)
         {
             await _userRegistrationService.RegisterUser(model);
