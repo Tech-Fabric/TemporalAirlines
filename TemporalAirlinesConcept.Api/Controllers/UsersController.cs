@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TemporalAirlinesConcept.Services.Interfaces.User;
+using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
 using TemporalAirlinesConcept.Services.Models.User;
 
 namespace TemporalAirlinesConcept.Api.Controllers
@@ -9,10 +10,12 @@ namespace TemporalAirlinesConcept.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IUserRegistrationService _userRegistrationService;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, IUserRegistrationService userRegistrationService)
         {
             _userService = userService;
+            _userRegistrationService = userRegistrationService;
         }
 
         // GET: api/users
@@ -32,14 +35,13 @@ namespace TemporalAirlinesConcept.Api.Controllers
 
             return Ok(user);
         }
-
         // POST: api/users
-        [HttpPost]
-        public async Task<ActionResult<DAL.Entities.User>> CreateUser(UserInputModel model)
+        [HttpPost()]
+        public async Task<IActionResult> CreateUser(UserRegistrationModel model)
         {
-            var createdUser = await _userService.CreateUserAsync(model);
+            await _userRegistrationService.RegisterUser(model);
 
-            return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
+            return Ok();
         }
 
         // DELETE: api/users/{id}
