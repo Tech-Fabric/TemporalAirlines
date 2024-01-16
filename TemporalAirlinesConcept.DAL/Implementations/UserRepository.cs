@@ -5,47 +5,44 @@ using TemporalAirlinesConcept.DAL.Interfaces;
 
 namespace TemporalAirlinesConcept.DAL.Implementations;
 
-public class UserRepository : IUserRepository
+public class UserRepository : DbAccessService<Entities.User>, IUserRepository
 {
-    private readonly IDbAccessService<Entities.User> _userDbService;
-
     public UserRepository(CosmosClient cosmosClient, IOptions<DatabaseSettigns> options)
+        : base(cosmosClient, options.Value.DbName, Entities.User.Container)
     {
-        _userDbService = new DbAccessService<Entities.User>(cosmosClient,
-            options.Value.DbName, Entities.User.Container);
     }
 
     public Task<Entities.User> GetUserAsync(string id)
     {
-        return _userDbService.GetItemAsync(id);
+        return GetItemAsync(id);
     }
 
     public async Task<List<Entities.User>> GetUsersAsync()
     {
-        var queryResult = await _userDbService.GetItemsAsync("select * from c");
+        var queryResult = await GetItemsAsync("select * from c");
 
         return queryResult.ToList();
     }
 
     public async Task<List<Entities.User>> QueryAsync(string query)
     {
-        var queryResult = await _userDbService.GetItemsAsync(query);
+        var queryResult = await GetItemsAsync(query);
 
         return queryResult.ToList();
     }
 
     public Task AddUserAsync(Entities.User user)
     {
-        return _userDbService.AddItemAsync(user, user.Id);
+        return AddItemAsync(user, user.Id);
     }
 
     public Task UpdateUserAsync(Entities.User user)
     {
-        return _userDbService.UpdateItemAsync(user.Id, user);
+        return UpdateItemAsync(user.Id, user);
     }
 
     public Task DeleteUserAsync(string id)
     {
-        return _userDbService.DeleteItemAsync(id);
+        return DeleteItemAsync(id);
     }
 }

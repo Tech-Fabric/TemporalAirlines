@@ -25,7 +25,7 @@ public class UserRegistrationWorkflow : IUserRegistrationWorkflow
             return false;
 
         await Workflow.ExecuteActivityAsync(
-            (UserRegistrationActivities act) => act.SendErrorConfirmationCode(),
+            (UserRegistrationActivities act) => act.SendConfirmationCode(),
             _options);
 
         await Workflow.DelayAsync(TimeSpan.FromMinutes(2));
