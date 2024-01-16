@@ -31,7 +31,7 @@ public class TicketService : ITicketService
                     throw new EntityNotFoundException($"Flight {flightId} was not found.");
 
                 await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
-                    new WorkflowOptions(flightId, "flight-task-queue"));
+                    new WorkflowOptions(flightId, "my-task-queue"));
             }
 
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
@@ -48,7 +48,7 @@ public class TicketService : ITicketService
                 FlightsId = purchaseRequestModel.FlightsId,
                 Passenger = purchaseRequestModel.PassengerDetails.Name,
                 UserId = "user id"
-            }), new WorkflowOptions { TaskQueue = "flight-task-queue", Id = Guid.NewGuid().ToString() });
+            }), new WorkflowOptions { TaskQueue = "my-task-queue", Id = Guid.NewGuid().ToString() });
 
         return await handle.GetResultAsync<List<DAL.Entities.Ticket>>();
     }
