@@ -6,47 +6,44 @@ using TemporalAirlinesConcept.DAL.Interfaces;
 
 namespace TemporalAirlinesConcept.DAL.Implementations;
 
-public class FlightRepository : IFlightRepository
+public class FlightRepository : DbAccessService<Flight>, IFlightRepository
 {
-    private readonly IDbAccessService<Flight> _flightDbService;
-
     public FlightRepository(CosmosClient cosmosClient, IOptions<DatabaseSettigns> options)
+        : base(cosmosClient, options.Value.DbName, Flight.Container)
     {
-        _flightDbService = new DbAccessService<Flight>(cosmosClient,
-            options.Value.DbName, Flight.Container);
     }
 
     public Task<Flight> GetFlightAsync(string id)
     {
-        return _flightDbService.GetItemAsync(id);
+        return GetItemAsync(id);
     }
 
     public async Task<List<Flight>> GetFlightsAsync()
     {
-        var queryResult = await _flightDbService.GetItemsAsync("select * from c");
+        var queryResult = await GetItemsAsync("select * from c");
 
         return queryResult.ToList();
     }
 
     public async Task<List<Flight>> QueryAsync(string query)
     {
-        var queryResult = await _flightDbService.GetItemsAsync(query);
+        var queryResult = await GetItemsAsync(query);
 
         return queryResult.ToList();
     }
 
     public Task AddFlightAsync(Flight flight)
     {
-        return _flightDbService.AddItemAsync(flight, flight.Id);
+        return AddItemAsync(flight, flight.Id);
     }
 
     public Task UpdateFlightAsync(Flight flight)
     {
-        return _flightDbService.UpdateItemAsync(flight.Id, flight);
+        return UpdateItemAsync(flight.Id, flight);
     }
 
     public Task DeleteFlightAsync(string id)
     {
-        return _flightDbService.DeleteItemAsync(id);
+        return DeleteItemAsync(id);
     }
 }
