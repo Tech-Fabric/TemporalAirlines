@@ -1,9 +1,8 @@
 ﻿using Microsoft.Azure.Cosmos;
-using TemporalAirlinesConcept.DAL.Interfaces;
 
 namespace TemporalAirlinesConcept.DAL.Implementations;
 
-public class DbAccessService<T> : IDbAccessService<T> where T : class
+public class DbAccessService<T> where T : class
 {
     private Container _container;
     private DatabaseResponse _database;
