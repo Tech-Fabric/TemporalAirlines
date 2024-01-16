@@ -18,17 +18,17 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration
         public async Task RegisterUser(UserRegistrationModel registrationModel)
         {
             var handle = await _temporalClient.StartWorkflowAsync<IUserRegistrationWorkflow>(
-            wf => wf.Run(registrationModel),
-            new WorkflowOptions
-            {
-                //TaskQueue = Temporal.UserRegistrationQueue,
-                TaskQueue = Temporal.DefaultQueue,
-                Id = Guid.NewGuid().ToString(),
-                RetryPolicy = new RetryPolicy
+                wf => wf.Run(registrationModel),
+                new WorkflowOptions
                 {
-                    MaximumAttempts = 3
-                }
-            });
+                    //TaskQueue = Temporal.UserRegistrationQueue,
+                    TaskQueue = Temporal.DefaultQueue,
+                    Id = Guid.NewGuid().ToString(),
+                    RetryPolicy = new RetryPolicy
+                    {
+                        MaximumAttempts = 3
+                    }
+                });
         }
     }
 }
