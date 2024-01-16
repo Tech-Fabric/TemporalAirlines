@@ -9,10 +9,10 @@ public class UserRegistrationWorkflow : IUserRegistrationWorkflow
 {
     private readonly ActivityOptions _options = new()
     {
-        ScheduleToCloseTimeout = TimeSpan.FromSeconds(45),
+        ScheduleToCloseTimeout = TimeSpan.FromSeconds(60),
         RetryPolicy = new Temporalio.Common.RetryPolicy
         {
-            MaximumAttempts = 3
+            //MaximumAttempts = 3
         }
     };
 
@@ -28,7 +28,7 @@ public class UserRegistrationWorkflow : IUserRegistrationWorkflow
             (UserRegistrationActivities act) => act.SendConfirmationCode(),
             _options);
 
-        await Workflow.DelayAsync(TimeSpan.FromMinutes(2));
+        await Workflow.DelayAsync(TimeSpan.FromMinutes(1));
 
         await Workflow.ExecuteActivityAsync(
             (UserRegistrationActivities act) => act.CreateUser(registrationModel),

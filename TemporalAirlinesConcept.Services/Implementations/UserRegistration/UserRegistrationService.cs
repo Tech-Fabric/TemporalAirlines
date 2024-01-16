@@ -26,7 +26,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration
                     Id = Guid.NewGuid().ToString(),
                     RetryPolicy = new RetryPolicy
                     {
-                        MaximumAttempts = 3
+                        //MaximumAttempts = 3
                     }
                 });
         }
