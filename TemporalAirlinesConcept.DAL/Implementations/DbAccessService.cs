@@ -5,18 +5,26 @@ namespace TemporalAirlinesConcept.DAL.Implementations;
 
 public class DbAccessService<T> : IDbAccessService<T> where T : class
 {
-    private readonly Container _container;
+    private Container _container;
+    private DatabaseResponse _database;
+
+    private readonly CosmosClient _dbClient;
+    private readonly string _databaseName;
+    private readonly string _containerName;
 
     public DbAccessService(CosmosClient dbClient, string databaseName, string containerName)
     {
-        _container = dbClient.GetContainer(databaseName, containerName);
+        _dbClient = dbClient;
+        _databaseName = databaseName;
+        _containerName = containerName;
     }
 
     public async Task<T> GetItemAsync(string id)
     {
         try
         {
-            var response = await _container.ReadItemAsync<T>(id, new PartitionKey(id));
+            var container = await GetContainer();
+            var response = await container.ReadItemAsync<T>(id, new PartitionKey(id));
 
             return response.Resource;
         }
@@ -28,7 +36,8 @@ public class DbAccessService<T> : IDbAccessService<T> where T : class
 
     public async Task<IEnumerable<T>> GetItemsAsync(string queryString)
     {
-        var query = _container.GetItemQueryIterator<T>(new QueryDefinition(queryString));
+        var container = await GetContainer();
+        var query = container.GetItemQueryIterator<T>(new QueryDefinition(queryString));
 
         var results = new List<T>();
 
@@ -44,16 +53,41 @@ public class DbAccessService<T> : IDbAccessService<T> where T : class
 
     public async Task AddItemAsync(T item, string id)
     {
-        await _container.CreateItemAsync<T>(item, new PartitionKey(id));
+        var container = await GetContainer();
+        await container.CreateItemAsync<T>(item, new PartitionKey(id));
     }
 
     public async Task UpdateItemAsync(string id, T item)
     {
-        await _container.UpsertItemAsync<T>(item, new PartitionKey(id));
+        var container = await GetContainer();
+
+        await container.UpsertItemAsync<T>(item, new PartitionKey(id));
     }
 
     public async Task DeleteItemAsync(string id)
     {
-        await _container.DeleteItemAsync<T>(id, new PartitionKey(id));
+        var container = await GetContainer();
+
+        await container.DeleteItemAsync<T>(id, new PartitionKey(id));
+    }
+
+    private async Task<DatabaseResponse> GetDatabase()
+    {
+        if (_database is null)
+            _database = await _dbClient.CreateDatabaseIfNotExistsAsync(_databaseName);
+
+        return _database;
+    }
+
+    private async Task<Container> GetContainer()
+    {
+        var database = await GetDatabase();
+
+        if (_container is null)
+            _container = await database.Database.CreateContainerIfNotExistsAsync(
+                id: _containerName,
+                partitionKeyPath: "/id");
+
+        return _container;
     }
 }
