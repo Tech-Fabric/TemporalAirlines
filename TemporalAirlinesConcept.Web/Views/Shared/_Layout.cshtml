@@ -1,0 +1,30 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+@await Html.PartialAsync("_Head")
+<body>
+
+<header class="p-3 mb-3 border-bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a class="navbar-brand text-dark" asp-area="" asp-controller="Home" asp-action="Index">Temporal Airlines</a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="border-top footer text-muted">
+    <div class="container">
+        &copy; 2023 - TechFabric - Flight Tickets Proof of Concept
+    </div>
+</footer>
+
+@await Html.PartialAsync("_FooterScripts")
+</body>
+</html>

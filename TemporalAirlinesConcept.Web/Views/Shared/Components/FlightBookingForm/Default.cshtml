@@ -1,0 +1,99 @@
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Humanizer
+
+@model TemporalAirlinesConcept.Web.ViewComponents.FlightBookingFormViewModel
+
+
+<form hx-post="@Url.Action("Form", "Flight")"
+      autocomplete="off"
+      hx-swap="outerHTML"
+      class="form-flight-booking rounded-3"
+      _="on htmx:beforeSend set #flight-search-submit.disabled to 'disabled'
+         on htmx:afterRequest set #flight-search-submit.disabled to ''">
+
+    <div class="flights-search-filters d-flex flex-row">
+        <div class="flex-column align-items-start flex-grow-1 me-1 position-relative" role="group">
+            <select class="form-select form-select-lg mb-3 rounded-start-3 rounded-end-0"
+                    aria-label="Airport from"
+                    asp-for="DepartureAirport">
+                <option selected>From</option>
+
+                @foreach (var a in Model.Airports)
+                {
+                    <option value="@a.Key">@a.Value</option>
+                }
+            </select>
+        </div>
+
+        <div class="flex-column align-items-start flex-grow-1 me-1 position-relative" role="group">
+            <select class="form-select form-select-lg mb-3 rounded-start-0 rounded-end-0"
+                    aria-label="Airport to"
+                    asp-for="ArrivalAirport">
+                <option selected>To</option>
+                @foreach (var a in Model.Airports)
+                {
+                    <option value="@a.Key">@a.Value</option>
+                }
+            </select>
+        </div>
+
+        <div class="flex-column align-items-start flex-grow-1 me-1" role="group">
+            <input type="date" class="form-control form-control-lg flex-sm-fill rounded-start-0 rounded-end-0"
+                   asp-for="@Model.When"
+                   placeholder="When"
+                   autocomplete="false">
+        </div>
+
+        <div class="flex-column align-items-start flex-grow-1" role="group">
+            @* <label class="form-label flex-sm-fill" asp-for="@Model.To"></label> *@
+            <button id="flight-search-submit" class="btn btn-lg btn-primary w-100 rounded-start-0 rounded-end-3">Find!</button>
+        </div>
+    </div>
+
+    <div class="flights">
+
+        @if (Model.Flights.Count <= 0)
+        {
+            <div class="flight d-flex flex-row justify-content-between">
+                <strong>No flights available :(</strong>
+            </div>
+        }
+
+                @foreach (var flight in Model.Flights)
+                {
+                    <div class="flight d-flex flex-row justify-content-between">
+                        <div class="flight-details d-flex flex-column justify-content-evenly">
+                            <div class="flight-departure d-flex flex-row">
+                                <div class="flight-departure-label flex-grow-1">Departure:&nbsp;</div>
+                                <div class="flight-departure-time flex-grow-1"><strong>@flight.Depart</strong> - <span class="flight-time-human">(@flight.Depart.Humanize())</span>&nbsp;</div>
+                                <div class="flight-from flex-grow-1"><strong>@flight.From</strong></div>
+                            </div>
+
+                            <div class="flight-length">
+                                Flight time: @((flight.Arrival - flight.Depart).Humanize())
+                            </div>
+
+                            <div class="arrival d-flex flex-row justify-content-between">
+                                <div class="flight-departure-label flex-grow-1">Arrival:&nbsp;</div>
+                                <div class="flight-arrival-time flex-grow-1"><strong>@flight.Arrival</strong> - <span class="flight-time-human">(@flight.Arrival.Humanize())</span>&nbsp;</div>
+                                <div class="flight-to flex-grow-1"><strong>@flight.To</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="flight-price-and-select d-flex flex-column">
+                            <div class="flight-price font-size-large">
+                                $0.00
+                            </div>
+                            <button class="btn btn-primary">Select</button>
+                        </div>
+
+                    </div>
+                }
+            </div>
+
+    @await Html.PartialAsync("Forms/__FormProblemDetailsSummary")
+
+
+    @Html.AntiForgeryToken()
+</form>
