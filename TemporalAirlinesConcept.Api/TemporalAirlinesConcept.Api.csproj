@@ -24,8 +24,4 @@
     <ProjectReference Include="..\TemporalAirlinesConcept.Services\TemporalAirlinesConcept.Services.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Configuratoin\" />
-  </ItemGroup>
-
 </Project>
