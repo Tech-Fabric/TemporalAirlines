@@ -14,15 +14,15 @@ using TemporalAirlinesConcept.Services.Interfaces.User;
 using TemporalAirlinesConcept.Services.Profiles;
 using Temporalio.Extensions.Hosting;
 
-namespace TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
+namespace TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped(x => new CosmosClient(configuration["DatabaseSettigns:ConnectionString"]));
+        services.AddScoped(x => new CosmosClient(configuration["DatabaseSettings:ConnectionString"]));
 
-        services.Configure<DatabaseSettigns>(configuration.GetSection("DatabaseSettigns"));
+        services.Configure<DatabaseSettigns>(configuration.GetSection("DatabaseSettings"));
 
         services.AddAutoMapper(typeof(UserProfile));
         services.AddAutoMapper(typeof(FlightProfile));

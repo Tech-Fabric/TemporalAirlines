@@ -16,96 +16,14 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         private readonly IMapper _mapper;
         private readonly IFlightRepository _flightRepository;
         private readonly ITicketRepository _ticketRepository;
-        private readonly ITemporalClient _temporalClient;
 
-        public PurchaseActivities(IMapper mapper, IFlightRepository flightRepository, ITicketRepository ticketRepository, ITemporalClient temporalClient)
+        public PurchaseActivities(IMapper mapper, IFlightRepository flightRepository, ITicketRepository ticketRepository)
         {
             _mapper = mapper;
             _flightRepository = flightRepository;
             _ticketRepository = ticketRepository;
-            _temporalClient = temporalClient;
         }
-
-        [Activity]
-        public async Task<bool> IsFlightExistsAsync(string flightId)
-        {
-            var flight = await _flightRepository.GetFlightAsync(flightId);
-
-            return flight is not null;
-        }
-
-        [Activity]
-        public async Task<bool> IsFlightsAvailableAsync(IEnumerable<string> flightsId)
-        {
-            foreach (var flightId in flightsId)
-            {
-                if (!await WorkflowHadleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId)) // todo: can not use temporal client in activity ???_))))))
-                {
-                    var flight = await _flightRepository.GetFlightAsync(flightId);
-
-                    if (flight is null)
-                        throw new EntityNotFoundException("Flight was not found.");
-
-                    await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
-                        new WorkflowOptions(flightId, "flight-task-queue"));
-                }
-
-                var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
-
-                var availableSeats = await handle.QueryAsync(wf => wf.AvailableSeats());
-
-                if (availableSeats < 1) return false;
-            }
-
-            return true;
-        }
-
-        [Activity]
-        public async Task BookFlightAsync(string userId, IEnumerable<string> flightsId, string passenger)
-        {
-            foreach (var flightId in flightsId)
-            {
-                if (!await WorkflowHadleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId))
-                    throw new ApplicationException("Flight workflow does not exist");
-
-                var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
-
-                var ticket = new Ticket
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    UserId = userId,
-                    FlightId = flightId,
-                    Passenger = passenger,
-                    PaymentStatus = PaymentStatus.Pending
-                };
-
-                await handle.SignalAsync(wf => wf.BookSeatsAsync(new[] { ticket }));
-            }
-        }
-
-        [Activity]
-        public async Task BookFlightCompensationAsync(string userId, IEnumerable<string> flightsId, string passenger)
-        {
-            foreach (var flightId in flightsId)
-            {
-                if (!await WorkflowHadleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId))
-                    throw new ApplicationException("Flight workflow does not exist");
-
-                var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
-
-                var ticket = new Ticket
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    UserId = userId,
-                    FlightId = flightId,
-                    Passenger = passenger,
-                    PaymentStatus = PaymentStatus.Pending
-                };
-
-                await handle.SignalAsync(wf => wf.RemoveSeatsBookingAsync(new[] { ticket }));
-            }
-        }
-
+        
         [Activity]
         public async Task HoldMoneyAsync(string userId, IEnumerable<string> flightsId)
         {
@@ -117,27 +35,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         {
             //send request to payment service to release the money
         }
-
-        [Activity]
-        public async Task ConfirmPurchaseAsync(string userId, IEnumerable<string> flightsId, string passenger)
-        {
-            foreach (var flightId in flightsId)
-            {
-                if (!await WorkflowHadleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId))
-                    throw new ApplicationException("Flight workflow does not exist");
-
-                var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
-
-                await handle.SignalAsync(wf => wf.MarkTicketAsPaidAsync(userId, passenger));
-            }
-        }
-
-        [Activity]
-        public async Task ConfirmPurchaseCompensationAsync(string userId, IEnumerable<string> flightsId, string passenger)
-        {
-            //no need to mark ticket as unpaid if we are going to delete it in the next compensation step (BookFlightCompensationAsync)?
-        }
-
+        
         [Activity]
         public async Task<List<TicketBlobModel>> GenerateTicketsAsync(string userId, IEnumerable<string> flightsId, string passenger)
         {

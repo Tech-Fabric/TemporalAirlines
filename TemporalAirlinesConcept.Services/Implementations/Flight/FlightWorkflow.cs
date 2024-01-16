@@ -7,15 +7,20 @@ namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 [Workflow]
 public class FlightWorkflow
 {
-    private DAL.Entities.Flight _flight; // init flight model, not going to change it till the arrived state
+    // init flight model, not going to change it till the arrived state
+    private DAL.Entities.Flight _flight;
 
-    private FlightStatus _status; // current status
+    // current status
+    private FlightStatus _status;
 
-    private Dictionary<string, string> _seats; // link between seat and passenger (ticket)  |  fills while check-in
+    // link between seat and passenger (ticket)  |  fills while check-in
+    private Dictionary<string, string> _seats;
 
-    private List<Ticket> _registered; // list of passengers (tickets) | fills while booking
+    // list of passengers (tickets) | fills while booking
+    private List<Ticket> _registered;
 
-    private List<string> _boarded; // list of boarded passengers
+    // list of boarded passengers
+    private List<string> _boarded;
 
     [WorkflowRun]
     public async Task<bool> RunAsync(DAL.Entities.Flight flight)
@@ -26,9 +31,9 @@ public class FlightWorkflow
 
         _seats = flight.Seats;
 
-        _registered = new List<Ticket>();
+        _registered = [];
 
-        _boarded = new List<string>();
+        _boarded = [];
 
         _status = FlightStatus.Pending;
 

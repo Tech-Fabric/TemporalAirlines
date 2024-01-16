@@ -1,4 +1,4 @@
-using TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
+using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

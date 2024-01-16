@@ -3,7 +3,7 @@ using Temporalio.Exceptions;
 
 namespace TemporalAirlinesConcept.Common.Helpers;
 
-public class WorkflowHadleHelper
+public class WorkflowHandleHelper
 {
     public static async Task<bool> IsWorkflowExists<T>(ITemporalClient client, string workflowId)
     {

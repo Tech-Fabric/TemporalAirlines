@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
+using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 // Run worker until cancelled
 Console.WriteLine("Running worker");
