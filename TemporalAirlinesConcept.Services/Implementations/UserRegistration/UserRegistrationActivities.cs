@@ -16,15 +16,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration
         [Activity]
         public async Task SendConfirmationCode()
         {
+            //throw new Exception("Erro While Sending Code");
+
             await Task.Delay(TimeSpan.FromSeconds(25));
-        }
-
-        [Activity]
-        public async Task SendErrorConfirmationCode()
-        {
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            throw new Exception("Erro While Sending Code");
         }
 
         [Activity]
