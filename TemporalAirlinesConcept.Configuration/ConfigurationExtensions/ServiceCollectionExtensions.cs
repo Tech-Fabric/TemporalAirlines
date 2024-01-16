@@ -16,13 +16,13 @@ using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
 using TemporalAirlinesConcept.Services.Profiles;
 using Temporalio.Extensions.Hosting;
 
-namespace TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
+namespace TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped(x => new CosmosClient(configuration["DatabaseSettigns:ConnectionString"], new CosmosClientOptions
+        services.AddScoped(x => new CosmosClient(configuration["DatabaseSettings:ConnectionString"], new CosmosClientOptions
         {
             HttpClientFactory = () =>
             {
