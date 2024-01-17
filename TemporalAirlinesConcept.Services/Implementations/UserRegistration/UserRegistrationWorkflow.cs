@@ -1,5 +1,6 @@
-﻿using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
-using TemporalAirlinesConcept.Services.Models.User;
+﻿using TemporalAirlinesConcept.Common.Constants;
+using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
+using TemporalAirlinesConcept.Services.Models.UserRegistration;
 using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration;
@@ -7,41 +8,68 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration;
 [Workflow]
 public class UserRegistrationWorkflow : IUserRegistrationWorkflow
 {
+    private UserRegistrationStatus _status;
+
     private readonly ActivityOptions _options = new()
     {
-        ScheduleToCloseTimeout = TimeSpan.FromSeconds(45),
+        ScheduleToCloseTimeout = TimeSpan.FromSeconds(60),
         RetryPolicy = new Temporalio.Common.RetryPolicy
         {
-            MaximumAttempts = 3
         }
     };
 
     [WorkflowRun]
-    public async Task<bool> Run(UserRegistrationModel registrationModel)
+    public async Task<UserRegistrationStatus> Run(UserRegistrationModel registrationModel)
     {
-        var isInputValid = ValidateUser(registrationModel);
+        _status = new UserRegistrationStatus
+        {
+            ValidationErrors = ValidateUser(registrationModel)
+        };
 
-        if (!isInputValid)
-            return false;
+        if (_status.IsAnyErrors)
+            return _status;
 
         await Workflow.ExecuteActivityAsync(
             (UserRegistrationActivities act) => act.SendConfirmationCode(),
             _options);
 
-        await Workflow.DelayAsync(TimeSpan.FromMinutes(2));
+        await Workflow.DelayAsync(TimeSpan.FromMinutes(1));
 
-        await Workflow.ExecuteActivityAsync(
+        var createdUser = await Workflow.ExecuteActivityAsync(
             (UserRegistrationActivities act) => act.CreateUser(registrationModel),
             _options);
 
-        return true;
+        _status.CreatedUser = createdUser;
+
+        return _status;
     }
 
-    private bool ValidateUser(UserRegistrationModel registrationModel)
-    {
-        var isInputModelValid = !string.IsNullOrEmpty(registrationModel?.Name)
-            && !string.IsNullOrEmpty(registrationModel?.Email);
+    [WorkflowQuery]
+    public UserRegistrationStatus GetStatus() => _status;
 
-        return isInputModelValid;
+    private Dictionary<string, List<string>> ValidateUser(UserRegistrationModel registrationModel)
+    {
+        var nameModelProperty = nameof(registrationModel.Name);
+        var emailModelProperty = nameof(registrationModel.Email);
+
+        Dictionary<string, List<string>> errors = new()
+        {
+            {
+                nameModelProperty,
+                []
+            },
+            {
+                emailModelProperty,
+                []
+            }
+        };
+
+        if (string.IsNullOrEmpty(registrationModel.Name))
+            errors[nameModelProperty].Add(UserRegistrationErrors.NameIsEmpty);
+
+        if (string.IsNullOrEmpty(registrationModel.Email))
+            errors[emailModelProperty].Add(UserRegistrationErrors.EmailIsEmpty);
+
+        return errors;
     }
 }

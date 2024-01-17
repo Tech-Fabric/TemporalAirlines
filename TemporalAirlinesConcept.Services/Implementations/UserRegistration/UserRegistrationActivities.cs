@@ -1,5 +1,6 @@
 ﻿using TemporalAirlinesConcept.Services.Interfaces.User;
 using TemporalAirlinesConcept.Services.Models.User;
+using TemporalAirlinesConcept.Services.Models.UserRegistration;
 using Temporalio.Activities;
 
 namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration
@@ -16,26 +17,22 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration
         [Activity]
         public async Task SendConfirmationCode()
         {
+            //throw new Exception("Erro While Sending Code");
+
             await Task.Delay(TimeSpan.FromSeconds(25));
         }
 
         [Activity]
-        public async Task SendErrorConfirmationCode()
+        public async Task<DAL.Entities.User> CreateUser(UserRegistrationModel registrationModel)
         {
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            throw new Exception("Erro While Sending Code");
-        }
-
-        [Activity]
-        public async Task CreateUser(UserRegistrationModel registrationModel)
-        {
-            await _userService.CreateUserAsync(new UserInputModel
+            var user = await _userService.CreateUserAsync(new UserInputModel
             {
                 Email = registrationModel.Email,
                 Name = registrationModel.Name,
                 Role = "User"
             });
+
+            return user;
         }
     }
 }

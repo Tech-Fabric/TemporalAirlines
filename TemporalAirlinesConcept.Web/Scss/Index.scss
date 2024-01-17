@@ -1,0 +1,130 @@
+$bootstrap-icons-font-dir: "../lib/bootstrap-icons-1.11.3/font/fonts";
+
+@import "../wwwroot/lib/bootstrap-icons-1.11.3/font/bootstrap-icons.scss";
+
+
+// Required
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/functions";
+
+
+// Default variable overrides
+//$body-bg: #beef;
+//$body-color: #beef;
+
+$primary:       #0d6efd;
+$secondary:     #6c757d;
+$success:       #198754;
+$info:          #0dcaf0;
+$warning:       #ffc107;
+$danger:        #dc3545;
+$light:         #f8f9fa;
+$dark:          #212529;
+
+$theme-colors: (
+        "primary":    $primary,
+        "secondary":  $secondary,
+        "success":    $success,
+        "info":       $info,
+        "warning":    $warning,
+        "danger":     $danger,
+        "light":      $light,
+        "dark":       $dark
+);
+
+$primary-text-emphasis-dark: $dark;
+
+// Required
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/variables";
+
+$enable-dark-mode: false;
+
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/maps";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/mixins";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/root";
+
+// 6. Optionally include any other parts as needed
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/utilities";
+
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/reboot";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/type";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/images";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/containers";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/grid";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/tables";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/forms";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/buttons";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/transitions";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/dropdown";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/button-group";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/nav";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/navbar";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/card";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/accordion";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/breadcrumb";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/pagination";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/badge";
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/alert";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/progress";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/list-group";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/close";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/toasts";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/modal";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/tooltip";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/popover";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/carousel";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/spinners";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/offcanvas";
+//@import "../wwwroot/lib/bootstrap-5.3.2/scss/placeholders";
+
+
+// 7. Optionally include utilities API last to generate classes based on the Sass map in `_utilities.scss`
+@import "../wwwroot/lib/bootstrap-5.3.2/scss/utilities/api";
+
+
+@import "../Views/Shared/Components/FlightBookingForm/Default.scss";
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: url("/img/20201012_195538.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+header, footer {
+  background: white;
+}
+
+a.btn {
+  padding-left:0;
+  padding-right: 0;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}

@@ -17,16 +17,16 @@ public class UnitOfWork : IUnitOfWork
 
     public IFlightRepository GetFlightRepository()
     {
-        throw new NotImplementedException();
+        return _flightRepository;
     }
 
     public ITicketRepository GetTicketRepository()
     {
-        throw new NotImplementedException();
+        return _ticketRepository;
     }
 
     public IUserRepository GetUserRepository()
     {
-        throw new NotImplementedException();
+        return _userRepository;
     }
 }

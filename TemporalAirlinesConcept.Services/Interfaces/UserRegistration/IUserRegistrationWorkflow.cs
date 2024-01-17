@@ -1,4 +1,5 @@
-﻿using TemporalAirlinesConcept.Services.Models.User;
+﻿using System.Net.NetworkInformation;
+using TemporalAirlinesConcept.Services.Models.UserRegistration;
 using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
@@ -7,5 +8,8 @@ namespace TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
 public interface IUserRegistrationWorkflow
 {
     [WorkflowRun]
-    Task<bool> Run(UserRegistrationModel registrationModel);
+    Task<UserRegistrationStatus> Run(UserRegistrationModel registrationModel);
+
+    [WorkflowQuery]
+    UserRegistrationStatus GetStatus();
 }
