@@ -1,4 +1,4 @@
-﻿namespace TemporalAirlinesConcept.Services.Models.User;
+﻿namespace TemporalAirlinesConcept.Services.Models.UserRegistration;
 public class UserRegistrationModel
 {
     public string Name { get; set; }

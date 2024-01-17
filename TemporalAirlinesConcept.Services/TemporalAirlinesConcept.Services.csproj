@@ -15,8 +15,4 @@
     <ProjectReference Include="..\TemporalAirlinesConcept.DAL\TemporalAirlinesConcept.DAL.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\UserRegistration\" />
-  </ItemGroup>
-
 </Project>
