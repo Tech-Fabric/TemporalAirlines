@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TemporalAirlinesConcept.Api\TemporalAirlinesConcept.Api.csproj" />
     <ProjectReference Include="..\TemporalAirlinesConcept.Common\TemporalAirlinesConcept.Common.csproj" />
     <ProjectReference Include="..\TemporalAirlinesConcept.Configuration\TemporalAirlinesConcept.Configuration.csproj" />
     <ProjectReference Include="..\TemporalAirlinesConcept.Services\TemporalAirlinesConcept.Services.csproj" />

@@ -4,5 +4,5 @@ namespace TemporalAirlinesConcept.Services.Interfaces.Purchase;
 
 public interface ITicketService
 {
-    Task<List<DAL.Entities.Ticket>> PurchaseTicketAsync(PurchaseInputModel purchaseRequestModel);
+    Task RequestTicketPurchaseAsync(PurchaseInputModel purchaseRequestModel);
 }

@@ -37,8 +37,8 @@ public static class ServiceCollectionExtensions
             LimitToEndpoint = true
         }));
 
-        services.Configure<DatabaseSettigns>(configuration.GetSection("DatabaseSettings"));
-
+        services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
+        
         services.AddAutoMapper(typeof(UserProfile));
         services.AddAutoMapper(typeof(FlightProfile));
 

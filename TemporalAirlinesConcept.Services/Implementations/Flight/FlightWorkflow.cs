@@ -1,5 +1,4 @@
-﻿using TemporalAirlinesConcept.DAL.Entities;
-using TemporalAirlinesConcept.DAL.Enums;
+﻿using TemporalAirlinesConcept.DAL.Enums;
 using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -7,214 +6,110 @@ namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 [Workflow]
 public class FlightWorkflow
 {
-    // init flight model, not going to change it till the arrived state
-    private DAL.Entities.Flight _flight;
+    private readonly ActivityOptions _activityOptions = new ActivityOptions 
+        { StartToCloseTimeout = TimeSpan.FromSeconds(30) };
 
-    // current status
-    private FlightStatus _status;
-
-    // link between seat and passenger (ticket)  |  fills while check-in
-    private Dictionary<string, string> _seats;
-
-    // list of passengers (tickets) | fills while booking
-    private List<Ticket> _registered;
-
-    // list of boarded passengers
-    private List<string> _boarded;
-
+    private string _flightId;
+    
     [WorkflowRun]
-    public async Task<bool> RunAsync(DAL.Entities.Flight flight)
+    public async Task RunAsync(DAL.Entities.Flight flight)
     {
-        var options = new ActivityOptions { StartToCloseTimeout = TimeSpan.FromSeconds(30) };
+        _flightId = flight.Id;
+        
+        var checkInDateTime = flight.Depart.Subtract(TimeSpan.FromDays(1));
 
-        _flight = flight;
+        await DelayAsync(checkInDateTime.Subtract(Workflow.UtcNow));
 
-        _seats = flight.Seats;
+        await ChangeStatusAndSaveAsync(flight, FlightStatus.CheckIn, _activityOptions);
 
-        _registered = [];
+        var boardingDateTime = flight.Depart.Subtract(TimeSpan.FromHours(2));
 
-        _boarded = [];
+        await DelayAsync(boardingDateTime.Subtract(Workflow.UtcNow));
 
-        _status = FlightStatus.Pending;
+        await ChangeStatusAndSaveAsync(flight, FlightStatus.Boarding, _activityOptions);
 
-        var checkInDateTime = _flight.Depart.Subtract(TimeSpan.FromDays(1));
+        var closeDateTime = flight.Depart.Subtract(TimeSpan.FromMinutes(5));
 
-        var sleepDuration = checkInDateTime.Subtract(Workflow.UtcNow);
+        await DelayAsync(closeDateTime.Subtract(Workflow.UtcNow));
 
-        if (sleepDuration > TimeSpan.Zero)
+        await ChangeStatusAndSaveAsync(flight, FlightStatus.Closed, _activityOptions);
+
+        await DelayAsync(flight.Depart.Subtract(Workflow.UtcNow));
+
+        await ChangeStatusAndSaveAsync(flight, FlightStatus.Departed, _activityOptions);
+
+        await DelayAsync(flight.Arrival.Subtract(Workflow.UtcNow));
+
+        await ChangeStatusAndSaveAsync(flight, FlightStatus.Arrived, _activityOptions);
+    }
+
+    private static async Task DelayAsync(TimeSpan delay)
+    {
+        if (delay > TimeSpan.Zero)
         {
-            await Workflow.DelayAsync(sleepDuration);
+            await Workflow.DelayAsync(delay);
         }
-
-        _status = FlightStatus.CheckIn;
-
-        var boardingDateTime = _flight.Depart.Subtract(TimeSpan.FromHours(2));
-
-        sleepDuration = boardingDateTime.Subtract(Workflow.UtcNow);
-
-        if (sleepDuration > TimeSpan.Zero)
-        {
-            await Workflow.DelayAsync(sleepDuration);
-        }
-
-        _status = FlightStatus.Boarding;
-
-        var closeDateTime = _flight.Depart.Subtract(TimeSpan.FromMinutes(5));
-
-        sleepDuration = closeDateTime.Subtract(Workflow.UtcNow);
-
-        if (sleepDuration > TimeSpan.Zero)
-        {
-            await Workflow.DelayAsync(sleepDuration);
-        }
-
-        _status = FlightStatus.Closed;
-
-        sleepDuration = _flight.Depart.Subtract(Workflow.UtcNow);
-
-        if (sleepDuration > TimeSpan.Zero)
-        {
-            await Workflow.DelayAsync(sleepDuration);
-        }
-
-        _status = FlightStatus.Departed;
-
-        sleepDuration = _flight.Arrival.Subtract(Workflow.UtcNow);
-
-        if (sleepDuration > TimeSpan.Zero)
-        {
-            await Workflow.DelayAsync(sleepDuration);
-        }
-
-        _status = FlightStatus.Arrived;
-
-        _flight.Status = _status;
-        _flight.Seats = _seats;
-        _flight.Boarded = _boarded;
-        _flight.Registered = _registered.Select(reg => reg.Id).ToList();
-
-        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.SaveFlightInfoAsync(_flight), options);
-
-        return true;
     }
 
-    //Check in passenger
+    private static async Task ChangeStatusAndSaveAsync(DAL.Entities.Flight flight, FlightStatus status, ActivityOptions options)
+    {
+        flight.Status = status;
+        
+        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.SaveFlightInfoAsync(flight), options);
+    }
+    
+    /// <summary>
+    /// Mark passenger as registered for this flight by ticket id
+    /// </summary>
+    /// <param name="ticketId"></param>
     [WorkflowSignal]
-    public Task ReserveSeatAsync(string seat, string ticketId)
+    public async Task BookSeatAsync(string ticketId)
     {
-        if (_status is not FlightStatus.CheckIn)
-            throw new ApplicationException("Flight status is not check in.");
-
-        if (!_flight!.Seats.ContainsValue(seat))
-            throw new ApplicationException("Seat does not exist");
-
-        if (_seats![seat] is not null)
-            throw new ApplicationException("Seat is already reserved.");
-
-        _seats[seat] = ticketId;
-
-        return Task.CompletedTask;
+        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.BookSeatAsync(_flightId, ticketId),
+            _activityOptions);
     }
-
-    //Board passenger
+    
+    /// <summary>
+    /// Remove passenger from a registered passengers list by ticket id
+    /// </summary>
+    /// <param name="ticketId"></param>
     [WorkflowSignal]
-    public Task BoardPassengerAsync(string ticketId)
+    public async Task BookSeatCompensationAsync(string ticketId)
     {
-        // + should we check for paid ticket status?
-
-        if (_status != FlightStatus.Boarding) 
-            throw new ApplicationException("Flight status is not boarding.");
-
-        if (!_seats!.ContainsValue(ticketId)) 
-            throw new ApplicationException("Ticket ID is not valid.");
-
-        if (_boarded!.Contains(ticketId)) 
-            throw new ApplicationException("Passenger is already boarded.");
-
-        _boarded.Add(ticketId);
-
-        return Task.CompletedTask;
+        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.BookSeatCompensationAsync(_flightId, ticketId),
+            _activityOptions);
     }
-
-    //Reserve seats
+    
+    /// <summary>
+    /// Check in passenger by chosen seat and ticket id
+    /// </summary>
+    /// <param name="seat"></param>
+    /// <param name="ticketId"></param>
     [WorkflowSignal]
-    public Task BookSeatsAsync(IEnumerable<Ticket> tickets)
+    public async Task ReserveSeatAsync(string seat, string ticketId)
     {
-        if (_status != FlightStatus.Pending || _status != FlightStatus.Boarding)
-            throw new ApplicationException("Registration for a flight is being closed");
-
-        var enumerable = tickets as Ticket[] ?? tickets.ToArray();
-
-        if (!enumerable.Any()) 
-            return Task.CompletedTask;
-
-        if (enumerable.Length + _registered!.Count > _flight!.Seats.Count)
-            throw new ApplicationException("Not enough free seats to reserve a flight");
-
-        _registered.AddRange(enumerable);
-
-        return Task.CompletedTask;
+        await Workflow.ExecuteActivityAsync((FlightActivities act) =>
+            act.ReserveSeatAsync(_flightId, seat, ticketId), _activityOptions);
     }
 
-    //Reserve seats compensation
+    /// <summary>
+    /// Remove seat reservation
+    /// </summary>
+    /// <param name="seat"></param>
+    public async Task ReserveSeatCompensationAsync(string seat)
+    {
+        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.ReserveSeatCompensationAsync(_flightId, seat),
+            _activityOptions);
+    }
+
+    /// <summary>
+    /// Mark passenger as boarded by ticket id
+    /// </summary>
+    /// <param name="ticketId"></param>
     [WorkflowSignal]
-    public Task RemoveSeatsBookingAsync(IEnumerable<Ticket> tickets)
+    public async Task BoardPassengerAsync(string ticketId)
     {
-        if (_status != FlightStatus.Pending || _status != FlightStatus.Boarding)
-            throw new ApplicationException("Registration for a flight is being closed");
-
-        _registered!.RemoveAll(t => tickets.Any(ticket => ticket.Id == t.Id));
-
-        return Task.CompletedTask;
-    }
-
-    //Mark ticket as paid
-    [WorkflowSignal]
-    public Task MarkTicketAsPaidAsync(string userId, string passenger)
-    {
-        var ticket = _registered!.FirstOrDefault(t =>
-            t.UserId == userId && t.Passenger == passenger && t.FlightId == _flight!.Id);
-
-        if (ticket is null) 
-            throw new ApplicationException("Ticket was not found");
-
-        ticket.PaymentStatus = PaymentStatus.Paid;
-
-        return Task.CompletedTask;
-    }
-
-    //Get flight status
-    [WorkflowQuery]
-    public FlightStatus GetStatus()
-    {
-        return _status;
-    }
-
-    //Retrieve number of available seats
-    [WorkflowQuery]
-    public int AvailableSeats()
-    {
-        return _flight!.Seats.Count - _registered!.Count;
-    }
-
-    //Retrieve seats reservations details
-    [WorkflowQuery]
-    public Dictionary<string, string> SeatsDetails()
-    {
-        return _seats!;
-    }
-
-    //Retrieve list of registered passengers
-    [WorkflowQuery]
-    public List<Ticket> RegisteredPassengers()
-    {
-        return _registered!;
-    }
-
-    //Retrieve list of boarded passengers
-    [WorkflowQuery]
-    public List<string> BoardedPassengers()
-    {
-        return _boarded!;
+        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.BoardPassengerAsync(_flightId, ticketId),
+            _activityOptions);
     }
 }

@@ -7,7 +7,7 @@ namespace TemporalAirlinesConcept.DAL.Implementations;
 
 public class UserRepository : DbAccessService<Entities.User>, IUserRepository
 {
-    public UserRepository(CosmosClient cosmosClient, IOptions<DatabaseSettigns> options)
+    public UserRepository(CosmosClient cosmosClient, IOptions<DatabaseSettings> options)
         : base(cosmosClient, options.Value.DbName, Entities.User.Container)
     {
     }

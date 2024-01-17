@@ -1,13 +1,10 @@
 ﻿using AutoMapper;
 using TemporalAirlinesConcept.Common.Exceptions;
-using TemporalAirlinesConcept.Common.Helpers;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.DAL.Interfaces;
-using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Activities;
-using Temporalio.Client;
 
 namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 {
@@ -23,91 +20,81 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             _flightRepository = flightRepository;
             _ticketRepository = ticketRepository;
         }
+
+        [Activity]
+        public async Task<bool> IsFlightAvailableAsync(List<string> flightsId)
+        {
+            foreach (var flightId in flightsId)
+            {
+                var flight = await _flightRepository.GetFlightAsync(flightId);
+
+                if (flight.Seats.Count - flight.Registered.Count < 1) return false;
+            }
+
+            return true;
+        }
+
+        [Activity]
+        public async Task CreateTicketAsync(Ticket ticket)
+        {
+            await _ticketRepository.AddTicketAsync(ticket);
+        }
         
         [Activity]
-        public async Task HoldMoneyAsync(string userId, IEnumerable<string> flightsId)
+        public async Task CreateTicketCompensationAsync(Ticket ticket)
+        {
+            await _ticketRepository.DeleteTicketAsync(ticket.Id);
+        }
+        
+        [Activity]
+        public async Task HoldMoneyAsync()
         {
             //send request to payment service to hold money
         }
 
         [Activity]
-        public async Task HoldMoneyCompensationAsync(string userId, IEnumerable<string> flightsId)
+        public async Task HoldMoneyCompensationAsync()
         {
             //send request to payment service to release the money
         }
+
+        [Activity]
+        public async Task MarkTicketPaidAsync(string ticketId)
+        {
+            var ticket = await _ticketRepository.GetTicketAsync(ticketId);
+            
+            ticket.PaymentStatus = PaymentStatus.Paid;
+            
+            await _ticketRepository.UpdateTicketAsync(ticket);
+        }
         
         [Activity]
-        public async Task<List<TicketBlobModel>> GenerateTicketsAsync(string userId, IEnumerable<string> flightsId, string passenger)
+        public async Task<List<TicketBlobModel>> GenerateTicketsAsync()
         {
-            var tickets = new List<TicketBlobModel>();
-
-            foreach (var flightId in flightsId)
-            {
-                var flight = await _flightRepository.GetFlightAsync(flightId);
-
-                if (flight is null) throw new EntityNotFoundException("Flight was not found.");
-
-                var ticket = new TicketBlobModel
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Passenger = passenger,
-                    From = flight.From,
-                    To = flight.To,
-                    Depart = flight.Depart,
-                    Arrival = flight.Arrival,
-                    FlightNumber = flight.Id
-                };
-
-                tickets.Add(ticket);
-            }
-
-            // + save tickets to blob storage
-
-            return tickets;
+            return [];
         }
 
         [Activity]
-        public async Task GenerateTicketsCompensationAsync(IEnumerable<TicketBlobModel> list)
+        public async Task GenerateTicketsCompensationAsync()
         {
             //remove tickets from blob
         }
 
         [Activity]
-        public async Task SendTicketsAsync(string userId, IEnumerable<TicketBlobModel> tickets)
+        public async Task SendTicketsAsync()
         {
             //retrieve user mail from db and send tickets
         }
 
         [Activity]
-        public async Task SendTicketsCompensationAsync(string userId, IEnumerable<TicketBlobModel> tickets)
+        public async Task SendTicketsCompensationAsync()
         {
             //notify client about tickets cancellation
         }
+        
 
         [Activity]
-        public async Task<List<Ticket>> SaveTicketsAsync(List<TicketBlobModel> tickets)
-        {
-            var dbTickets = _mapper.Map<List<Ticket>>(tickets);
-
-            foreach (var ticket in dbTickets)
-            {
-                await _ticketRepository.AddTicketAsync(ticket);
-            }
-
-            return dbTickets;
-        }
-
-        [Activity]
-        public async Task SaveTicketsCompensationAsync(List<Ticket> tickets)
-        {
-            foreach (var ticket in tickets)
-            {
-                await _ticketRepository.DeleteTicketAsync(ticket.Id);
-            }
-        }
-
-        [Activity]
-        public async Task ConfirmWithdrawAsync(string userId, IEnumerable<string> flightsId)
+        public async Task ConfirmWithdrawAsync()
         {
             //send request to payment service to confirm a withdrawal
         }

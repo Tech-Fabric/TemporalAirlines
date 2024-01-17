@@ -6,5 +6,5 @@ public class PurchaseModel
 
     public List<string> FlightsId { get; set; }
 
-    public string Passenger { get; set; } //name todo: change to PassengerDetails
+    public string Passenger { get; set; }
 }

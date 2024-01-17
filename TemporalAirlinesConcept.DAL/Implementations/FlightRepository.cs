@@ -8,7 +8,7 @@ namespace TemporalAirlinesConcept.DAL.Implementations;
 
 public class FlightRepository : DbAccessService<Flight>, IFlightRepository
 {
-    public FlightRepository(CosmosClient cosmosClient, IOptions<DatabaseSettigns> options)
+    public FlightRepository(CosmosClient cosmosClient, IOptions<DatabaseSettings> options)
         : base(cosmosClient, options.Value.DbName, Flight.Container)
     {
     }
