@@ -1,7 +1,7 @@
 ﻿using TemporalAirlinesConcept.DAL.Factories;
 using TemporalAirlinesConcept.DAL.Interfaces;
 
-namespace TemporalAirlinesConcept.Api.Configuratoin;
+namespace TemporalAirlinesConcept.Api.Configuration;
 
 public static class DatabaseInitializer
 {
