@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TemporalAirlinesConcept.Services.Interfaces.User;
 using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
-using TemporalAirlinesConcept.Services.Models.User;
+using TemporalAirlinesConcept.Services.Models.UserRegistration;
 
 namespace TemporalAirlinesConcept.Api.Controllers
 {
@@ -36,13 +36,22 @@ namespace TemporalAirlinesConcept.Api.Controllers
             return Ok(user);
         }
 
+        // GET: api/users/registration-status/{registrationId}
+        [HttpGet("registration-status/{registrationId}")]
+        public async Task<ActionResult<UserRegistrationStatus>> GetUserRegistrationStatus(string registrationId)
+        {
+            var user = await _userRegistrationService.GetUserRegistrationInfo(registrationId);
+
+            return Ok(user);
+        }
+
         // POST: api/users
         [HttpPost]
-        public async Task<IActionResult> CreateUser(UserRegistrationModel model)
+        public async Task<IActionResult> RegisterUser(UserRegistrationModel model)
         {
-            await _userRegistrationService.RegisterUser(model);
+            var registrationId = await _userRegistrationService.RegisterUser(model);
 
-            return Ok();
+            return Ok(registrationId);
         }
 
         // DELETE: api/users/{id}

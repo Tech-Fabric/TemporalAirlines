@@ -1,9 +1,11 @@
-﻿using TemporalAirlinesConcept.Services.Models.User;
+﻿using TemporalAirlinesConcept.Services.Models.UserRegistration;
 
 namespace TemporalAirlinesConcept.Services.Interfaces.UserRegistration
 {
     public interface IUserRegistrationService
     {
-        Task RegisterUser(UserRegistrationModel registrationModel);
+        Task<string> RegisterUser(UserRegistrationModel registrationModel);
+
+        Task<UserRegistrationStatus> GetUserRegistrationInfo(string registrationId);
     }
 }
