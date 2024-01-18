@@ -11,7 +11,7 @@ public class DbAccessService<T> where T : class
     private readonly string _databaseName;
     private readonly string _containerName;
 
-    public DbAccessService(CosmosClient dbClient, string databaseName, string containerName)
+    protected DbAccessService(CosmosClient dbClient, string databaseName, string containerName)
     {
         _dbClient = dbClient;
         _databaseName = databaseName;

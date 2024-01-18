@@ -33,8 +33,6 @@ public class UserRegistrationWorkflow : IUserRegistrationWorkflow
             (UserRegistrationActivities act) => act.SendConfirmationCode(),
             _options);
 
-        await Workflow.DelayAsync(TimeSpan.FromMinutes(1));
-
         var createdUser = await Workflow.ExecuteActivityAsync(
             (UserRegistrationActivities act) => act.CreateUser(registrationModel),
             _options);
