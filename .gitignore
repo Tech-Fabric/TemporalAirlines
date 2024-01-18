@@ -362,3 +362,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /Monolith/.idea
 /temporal-server/db_data
+/.idea
