@@ -1,11 +1,11 @@
 ﻿using TemporalAirlinesConcept.DAL.Factories;
 using TemporalAirlinesConcept.DAL.Interfaces;
 
-namespace TemporalAirlinesConcept.Api.Configuratoin;
+namespace TemporalAirlinesConcept.Api.Configuration;
 
 public static class DatabaseInitializer
 {
-    public static async Task<WebApplication> InitializeDefaultUsers(this WebApplication webApp)
+    public static async Task InitializeDefaultUsers(this WebApplication webApp)
     {
         using var scope = webApp.Services.CreateScope();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
@@ -15,14 +15,10 @@ public static class DatabaseInitializer
         var users = UsersFactory.GetUsers();
         var dbUsers = await userRepository.GetUsersAsync();
 
-        foreach (var user in users)
+        foreach (var user in users.Where(user =>
+                     !dbUsers.Any(x => string.Equals(x.Email, user.Email, StringComparison.OrdinalIgnoreCase))))
         {
-            if (!dbUsers.Any(x => string.Equals(x.Email, user.Email, StringComparison.OrdinalIgnoreCase)))
-            {
-                await userRepository.AddUserAsync(user);
-            }
+            await userRepository.AddUserAsync(user);
         }
-
-        return webApp;
     }
 }

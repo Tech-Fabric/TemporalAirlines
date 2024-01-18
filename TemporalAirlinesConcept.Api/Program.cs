@@ -1,4 +1,4 @@
-using TemporalAirlinesConcept.Api.Configuratoin;
+using TemporalAirlinesConcept.Api.Configuration;
 using TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
