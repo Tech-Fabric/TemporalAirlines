@@ -14,9 +14,10 @@ public static class DatabaseInitializer
 
         var users = UsersFactory.GetUsers();
         var dbUsers = await userRepository.GetUsersAsync();
+        var usersToAdd = users
+            .Where(user => !dbUsers.Any(x => string.Equals(x.Email, user.Email, StringComparison.OrdinalIgnoreCase)));
 
-        foreach (var user in users.Where(user =>
-                     !dbUsers.Any(x => string.Equals(x.Email, user.Email, StringComparison.OrdinalIgnoreCase))))
+        foreach (var user in usersToAdd)
         {
             await userRepository.AddUserAsync(user);
         }
