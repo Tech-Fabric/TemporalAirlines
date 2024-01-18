@@ -20,29 +20,39 @@ public class TicketService : ITicketService
         _flightRepository = flightRepository;
     }
 
-    public async Task RequestTicketPurchaseAsync(PurchaseInputModel purchaseRequestModel)
+    public async Task<string> RequestTicketPurchaseAsync(PurchaseModel purchaseModel)
     {
-        //create flight workflow if not exists
-        foreach (var flightId in purchaseRequestModel.FlightsId)
+        foreach (var flightId in purchaseModel.FlightsId)
         {
-            if (await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId)) continue;
-            
-            var flight = await _flightRepository.GetFlightAsync(flightId);
-
-            if (flight is null)
-                throw new EntityNotFoundException($"Flight {flightId} was not found.");
-
-            await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
-                new WorkflowOptions(flightId, Temporal.DefaultQueue));
+            await CreateFlightWorkflowIfNotExistsAsync(flightId);
         }
         
-        //start purchase workflow
-        await _temporalClient.StartWorkflowAsync<PurchaseWorkflow>(
+        var handle = await _temporalClient.StartWorkflowAsync<PurchaseWorkflow>(
             wf => wf.RunAsync(new PurchaseModel
             {
-                FlightsId = purchaseRequestModel.FlightsId,
-                Passenger = purchaseRequestModel.PassengerDetails.Name,
-                UserId = purchaseRequestModel.UserId
-            }), new WorkflowOptions { TaskQueue = Temporal.DefaultQueue, Id = Guid.NewGuid().ToString() });
+                FlightsId = purchaseModel.FlightsId,
+                Passenger = purchaseModel.Passenger,
+                UserId = purchaseModel.UserId
+            }), new WorkflowOptions
+            {
+                TaskQueue = Temporal.DefaultQueue,
+                Id = Guid.NewGuid().ToString()
+            });
+
+        return handle.Id;
+    }
+
+    private async Task CreateFlightWorkflowIfNotExistsAsync(string flightId)
+    {
+        if (await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId))
+            return;
+            
+        var flight = await _flightRepository.GetFlightAsync(flightId);
+
+        if (flight is null)
+            throw new EntityNotFoundException($"Flight {flightId} was not found.");
+
+        await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
+            new WorkflowOptions(flightId, Temporal.DefaultQueue));
     }
 }

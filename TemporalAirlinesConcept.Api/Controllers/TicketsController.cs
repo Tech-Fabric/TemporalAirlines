@@ -16,9 +16,9 @@ namespace TemporalAirlinesConcept.Api.Controllers
         }
 
         [HttpPost("purchase")]
-        public async Task PurchaseTicketAsync(PurchaseInputModel purchaseInputModel)
+        public async Task<ActionResult<string>> PurchaseTicketAsync(PurchaseModel purchaseModel)
         {
-            await _ticketService.RequestTicketPurchaseAsync(purchaseInputModel);
+            return Ok(await _ticketService.RequestTicketPurchaseAsync(purchaseModel));
         }
     }
 }

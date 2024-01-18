@@ -10,19 +10,17 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 {
     public class PurchaseActivities
     {
-        private readonly IMapper _mapper;
         private readonly IFlightRepository _flightRepository;
         private readonly ITicketRepository _ticketRepository;
 
-        public PurchaseActivities(IMapper mapper, IFlightRepository flightRepository, ITicketRepository ticketRepository)
+        public PurchaseActivities(IFlightRepository flightRepository, ITicketRepository ticketRepository)
         {
-            _mapper = mapper;
             _flightRepository = flightRepository;
             _ticketRepository = ticketRepository;
         }
 
         [Activity]
-        public async Task<bool> IsFlightAvailableAsync(List<string> flightsId)
+        public async Task<bool> IsFlightsAvailableAsync(List<string> flightsId)
         {
             foreach (var flightId in flightsId)
             {
@@ -64,6 +62,16 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var ticket = await _ticketRepository.GetTicketAsync(ticketId);
             
             ticket.PaymentStatus = PaymentStatus.Paid;
+            
+            await _ticketRepository.UpdateTicketAsync(ticket);
+        }
+        
+        [Activity]
+        public async Task MarkTicketPaidCompensationAsync(string ticketId)
+        {
+            var ticket = await _ticketRepository.GetTicketAsync(ticketId);
+            
+            ticket.PaymentStatus = PaymentStatus.Cancelled;
             
             await _ticketRepository.UpdateTicketAsync(ticket);
         }
