@@ -1,3 +1,5 @@
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 using TemporalAirlinesConcept.Api.Configuration;
 using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
@@ -10,7 +12,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.ConfigureServices(builder.Configuration, OpenTelemetry.Exporter.ConsoleExporterOutputTargets.Debug);
+builder.Logging.AddTelemetryLogger("DI API");
+
+builder.Services.ConfigureServices(builder.Configuration, ConsoleExporterOutputTargets.Debug);
 builder.Services.ConfigureTemporalClient();
 
 // Worker for testing

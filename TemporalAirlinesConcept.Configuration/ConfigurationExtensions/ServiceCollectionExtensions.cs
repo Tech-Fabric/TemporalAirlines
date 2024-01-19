@@ -1,7 +1,9 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Trace;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Settings;
@@ -77,6 +79,9 @@ public static class ServiceCollectionExtensions
         {
             options.TargetHost = Temporal.DefaultHost;
             options.Interceptors = [new TracingInterceptor()];
+
+            // Need to check how to get
+            options.LoggerFactory = LoggerFactory.Create(builder => builder.AddTelemetryLogger("Client-T"));
         });
 
         return services;
@@ -92,6 +97,7 @@ public static class ServiceCollectionExtensions
             .ConfigureOptions(options =>
             {
                 options.Interceptors = [new TracingInterceptor()];
+                options.LoggerFactory = LoggerFactory.Create(builder => builder.AddTelemetryLogger("Worker"));
             })
             .AddScopedActivities<FlightActivities>()
             .AddWorkflow<FlightWorkflow>()

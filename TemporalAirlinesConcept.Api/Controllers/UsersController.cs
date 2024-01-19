@@ -11,11 +11,13 @@ namespace TemporalAirlinesConcept.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IUserRegistrationService _userRegistrationService;
+        private readonly ILogger _logger;
 
-        public UsersController(IUserService userService, IUserRegistrationService userRegistrationService)
+        public UsersController(IUserService userService, IUserRegistrationService userRegistrationService, ILogger<UsersController> logger)
         {
             _userService = userService;
             _userRegistrationService = userRegistrationService;
+            _logger = logger;
         }
 
         // GET: api/users
@@ -49,6 +51,8 @@ namespace TemporalAirlinesConcept.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> RegisterUser(UserRegistrationModel model)
         {
+            _logger.LogInformation("!!! --- RegisterUser --- !!!");
+
             var registrationId = await _userRegistrationService.RegisterUser(model);
 
             return Ok(registrationId);
