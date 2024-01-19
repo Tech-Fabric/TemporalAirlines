@@ -1,7 +1,4 @@
-﻿using AutoMapper;
-using TemporalAirlinesConcept.Common.Exceptions;
-using TemporalAirlinesConcept.DAL.Entities;
-using TemporalAirlinesConcept.DAL.Enums;
+﻿using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
@@ -31,15 +28,16 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         [Activity]
         public async Task<bool> IsFlightsAvailableAsync(List<string> flightsId)
         {
-            foreach (var flightHandle in flightsId.Select(flightId => 
-                         _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId)))
+            foreach (var flightId in flightsId)
             {
+                var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
+                
                 var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
                 
                 if (flight.Seats.Count - flight.Registered.Count < 1) 
                     return false;
             }
-
+            
             return true;
         }
 
