@@ -1,6 +1,8 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Trace;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Settings;
 using TemporalAirlinesConcept.DAL.Implementations;
@@ -15,14 +17,26 @@ using TemporalAirlinesConcept.Services.Interfaces.User;
 using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
 using TemporalAirlinesConcept.Services.Profiles;
 using Temporalio.Extensions.Hosting;
+using Temporalio.Extensions.OpenTelemetry;
 
-namespace TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
+namespace TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration, ConsoleExporterOutputTargets targets)
     {
-        services.AddScoped(x => new CosmosClient(configuration["DatabaseSettings:ConnectionString"], new CosmosClientOptions
+        services.AddOpenTelemetry()
+            .WithTracing(builder =>
+            {
+                builder.AddAspNetCoreInstrumentation();
+                builder.AddConsoleExporter(o => o.Targets = targets);
+                builder.AddSource(
+                    TracingInterceptor.ClientSource.Name,
+                    TracingInterceptor.WorkflowsSource.Name,
+                    TracingInterceptor.ActivitiesSource.Name);
+            });
+
+        services.AddScoped(x => new CosmosClient(configuration["DatabaseSettigns:ConnectionString"], new CosmosClientOptions
         {
             HttpClientFactory = () =>
             {
@@ -37,8 +51,8 @@ public static class ServiceCollectionExtensions
             LimitToEndpoint = true
         }));
 
-        services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
-        
+        services.Configure<DatabaseSettigns>(configuration.GetSection("DatabaseSettigns"));
+
         services.AddAutoMapper(typeof(UserProfile));
         services.AddAutoMapper(typeof(FlightProfile));
 
@@ -62,6 +76,7 @@ public static class ServiceCollectionExtensions
         services.AddTemporalClient(options =>
         {
             options.TargetHost = Temporal.DefaultHost;
+            options.Interceptors = [new TracingInterceptor()];
         });
 
         return services;
@@ -74,6 +89,10 @@ public static class ServiceCollectionExtensions
                 clientTargetHost: Temporal.DefaultHost,
                 clientNamespace: Temporal.DefaultNamespace,
                 taskQueue: Temporal.DefaultQueue)
+            .ConfigureOptions(options =>
+            {
+                options.Interceptors = [new TracingInterceptor()];
+            })
             .AddScopedActivities<FlightActivities>()
             .AddWorkflow<FlightWorkflow>()
             .AddScopedActivities<PurchaseActivities>()
