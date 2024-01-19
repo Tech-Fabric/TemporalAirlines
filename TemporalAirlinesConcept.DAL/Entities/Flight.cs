@@ -22,9 +22,9 @@ public class Flight
 
     public Dictionary<string, string> Seats { get; set; }
 
-    public List<string> Registered { get; set; }
+    public List<string> Registered { get; set; } = [];
 
-    public List<string> Boarded { get; set; }
+    public List<string> Boarded { get; set; } = [];
 
-    public FlightStatus Status { get; set; }
+    public FlightStatus Status { get; set; } = FlightStatus.Pending;
 }

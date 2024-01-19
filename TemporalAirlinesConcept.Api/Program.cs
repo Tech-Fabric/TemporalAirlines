@@ -1,5 +1,5 @@
 using TemporalAirlinesConcept.Api.Configuration;
-using TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
+using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +23,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    await app.InitializeDefaultUsers();
 }
 
 app.UseHttpsRedirection();
@@ -30,10 +31,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-if (app.Environment.IsDevelopment())
-{
-    await app.InitializeDefaultUsers();
-}
 
 app.Run();

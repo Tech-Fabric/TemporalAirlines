@@ -8,7 +8,7 @@ namespace TemporalAirlinesConcept.DAL.Implementations;
 
 public class TicketRepository : DbAccessService<Ticket>, ITicketRepository
 {
-    public TicketRepository(CosmosClient cosmosClient, IOptions<DatabaseSettigns> options)
+    public TicketRepository(CosmosClient cosmosClient, IOptions<DatabaseSettings> options)
         : base(cosmosClient, options.Value.DbName, Ticket.Container)
     {
     }

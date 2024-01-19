@@ -25,10 +25,9 @@ public class FlightService : IFlightService
     {
         var flights = await _flightRepository.GetFlightsAsync();
 
-        for (var i = 0; i < flights.Count; i++)
-        {
-            flights[i] = await GetFlightAsync(flights[i].Id);
-        }
+        var flightDetails = await Task.WhenAll(flights.Select(flight => GetFlightAsync(flight.Id)));
+
+        flights = flightDetails.ToList();
 
         return flights;
     }
@@ -40,24 +39,14 @@ public class FlightService : IFlightService
         if (flight is null)
             throw new EntityNotFoundException("Flight was not found.");
 
-        if (!await WorkflowHadleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, id))
+        if (!await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flight.Id))
             return flight;
 
-        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(id);
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id);
 
-        var status = await handle.QueryAsync(wf => wf.GetStatus());
-        var seats = await handle.QueryAsync(wf => wf.SeatsDetails());
-        var registered = await handle.QueryAsync(wf => wf.RegisteredPassengers());
-        var boarded = await handle.QueryAsync(wf => wf.BoardedPassengers());
+        var flightDetails = await handle.QueryAsync(wf => wf.GetFlightDetails());
 
-        var registeredIds = registered.Select(ticket => ticket.Id).ToList();
-
-        flight.Status = status;
-        flight.Seats = seats;
-        flight.Boarded = boarded;
-        flight.Registered = registeredIds;
-
-        return flight;
+        return _mapper.Map<DAL.Entities.Flight>(flightDetails);
     }
 
     public async Task<DAL.Entities.Flight> CreateFlightAsync(FlightInputModel model)

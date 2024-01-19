@@ -19,7 +19,7 @@ using TemporalAirlinesConcept.Services.Profiles;
 using Temporalio.Extensions.Hosting;
 using Temporalio.Extensions.OpenTelemetry;
 
-namespace TemporalAirlinesConcept.Configuration.ConfiguratoinExtensions;
+namespace TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -36,7 +36,7 @@ public static class ServiceCollectionExtensions
                     TracingInterceptor.ActivitiesSource.Name);
             });
 
-        services.AddScoped(x => new CosmosClient(configuration["DatabaseSettigns:ConnectionString"], new CosmosClientOptions
+        services.AddScoped(x => new CosmosClient(configuration["DatabaseSettings:ConnectionString"], new CosmosClientOptions
         {
             HttpClientFactory = () =>
             {
@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
             LimitToEndpoint = true
         }));
 
-        services.Configure<DatabaseSettigns>(configuration.GetSection("DatabaseSettigns"));
+        services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
 
         services.AddAutoMapper(typeof(UserProfile));
         services.AddAutoMapper(typeof(FlightProfile));
