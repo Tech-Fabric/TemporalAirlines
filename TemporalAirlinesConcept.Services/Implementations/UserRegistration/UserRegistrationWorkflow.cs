@@ -1,6 +1,8 @@
-﻿using TemporalAirlinesConcept.Common.Constants;
+﻿using System.Diagnostics;
+using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
 using TemporalAirlinesConcept.Services.Models.UserRegistration;
+using Temporalio.Extensions.OpenTelemetry;
 using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration;
@@ -9,6 +11,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration;
 public class UserRegistrationWorkflow : IUserRegistrationWorkflow
 {
     private UserRegistrationStatus _status;
+    public static readonly ActivitySource CustomSource = new("MyCustomSource");
 
     private readonly ActivityOptions _options = new()
     {
@@ -33,11 +36,14 @@ public class UserRegistrationWorkflow : IUserRegistrationWorkflow
             (UserRegistrationActivities act) => act.SendConfirmationCode(),
             _options);
 
-        var createdUser = await Workflow.ExecuteActivityAsync(
-            (UserRegistrationActivities act) => act.CreateUser(registrationModel),
-            _options);
+        using (CustomSource.TrackWorkflowDiagnosticActivity("MyCustomActivity"))
+        {
+            var createdUser = await Workflow.ExecuteActivityAsync(
+                (UserRegistrationActivities act) => act.CreateUser(registrationModel),
+                _options);
 
-        _status.CreatedUser = createdUser;
+            _status.CreatedUser = createdUser;
+        }
 
         return _status;
     }
