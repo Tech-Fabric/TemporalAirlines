@@ -2,9 +2,7 @@
 
 namespace TemporalAirlinesConcept.Services.Models.Purchase;
 
-public class SeatReservationRequestModel
+public class MarkTicketPaidRequestModel
 {
     public Ticket Ticket { get; set; }
-    
-    public string Seat { get; set; }
 }

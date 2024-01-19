@@ -1,4 +1,5 @@
 ﻿using TemporalAirlinesConcept.DAL.Enums;
+using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Workflows;
 
@@ -7,28 +8,34 @@ namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 [Workflow]
 public class FlightWorkflow
 {
-    private readonly ActivityOptions _activityOptions = new ActivityOptions 
-        { StartToCloseTimeout = TimeSpan.FromSeconds(30) };
+    private readonly ActivityOptions _activityOptions = new()
+    {
+        StartToCloseTimeout = TimeSpan.FromSeconds(30)
+    };
 
-    private string _flightId;
+    private FlightDetailsModel _flight;
     
     [WorkflowRun]
     public async Task RunAsync(DAL.Entities.Flight flight)
     {
-        _flightId = flight.Id;
+        _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) => act.MapFlightModelAsync(flight),
+            _activityOptions);
         
-        await ChangeStatusAtTimeAsync(flight, FlightStatus.CheckIn, flight.Depart.Subtract(TimeSpan.FromDays(1)));
+        await ChangeStatusAtTimeAsync(FlightStatus.CheckIn, _flight.Depart.Subtract(TimeSpan.FromDays(1)));
         
-        await ChangeStatusAtTimeAsync(flight, FlightStatus.Boarding, flight.Depart.Subtract(TimeSpan.FromHours(2)));
+        await ChangeStatusAtTimeAsync(FlightStatus.Boarding, _flight.Depart.Subtract(TimeSpan.FromHours(2)));
         
-        await ChangeStatusAtTimeAsync(flight, FlightStatus.Closed, flight.Depart.Subtract(TimeSpan.FromMinutes(5)));
+        await ChangeStatusAtTimeAsync(FlightStatus.Closed, _flight.Depart.Subtract(TimeSpan.FromMinutes(5)));
         
-        await ChangeStatusAtTimeAsync(flight, FlightStatus.Departed, flight.Depart);
+        await ChangeStatusAtTimeAsync(FlightStatus.Departed, _flight.Depart);
 
-        await ChangeStatusAtTimeAsync(flight, FlightStatus.Arrived, flight.Arrival);
+        await ChangeStatusAtTimeAsync(FlightStatus.Arrived, _flight.Arrival);
+
+        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.SaveFlightDetailsAsync(_flight),
+            _activityOptions);
     }
 
-    private async Task ChangeStatusAtTimeAsync(DAL.Entities.Flight flight, FlightStatus status, DateTime time)
+    private async Task ChangeStatusAtTimeAsync(FlightStatus status, DateTime time)
     {
         var delay = time.Subtract(Workflow.UtcNow);
         
@@ -37,74 +44,91 @@ public class FlightWorkflow
             await Workflow.DelayAsync(delay);
         }
         
-        flight.Status = status;
+        _flight.Status = status;
+    }
+
+    /// <summary>
+    /// Registers a ticket for booking.
+    /// </summary>
+    /// <param name="bookingRequestModel">The booking request model.</param>
+    [WorkflowSignal]
+    public async Task BookAsync(BookingRequestModel bookingRequestModel)
+    {
+        _flight.Registered.Add(bookingRequestModel.Ticket);
+    }
+
+    /// <summary>
+    /// Removes a ticket booking.
+    /// </summary>
+    /// <param name="bookingRequestModel">The model containing the booking request information.</param>
+    [WorkflowSignal]
+    public async Task BookCompensationAsync(BookingRequestModel bookingRequestModel)
+    {
+        var index = _flight.Registered.FindIndex(s => s.Id == bookingRequestModel.Ticket.Id);
         
-        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.SaveFlightInfoAsync(flight), _activityOptions);
+        _flight.Registered.RemoveAt(index);
     }
 
     /// <summary>
-    /// Mark passenger as registered for this flight by ticket id
+    /// Marks a ticket as paid.
     /// </summary>
-    /// <param name="bookingRequestModel"></param>
+    /// <param name="markTicketPaidRequestModel">The request model containing the ticket to be marked as paid.</param>
     [WorkflowSignal]
-    public async Task BookSeatAsync(BookingRequestModel bookingRequestModel)
+    public async Task MarkTicketPaidAsync(MarkTicketPaidRequestModel markTicketPaidRequestModel)
     {
-        await Workflow.ExecuteActivityAsync(
-            (FlightActivities act) => act.BookSeatAsync(new BookingModel
-                { FlightId = _flightId, TicketId = bookingRequestModel.TicketId }), _activityOptions);
+        var ticket = _flight.Registered.Find(s => s.Id == markTicketPaidRequestModel.Ticket.Id);
+
+        ticket.PaymentStatus = PaymentStatus.Paid;
     }
 
     /// <summary>
-    /// Remove passenger from a registered passengers list by ticket id
+    /// Marks a ticket as cancelled.
     /// </summary>
-    /// <param name="bookingRequestModel"></param>
+    /// <param name="markTicketPaidRequestModel">The model containing information about the ticket to mark as paid.</param>
     [WorkflowSignal]
-    public async Task BookSeatCompensationAsync(BookingRequestModel bookingRequestModel)
+    public async Task MarkTicketPaidCompensationAsync(MarkTicketPaidRequestModel markTicketPaidRequestModel)
     {
-        await Workflow.ExecuteActivityAsync(
-            (FlightActivities act) =>
-                act.BookSeatCompensationAsync(new BookingModel { FlightId = _flightId, TicketId = bookingRequestModel.TicketId }),
-            _activityOptions);
+        var ticket = _flight.Registered.Find(s => s.Id == markTicketPaidRequestModel.Ticket.Id);
+
+        ticket.PaymentStatus = PaymentStatus.Cancelled;
     }
 
     /// <summary>
-    /// Check in passenger by chosen seat and ticket id
+    /// Reserves a seat for a ticket in the flight.
     /// </summary>
-    /// <param name="seatReservationRequestModel"></param>
+    /// <param name="seatReservationRequestModel">The model containing the seat and ticket information.</param>
     [WorkflowSignal]
     public async Task ReserveSeatAsync(SeatReservationRequestModel seatReservationRequestModel)
     {
-        await Workflow.ExecuteActivityAsync(
-            (FlightActivities act) => act.ReserveSeatAsync(new SeatReservationModel
-            {
-                FlightId = _flightId, Seat = seatReservationRequestModel.Seat,
-                TicketId = seatReservationRequestModel.TicketId
-            }), _activityOptions);
+        _flight.Seats[seatReservationRequestModel.Seat] = seatReservationRequestModel.Ticket;
     }
 
     /// <summary>
-    /// Remove seat reservation
+    /// Removes seat reservation.
     /// </summary>
-    /// <param name="seatReservationRequestModel"></param>
+    /// <param name="seatReservationRequestModel">The seat reservation request model that contains the seat information.</param>
     public async Task ReserveSeatCompensationAsync(SeatReservationRequestModel seatReservationRequestModel)
     {
-        await Workflow.ExecuteActivityAsync(
-            (FlightActivities act) => act.ReserveSeatCompensationAsync(new SeatReservationModel
-            {
-                FlightId = _flightId, Seat = seatReservationRequestModel.Seat,
-                TicketId = seatReservationRequestModel.TicketId
-            }), _activityOptions);
+        _flight.Seats[seatReservationRequestModel.Seat] = null;
     }
 
     /// <summary>
-    /// Mark passenger as boarded by ticket id
+    /// Adds a passenger's ticket to the boarded list of a flight.
     /// </summary>
-    /// <param name="boardingRequestModel"></param>
+    /// <param name="boardingRequestModel">The model containing the information of the passenger's boarding request.</param>
     [WorkflowSignal]
     public async Task BoardPassengerAsync(BoardingRequestModel boardingRequestModel)
     {
-        await Workflow.ExecuteActivityAsync(
-            (FlightActivities act) => act.BoardPassengerAsync(new BoardingModel
-                { FlightId = _flightId, TicketId = boardingRequestModel.TicketId }), _activityOptions);
+        _flight.Boarded.Add(boardingRequestModel.Ticket);
+    }
+
+    /// <summary>
+    /// Retrieves the flight details.
+    /// </summary>
+    /// <returns>The flight details.</returns>
+    [WorkflowQuery]
+    public FlightDetailsModel GetFlightDetails()
+    {
+        return _flight;
     }
 }

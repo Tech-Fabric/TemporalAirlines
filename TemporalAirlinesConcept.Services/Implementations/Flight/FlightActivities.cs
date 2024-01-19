@@ -1,4 +1,6 @@
-﻿using TemporalAirlinesConcept.DAL.Interfaces;
+﻿using AutoMapper;
+using TemporalAirlinesConcept.DAL.Interfaces;
+using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Activities;
 
@@ -7,65 +9,27 @@ namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 public class FlightActivities
 {
     private readonly IFlightRepository _flightRepository;
+    private readonly IMapper _mapper;
 
-    public FlightActivities(IFlightRepository flightRepository)
+    public FlightActivities(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _flightRepository = flightRepository;
-    }
-    
-    [Activity]
-    public Task SaveFlightInfoAsync(DAL.Entities.Flight flight)
-    {
-        return _flightRepository.UpdateFlightAsync(flight);
+        _flightRepository = unitOfWork.GetFlightRepository();
+        _mapper = mapper;
     }
 
     [Activity]
-    public async Task BookSeatAsync(BookingModel bookingModel)
+    public async Task<FlightDetailsModel> MapFlightModelAsync(DAL.Entities.Flight flight)
     {
-        var flight = await _flightRepository.GetFlightAsync(bookingModel.FlightId);
-        
-        flight.Registered.Add(bookingModel.TicketId);
-        
-        await _flightRepository.UpdateFlightAsync(flight);
+        return _mapper.Map<FlightDetailsModel>(flight);
     }
 
     [Activity]
-    public async Task BookSeatCompensationAsync(BookingModel bookingModel)
+    public async Task<bool> SaveFlightDetailsAsync(FlightDetailsModel flightDetailsModel)
     {
-        var flight = await _flightRepository.GetFlightAsync(bookingModel.FlightId);
-
-        flight.Registered.Remove(bookingModel.TicketId);
-
-        await _flightRepository.UpdateFlightAsync(flight);
-    }
-    
-    [Activity]
-    public async Task ReserveSeatAsync(SeatReservationModel seatReservationModel)
-    {
-        var flight = await _flightRepository.GetFlightAsync(seatReservationModel.FlightId);
-
-        flight.Seats[seatReservationModel.Seat] = seatReservationModel.TicketId;
+        var flight = _mapper.Map<DAL.Entities.Flight>(flightDetailsModel);
         
         await _flightRepository.UpdateFlightAsync(flight);
-    }
 
-    [Activity]
-    public async Task ReserveSeatCompensationAsync(SeatReservationModel seatReservationModel)
-    {
-        var flight = await _flightRepository.GetFlightAsync(seatReservationModel.FlightId);
-
-        flight.Seats[seatReservationModel.Seat] = null;
-
-        await _flightRepository.UpdateFlightAsync(flight);
-    }
-
-    [Activity]
-    public async Task BoardPassengerAsync(BoardingModel boardingModel)
-    {
-        var flight = await _flightRepository.GetFlightAsync(boardingModel.FlightId);
-        
-        flight.Boarded.Add(boardingModel.TicketId);
-        
-        await _flightRepository.UpdateFlightAsync(flight);
+        return true;
     }
 }

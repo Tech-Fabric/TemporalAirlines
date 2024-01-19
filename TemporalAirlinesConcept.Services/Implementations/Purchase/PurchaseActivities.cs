@@ -3,122 +3,205 @@ using TemporalAirlinesConcept.Common.Exceptions;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.DAL.Interfaces;
+using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Activities;
+using Temporalio.Client;
 
 namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 {
     public class PurchaseActivities
     {
+        private readonly ITemporalClient _temporalClient;
         private readonly IFlightRepository _flightRepository;
         private readonly ITicketRepository _ticketRepository;
 
-        public PurchaseActivities(IFlightRepository flightRepository, ITicketRepository ticketRepository)
+        public PurchaseActivities(ITemporalClient temporalClient, IUnitOfWork unitOfWork)
         {
-            _flightRepository = flightRepository;
-            _ticketRepository = ticketRepository;
+            _temporalClient = temporalClient;
+            _flightRepository = unitOfWork.GetFlightRepository();
+            _ticketRepository = unitOfWork.GetTicketRepository();
         }
 
+        /// <summary>
+        /// Checks whether the flights specified by the flight IDs are available for booking.
+        /// </summary>
+        /// <param name="flightsId">The list of flight IDs to check for availability.</param>
+        /// <returns>Returns true if all the flights are available; otherwise, false.</returns>
         [Activity]
         public async Task<bool> IsFlightsAvailableAsync(List<string> flightsId)
         {
-            foreach (var flightId in flightsId)
+            foreach (var flightHandle in flightsId.Select(flightId => 
+                         _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId)))
             {
-                var flight = await _flightRepository.GetFlightAsync(flightId);
-
-                if (flight.Seats.Count - flight.Registered.Count < 1) return false;
+                var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
+                
+                if (flight.Seats.Count - flight.Registered.Count < 1) 
+                    return false;
             }
 
             return true;
         }
 
+        /// <summary>
+        /// Creates a ticket and books the corresponding flight.
+        /// </summary>
+        /// <param name="ticket">The ticket object to be created.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation. The task result indicates whether the ticket creation was successful or not.</returns>
         [Activity]
-        public async Task CreateTicketAsync(Ticket ticket)
+        public async Task<bool> CreateTicketAsync(Ticket ticket)
         {
-            await _ticketRepository.AddTicketAsync(ticket);
-        }
-        
-        [Activity]
-        public async Task CreateTicketCompensationAsync(Ticket ticket)
-        {
-            await _ticketRepository.DeleteTicketAsync(ticket.Id);
-        }
-        
-        [Activity]
-        public async Task HoldMoneyAsync()
-        {
-            //send request to payment service to hold money
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
+
+            await flightHandle.SignalAsync(wf =>
+                wf.BookAsync(new BookingRequestModel { Ticket = ticket }));
+
+            return true;
         }
 
+        /// <summary>
+        /// Removes a ticket from the registered list of flight.
+        /// </summary>
+        /// <param name="ticket">The ticket object representing the ticket which needs to be removed.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a boolean value indicating whether the ticket was removed successfully or not.</returns>
         [Activity]
-        public async Task HoldMoneyCompensationAsync()
+        public async Task<bool> CreateTicketCompensationAsync(Ticket ticket)
         {
-            //send request to payment service to release the money
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
+
+            await flightHandle.SignalAsync(wf =>
+                wf.BookCompensationAsync(new BookingRequestModel { Ticket = ticket }));
+
+            return true;
+        }
+        
+        [Activity]
+        public async Task<bool> HoldMoneyAsync()
+        {
+            return true;
+        }
+        
+        [Activity]
+        public async Task<bool> HoldMoneyCompensationAsync()
+        {
+            return true;
         }
 
+        /// <summary>
+        /// Marks a ticket as paid.
+        /// </summary>
+        /// <param name="ticket">The ticket to mark as paid.</param>
+        /// <returns>A boolean value indicating whether the ticket was marked as paid successfully.</returns>
         [Activity]
-        public async Task MarkTicketPaidAsync(string ticketId)
+        public async Task<bool> MarkTicketPaidAsync(Ticket ticket)
         {
-            var ticket = await _ticketRepository.GetTicketAsync(ticketId);
-            
-            ticket.PaymentStatus = PaymentStatus.Paid;
-            
-            await _ticketRepository.UpdateTicketAsync(ticket);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
+
+            await flightHandle.SignalAsync(wf =>
+                wf.MarkTicketPaidAsync(new MarkTicketPaidRequestModel { Ticket = ticket }));
+
+            return true;
         }
-        
+
+        /// <summary>
+        /// Marks a ticket as canceled.
+        /// </summary>
+        /// <param name="ticket">The ticket to mark as canceled.</param>
+        /// <returns>A boolean value indicating whether the tickets was marked as canceled successfully.</returns>
         [Activity]
-        public async Task MarkTicketPaidCompensationAsync(string ticketId)
+        public async Task<bool> MarkTicketPaidCompensationAsync(Ticket ticket)
         {
-            var ticket = await _ticketRepository.GetTicketAsync(ticketId);
-            
-            ticket.PaymentStatus = PaymentStatus.Cancelled;
-            
-            await _ticketRepository.UpdateTicketAsync(ticket);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
+
+            await flightHandle.SignalAsync(wf =>
+                wf.MarkTicketPaidCompensationAsync(new MarkTicketPaidRequestModel { Ticket = ticket }));
+
+            return true;
         }
-        
+
+        /// <summary>
+        /// Saves tickets to blob.
+        /// </summary>
+        /// <returns>A boolean value indicating whether the tickets was generated successfully.</returns>
         [Activity]
-        public async Task<List<TicketBlobModel>> GenerateTicketsAsync()
+        public async Task<List<TicketBlobModel>> GenerateBlobTicketsAsync()
         {
             return [];
         }
 
+        /// <summary>
+        /// Deletes tickets from blob.
+        /// </summary>
+        /// <returns>A boolean value indicating whether the tickets was removed successfully.</returns>
         [Activity]
-        public async Task GenerateTicketsCompensationAsync()
+        public async Task<bool> GenerateBlobTicketsCompensationAsync()
         {
-            //remove tickets from blob
+            return true;
         }
 
+        /// <summary>
+        /// Sends tickets.
+        /// </summary>
+        /// <returns>A boolean value indicating whether the tickets was sent successfully.</returns>
         [Activity]
-        public async Task SendTicketsAsync()
+        public async Task<bool> SendTicketsAsync()
         {
-            //retrieve user mail from db and send tickets
+            return true;
         }
 
+        /// <summary>
+        /// Sends tickets compensation.
+        /// </summary>
+        /// <returns>A boolean value indicating whether the tickets compensation was sent successfully.</returns>
         [Activity]
-        public async Task SendTicketsCompensationAsync()
+        public async Task<bool> SendTicketsCompensationAsync()
         {
-            //notify client about tickets cancellation
-        }
-        
-
-        [Activity]
-        public async Task ConfirmWithdrawAsync()
-        {
-            //send request to payment service to confirm a withdrawal
+            return true;
         }
 
+        /// <summary>
+        /// Saves a list of tickets.
+        /// </summary>
+        /// <param name="tickets">The list of tickets to be saved.</param>
+        /// <returns>A boolean indicating whether the tickets were saved successfully.</returns>
         [Activity]
-        public async Task<DAL.Entities.Flight> GetLastFlightAsync(string[] flightsId)
+        public async Task<bool> SaveTicketsAsync(List<Ticket> tickets)
         {
-            if (flightsId is null || flightsId.Length < 1)
-                throw new ApplicationException("flights list is empty!");
+            await Task.WhenAll(tickets.Select(ticket => _ticketRepository.AddTicketAsync(ticket)));
 
-            var lastFlight = await _flightRepository.GetFlightAsync(flightsId.LastOrDefault()!);
+            return true;
+        }
 
-            if (lastFlight is null)
-                throw new EntityNotFoundException("Flight was not found.");
+        /// <summary>
+        /// Removes the tickets.
+        /// </summary>
+        /// <param name="tickets">The list of tickets to save compensation for.</param>
+        /// <returns>The task result is true if the operation is successful; otherwise, false.</returns>
+        [Activity]
+        public async Task<bool> SaveTicketsCompensationAsync(List<Ticket> tickets)
+        {
+            await Task.WhenAll(tickets.Select(ticket => _ticketRepository.DeleteTicketAsync(ticket.Id)));
 
-            return lastFlight;
+            return true;
+        }
+
+        /// <summary>
+        /// Confirms a withdrawal.
+        /// </summary>
+        [Activity]
+        public async Task<bool> ConfirmWithdrawAsync()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Retrieves the last flight from the given list of flight IDs.
+        /// </summary>
+        /// <param name="flightsId">The list of flight IDs.</param>
+        [Activity]
+        public async Task<DAL.Entities.Flight> GetLastFlightAsync(List<string> flightsId)
+        {
+            return await _flightRepository.GetFlightAsync(flightsId.LastOrDefault()!);
         }
     }
 }

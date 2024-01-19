@@ -6,6 +6,7 @@ using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Client;
+using Temporalio.Common;
 
 namespace TemporalAirlinesConcept.Services.Implementations.Purchase;
 
@@ -26,20 +27,23 @@ public class TicketService : ITicketService
         {
             await CreateFlightWorkflowIfNotExistsAsync(flightId);
         }
+
+        var workflowId = Guid.NewGuid().ToString();
         
-        var handle = await _temporalClient.StartWorkflowAsync<PurchaseWorkflow>(
-            wf => wf.RunAsync(new PurchaseModel
-            {
-                FlightsId = purchaseModel.FlightsId,
-                Passenger = purchaseModel.Passenger,
-                UserId = purchaseModel.UserId
-            }), new WorkflowOptions
+        await _temporalClient.StartWorkflowAsync<PurchaseWorkflow>(
+            wf => wf.RunAsync(purchaseModel), new WorkflowOptions
             {
                 TaskQueue = Temporal.DefaultQueue,
-                Id = Guid.NewGuid().ToString()
+                Id = workflowId,
+                RetryPolicy = new RetryPolicy
+                {
+                    MaximumAttempts = 1,
+                    InitialInterval = TimeSpan.FromMinutes(5),
+                    BackoffCoefficient = 2
+                }
             });
 
-        return handle.Id;
+        return workflowId;
     }
 
     private async Task CreateFlightWorkflowIfNotExistsAsync(string flightId)

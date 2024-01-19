@@ -4,6 +4,7 @@ using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Common;
+using Temporalio.Exceptions;
 using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Implementations.Purchase;
@@ -11,6 +12,8 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase;
 [Workflow]
 public class PurchaseWorkflow
 {
+    private List<Ticket> _tickets = [];
+    
     private bool _isPaid = false;
 
     private bool _isCancelled = false;
@@ -33,7 +36,7 @@ public class PurchaseWorkflow
 
         try
         {
-            return await FlightWorkflowAsync(purchaseModel, saga);
+            return await FlightWorkflowBodyAsync(purchaseModel, saga);
         }
         catch (Exception)
         {
@@ -53,23 +56,21 @@ public class PurchaseWorkflow
         }
     }
 
-    private async Task<bool> FlightWorkflowAsync(PurchaseModel purchaseModel, Saga saga)
+    private async Task<bool> FlightWorkflowBodyAsync(PurchaseModel purchaseModel, Saga saga)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
             (PurchaseActivities act) => act.IsFlightsAvailableAsync(purchaseModel.FlightsId), _activityOptions);
 
             if (!isFlightsAvailable) 
                 return false;
-
-            var tickets = new List<Ticket>();
             
             foreach (var flightId in purchaseModel.FlightsId)
-                tickets.Add(await BookTicketForFlightAsync(flightId, purchaseModel, saga));
+                _tickets.Add(await BookTicketForFlightAsync(flightId, purchaseModel, saga));
             
             var isPaid = await Workflow.WaitConditionAsync(() => _isPaid, TimeSpan.FromMinutes(15));
 
             if (!isPaid) 
-                throw new ApplicationException("Tickets was not paid in 15 min.");
+                throw new ApplicationFailureException("Tickets was not paid in 15 min.");
 
             await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
                 act.HoldMoneyAsync(), _activityOptions);
@@ -77,41 +78,48 @@ public class PurchaseWorkflow
             saga.AddCompensation(async () => await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
                 act.HoldMoneyCompensationAsync(), _activityOptions));
 
-            foreach (var ticket in tickets)
+            foreach (var ticket in _tickets)
             {
-                await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.MarkTicketPaidAsync(ticket.Id),
+                await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.MarkTicketPaidAsync(ticket),
                     _activityOptions);
 
                 saga.AddCompensation(async () =>
                     await Workflow.ExecuteActivityAsync(
-                        (PurchaseActivities act) => act.MarkTicketPaidCompensationAsync(ticket.Id), _activityOptions));
+                        (PurchaseActivities act) => act.MarkTicketPaidCompensationAsync(ticket), _activityOptions));
             }
 
             await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.GenerateTicketsAsync(), _activityOptions);
+                (PurchaseActivities act) => act.GenerateBlobTicketsAsync(), _activityOptions);
 
             saga.AddCompensation(async () =>
                 await Workflow.ExecuteActivityAsync(
-                    (PurchaseActivities act) => act.GenerateTicketsCompensationAsync(), _activityOptions));
+                    (PurchaseActivities act) => act.GenerateBlobTicketsCompensationAsync(), _activityOptions));
 
             await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SendTicketsAsync(), _activityOptions);
 
             saga.AddCompensation(async () =>
                 await Workflow.ExecuteActivityAsync(
                     (PurchaseActivities act) => act.SendTicketsCompensationAsync(), _activityOptions));
+
+            await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SaveTicketsAsync(_tickets),
+                _activityOptions);
+
+            saga.AddCompensation(async () =>
+                await Workflow.ExecuteActivityAsync(
+                    (PurchaseActivities act) => act.SaveTicketsCompensationAsync(_tickets), _activityOptions));
             
             await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.ConfirmWithdrawAsync(),
                 _activityOptions);
             
             var lastFlight = await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.GetLastFlightAsync(purchaseModel.FlightsId.ToArray()), _activityOptions);
+                (PurchaseActivities act) => act.GetLastFlightAsync(purchaseModel.FlightsId), _activityOptions);
 
             var sleepDuration = lastFlight.Depart.Subtract(Workflow.UtcNow);
 
             var isCancelled = await Workflow.WaitConditionAsync(() => _isCancelled, sleepDuration);
 
             if (isCancelled)
-                throw new ApplicationException("Purchase has being cancelled");
+                throw new ApplicationFailureException("Purchase has being cancelled");
             
             return true;
     }
@@ -137,15 +145,12 @@ public class PurchaseWorkflow
             await Workflow.ExecuteActivityAsync(
                 (PurchaseActivities act) => act.CreateTicketCompensationAsync(ticket), _activityOptions));
 
-        await handle.SignalAsync(wf => wf.BookSeatAsync(new BookingRequestModel { TicketId = ticket.Id }));
-
-        saga.AddCompensation(
-            async () => await handle.SignalAsync(wf =>
-                wf.BookSeatCompensationAsync(new BookingRequestModel { TicketId = ticket.Id })));
-
         return ticket;
     }
 
+    /// <summary>
+    /// Sets the paid status to true.
+    /// </summary>
     [WorkflowSignal]
     public Task SetPaidStatus()
     {
@@ -155,6 +160,9 @@ public class PurchaseWorkflow
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Cancels the current workflow.
+    /// </summary>
     [WorkflowSignal]
     public Task Cancel()
     {
@@ -162,5 +170,15 @@ public class PurchaseWorkflow
             _isCancelled = true;
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Retrieves a list of tickets.
+    /// </summary>
+    /// <returns>A List of Ticket objects.</returns>
+    [WorkflowQuery]
+    public List<Ticket> GetTickets()
+    {
+        return _tickets;
     }
 }

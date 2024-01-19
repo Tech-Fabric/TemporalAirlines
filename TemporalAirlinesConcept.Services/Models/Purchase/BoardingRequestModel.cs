@@ -1,6 +1,8 @@
-﻿namespace TemporalAirlinesConcept.Services.Models.Purchase;
+﻿using TemporalAirlinesConcept.DAL.Entities;
+
+namespace TemporalAirlinesConcept.Services.Models.Purchase;
 
 public class BoardingRequestModel
 {
-    public string TicketId { get; set; }
+    public Ticket Ticket { get; set; }
 }

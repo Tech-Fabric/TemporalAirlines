@@ -23,7 +23,13 @@ public class FlightService : IFlightService
 
     public async Task<List<DAL.Entities.Flight>> GetFlightsAsync()
     {
-        return await _flightRepository.GetFlightsAsync();
+        var flights = await _flightRepository.GetFlightsAsync();
+
+        var flightDetails = await Task.WhenAll(flights.Select(flight => GetFlightAsync(flight.Id)));
+
+        flights = flightDetails.ToList();
+
+        return flights;
     }
 
     public async Task<DAL.Entities.Flight> GetFlightAsync(string id)
@@ -33,7 +39,14 @@ public class FlightService : IFlightService
         if (flight is null)
             throw new EntityNotFoundException("Flight was not found.");
 
-        return flight;
+        if (!await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flight.Id))
+            throw new InvalidOperationException("Flight workflow does not exist.");
+
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id);
+
+        var flightDetails = await handle.QueryAsync(wf => wf.GetFlightDetails());
+
+        return _mapper.Map<DAL.Entities.Flight>(flightDetails);
     }
 
     public async Task<DAL.Entities.Flight> CreateFlightAsync(FlightInputModel model)
