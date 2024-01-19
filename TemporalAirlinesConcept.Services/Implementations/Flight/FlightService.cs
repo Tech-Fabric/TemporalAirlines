@@ -40,7 +40,7 @@ public class FlightService : IFlightService
             throw new EntityNotFoundException("Flight was not found.");
 
         if (!await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flight.Id))
-            throw new InvalidOperationException("Flight workflow does not exist.");
+            return flight;
 
         var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id);
 
