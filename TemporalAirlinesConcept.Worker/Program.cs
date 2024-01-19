@@ -26,7 +26,7 @@ async Task RunWorkerAsync()
             {
                 services
                     // Add the services
-                    .ConfigureServices(hostContext.Configuration)
+                    .ConfigureServices(hostContext.Configuration, OpenTelemetry.Exporter.ConsoleExporterOutputTargets.Console)
                     // Add the worker
                     .ConfigureTemporalWorker();
             })
