@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
 using TemporalAirlinesConcept.Services.Models.UserRegistration;
@@ -35,6 +36,13 @@ public class UserRegistrationWorkflow : IUserRegistrationWorkflow
         await Workflow.ExecuteActivityAsync(
             (UserRegistrationActivities act) => act.SendConfirmationCode(),
             _options);
+
+        // Worker
+        Workflow.Logger.LogInformation($"!!! --- Workflow Run {Workflow.Logger.GetType().FullName} --- !!!");
+
+        await Workflow.ExecuteActivityAsync(
+           (UserRegistrationActivities act) => act.LogMessage(),
+           _options);
 
         using (CustomSource.TrackWorkflowDiagnosticActivity("MyCustomActivity"))
         {
