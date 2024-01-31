@@ -10,11 +10,6 @@
     <DockerServiceName>temporalairlinesconcept.api</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="fff\**" />
-    <None Remove="oo\**" />
-    <None Remove="temporal-server\**" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include=".dockerignore" />
     <None Include=".env" />
     <None Include="docker-compose.override.yml">

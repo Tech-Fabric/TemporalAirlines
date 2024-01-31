@@ -90,6 +90,11 @@ services:
     environment:
       - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10  
       - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
+    healthcheck:
+       test: ["CMD", "curl", "-f", "-k", "https://cosmosdb-emulator:8081/_explorer/emulator.pem"]
+       interval: 10s
+       timeout: 10s
+       retries: 10
     networks:
       - temporal-network
     volumes:
@@ -104,16 +109,21 @@ services:
       - 5222:5050
     healthcheck:
       # test: ["CMD", "sh", "-c", "curl -f http://cosmosdb-emulator:8081 && curl -f http://temporal:7233"]
-      test: ["CMD", "sh", "-c", "curl -f http://cosmosdb-emulator:8081"]
-      interval: 5s
+      # test: ["CMD", "sh", "-c", "curl -f https://localhost:8081/_explorer/index.html"]
+      # test: ["CMD", "curl", "-fail", "https://cosmosdb-emulator:8081/_explorer/index.html"]
+      test: curl -f https://cosmosdb-emulator:8081/_explorer/index.html || exit 1
+      interval: 10s
       timeout: 10s
-      retries: 6
+      retries: 10
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5050
     depends_on:
       - cosmosdb-emulator
       - temporal
+    # command: ["/bin/sh", "-c", "sleep 45 && dotnet TemporalAirlinesConcept.Api.dll"]
+    # command: ["sleep", "60"]
+    command: ["./init-script.sh"]
     networks:
       - temporal-network
 
