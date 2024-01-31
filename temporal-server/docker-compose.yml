@@ -95,21 +95,27 @@ services:
     volumes:
        - ./db_data:/data/db
 
-  # dotnet-app:  
-  #   container_name: dotnet-app
-  #   build:
-  #     context: ./../  # Specify the path to your .NET application
-  #     dockerfile: TemporalAirlinesConcept.Api/Dockerfile  # Replace with the actual name of your Dockerfile
-  #   ports:
-  #     - 5222:80
-  #   environment:
-  #     - ASPNETCORE_ENVIRONMENT=Development
-  #     - ASPNETCORE_URLS=http://+:80
-  #   # environment:
-  #   #   - ASPNETCORE_URLS=http://+:5167
-  #   #   - ANOTHER_PORT=5166
-  #   networks:
-  #     - temporal-network
+  temporalairlinesconcept.api:  
+    container_name: temporalairlinesconcept.api
+    build:
+      context: ./../  # Specify the path to your .NET application
+      dockerfile: TemporalAirlinesConcept.Api/Dockerfile  # Replace with the actual name of your Dockerfile
+    ports:
+      - 5222:5050
+    healthcheck:
+      # test: ["CMD", "sh", "-c", "curl -f http://cosmosdb-emulator:8081 && curl -f http://temporal:7233"]
+      test: ["CMD", "sh", "-c", "curl -f http://cosmosdb-emulator:8081"]
+      interval: 5s
+      timeout: 10s
+      retries: 6
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5050
+    depends_on:
+      - cosmosdb-emulator
+      - temporal
+    networks:
+      - temporal-network
 
 networks:
   temporal-network:

@@ -31,4 +31,4 @@ COPY --from=publish /app/publish .
 #ENV ASPNETCORE_URLS=http://+:5167
 #ENV ASPNETCORE_URLS=http://0.0.0.0:${HOST_PORT};http://+:5167
 
-ENTRYPOINT ["dotnet", "TemporalAirlinesConcept.Api.dll"]
+CMD sleep 45 && dotnet TemporalAirlinesConcept.Api.dll
