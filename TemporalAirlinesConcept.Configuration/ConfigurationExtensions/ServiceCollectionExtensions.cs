@@ -51,14 +51,9 @@ public static class ServiceCollectionExtensions
             },
             ConnectionMode = ConnectionMode.Gateway,
             LimitToEndpoint = true,
-            //MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(30),
-            //MaxRetryAttemptsOnRateLimitedRequests = 10
+            MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(30),
+            MaxRetryAttemptsOnRateLimitedRequests = 10
         }));
-
-        //services.AddHealthChecks().AddAzureCosmosDB(clientFactory: x => new CosmosClient
-        //{
-            
-        //});
 
         services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
 
