@@ -5,11 +5,6 @@ using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-if (builder.Environment.IsDevelopment())
-{
-    await Task.Delay(TimeSpan.FromSeconds(100));
-}
-
 // Add services to the container.
 builder.Services.AddControllers();
 
@@ -33,7 +28,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    await app.InitializeDefaultUsers();
+    await app.CheckCosmosDb();
+    await app.InitializeDb();
 }
 
 app.UseHttpsRedirection();
