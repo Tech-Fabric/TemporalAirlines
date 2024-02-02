@@ -24,11 +24,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Set the ASPNETCORE_URLS environment variable to specify the desired port
-#ENV HOST_PORT=8080
-
-# Set the ASPNETCORE_URLS environment variable to include the host port
-#ENV ASPNETCORE_URLS=http://+:5167
-#ENV ASPNETCORE_URLS=http://0.0.0.0:${HOST_PORT};http://+:5167
-
 CMD sleep 45 && dotnet TemporalAirlinesConcept.Api.dll
