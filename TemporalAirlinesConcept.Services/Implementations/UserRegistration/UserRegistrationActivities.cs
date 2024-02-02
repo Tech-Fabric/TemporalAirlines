@@ -18,20 +18,6 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration
         }
 
         [Activity]
-        public Task LogMessage()
-        {
-            var logMessage = "!!! --- Activity Execution --- !!!";
-
-            // Worker
-            ActivityExecutionContext.Current.Logger.LogInformation(logMessage);
-
-            // DI
-            _logger.LogInformation(logMessage);
-
-            return Task.CompletedTask;
-        }
-
-        [Activity]
         public Task SendConfirmationCode()
         {
             //throw new Exception("Error While Sending Confirmation Code");

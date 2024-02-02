@@ -15,6 +15,13 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration
             _temporalClient = temporalClient;
         }
 
+        public async Task ConfirmUser(string registrationId)
+        {
+            var registrationHandle = GetWorkflow<IUserRegistrationWorkflow>(registrationId);
+
+            await registrationHandle.SignalAsync(x => x.Confirm());
+        }
+
         public async Task<UserRegistrationStatus> GetUserRegistrationInfo(string registrationId)
         {
             var registrationHandle = GetWorkflow<IUserRegistrationWorkflow>(registrationId);

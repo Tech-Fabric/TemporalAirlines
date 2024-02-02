@@ -10,5 +10,10 @@
         {
             get => ValidationErrors.Any(x => x.Value.Count > 0);
         }
+
+        public bool IsUserCreated
+        {
+            get => CreatedUser != null;
+        }
     }
 }

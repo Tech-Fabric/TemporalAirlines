@@ -11,13 +11,11 @@ namespace TemporalAirlinesConcept.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IUserRegistrationService _userRegistrationService;
-        private readonly ILogger _logger;
 
-        public UsersController(IUserService userService, IUserRegistrationService userRegistrationService, ILogger<UsersController> logger)
+        public UsersController(IUserService userService, IUserRegistrationService userRegistrationService)
         {
             _userService = userService;
             _userRegistrationService = userRegistrationService;
-            _logger = logger;
         }
 
         // GET: api/users
@@ -38,8 +36,8 @@ namespace TemporalAirlinesConcept.Api.Controllers
             return Ok(user);
         }
 
-        // GET: api/users/registration-status/{registrationId}
-        [HttpGet("registration-status/{registrationId}")]
+        // GET: api/users/registration/{registrationId}
+        [HttpGet("registration/{registrationId}")]
         public async Task<ActionResult<UserRegistrationStatus>> GetUserRegistrationStatus(string registrationId)
         {
             var user = await _userRegistrationService.GetUserRegistrationInfo(registrationId);
@@ -47,12 +45,19 @@ namespace TemporalAirlinesConcept.Api.Controllers
             return Ok(user);
         }
 
-        // POST: api/users
+        // PUT: api/users/registration/{registrationId}
+        [HttpPut("registration/{registrationId}")]
+        public async Task<IActionResult> ConfirmUser(string registrationId)
+        {
+            await _userRegistrationService.ConfirmUser(registrationId);
+
+            return Ok();
+        }
+
+        // POST: api/users/
         [HttpPost]
         public async Task<IActionResult> RegisterUser(UserRegistrationModel model)
         {
-            _logger.LogInformation("!!! --- RegisterUser --- !!!");
-
             var registrationId = await _userRegistrationService.RegisterUser(model);
 
             return Ok(registrationId);

@@ -1,9 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using TemporalAirlinesConcept.Common.Constants;
+﻿using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
 using TemporalAirlinesConcept.Services.Models.UserRegistration;
-using Temporalio.Extensions.OpenTelemetry;
 using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration;
@@ -12,7 +9,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration;
 public class UserRegistrationWorkflow : IUserRegistrationWorkflow
 {
     private UserRegistrationStatus _status;
-    public static readonly ActivitySource CustomSource = new("MyCustomSource");
+    private bool _isConfirmed;
 
     private readonly ActivityOptions _options = new()
     {
@@ -37,14 +34,9 @@ public class UserRegistrationWorkflow : IUserRegistrationWorkflow
             (UserRegistrationActivities act) => act.SendConfirmationCode(),
             _options);
 
-        // Worker
-        Workflow.Logger.LogInformation($"!!! --- Workflow Run {Workflow.Logger.GetType().FullName} --- !!!");
+        var confirmationResult = await Workflow.WaitConditionAsync(() => _isConfirmed, TimeSpan.FromDays(5));
 
-        await Workflow.ExecuteActivityAsync(
-           (UserRegistrationActivities act) => act.LogMessage(),
-           _options);
-
-        using (CustomSource.TrackWorkflowDiagnosticActivity("MyCustomActivity"))
+        if (confirmationResult)
         {
             var createdUser = await Workflow.ExecuteActivityAsync(
                 (UserRegistrationActivities act) => act.CreateUser(registrationModel),
@@ -58,6 +50,9 @@ public class UserRegistrationWorkflow : IUserRegistrationWorkflow
 
     [WorkflowQuery]
     public UserRegistrationStatus GetStatus() => _status;
+
+    [WorkflowSignal]
+    public async Task Confirm() => _isConfirmed = true;
 
     private Dictionary<string, List<string>> ValidateUser(UserRegistrationModel registrationModel)
     {

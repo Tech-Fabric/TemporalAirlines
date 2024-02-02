@@ -12,4 +12,7 @@ public interface IUserRegistrationWorkflow
 
     [WorkflowQuery]
     UserRegistrationStatus GetStatus();
+
+    [WorkflowSignal]
+    Task Confirm();
 }
