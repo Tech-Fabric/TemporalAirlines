@@ -11,25 +11,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Ser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Worker", "TemporalAirlinesConcept.Worker\TemporalAirlinesConcept.Worker.csproj", "{9ED537E0-BB40-4CB5-B4C4-8F9F2D1287C0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "temporal-server", "temporal-server", "{BC3DB353-D64D-44B3-A713-99192D0242DE}"
-	ProjectSection(SolutionItems) = preProject
-		temporal-server\.env = temporal-server\.env
-		temporal-server\docker-compose.yml = temporal-server\docker-compose.yml
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dynamicconfig", "dynamicconfig", "{BA3627C7-AB36-422A-864F-2C0D41708911}"
-	ProjectSection(SolutionItems) = preProject
-		temporal-server\dynamicconfig\development-cass.yaml = temporal-server\dynamicconfig\development-cass.yaml
-		temporal-server\dynamicconfig\development-sql.yaml = temporal-server\dynamicconfig\development-sql.yaml
-		temporal-server\dynamicconfig\docker.yaml = temporal-server\dynamicconfig\docker.yaml
-		temporal-server\dynamicconfig\README.md = temporal-server\dynamicconfig\README.md
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Api", "TemporalAirlinesConcept.Api\TemporalAirlinesConcept.Api.csproj", "{BA191BB5-385B-481C-A368-243791F50CBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporalAirlinesConcept.Configuration", "TemporalAirlinesConcept.Configuration\TemporalAirlinesConcept.Configuration.csproj", "{13152A05-BF9D-4848-94CB-CD4BC4AB697D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Configuration", "TemporalAirlinesConcept.Configuration\TemporalAirlinesConcept.Configuration.csproj", "{13152A05-BF9D-4848-94CB-CD4BC4AB697D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemporalAirlinesConcept.Web", "TemporalAirlinesConcept.Web\TemporalAirlinesConcept.Web.csproj", "{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Web", "TemporalAirlinesConcept.Web\TemporalAirlinesConcept.Web.csproj", "{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "temporal-server", "temporal-server", "{8CFE4D4C-48C7-472D-AB50-80D834E14526}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "temporal-server\docker-compose.dcproj", "{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,12 +55,16 @@ Global
 		{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{BA3627C7-AB36-422A-864F-2C0D41708911} = {BC3DB353-D64D-44B3-A713-99192D0242DE}
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A} = {8CFE4D4C-48C7-472D-AB50-80D834E14526}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5F11674D-EC18-4A8D-97B7-629912010BC8}

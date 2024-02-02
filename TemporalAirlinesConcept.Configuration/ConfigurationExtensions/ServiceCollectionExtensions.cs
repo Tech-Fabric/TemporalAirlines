@@ -50,7 +50,9 @@ public static class ServiceCollectionExtensions
                 return new HttpClient(httpMessageHandler);
             },
             ConnectionMode = ConnectionMode.Gateway,
-            LimitToEndpoint = true
+            LimitToEndpoint = true,
+            MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(30),
+            MaxRetryAttemptsOnRateLimitedRequests = 10
         }));
 
         services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));

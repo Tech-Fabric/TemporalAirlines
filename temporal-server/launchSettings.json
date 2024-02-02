@@ -1,0 +1,20 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "temporalairlinesconcept.api",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
+      "serviceActions": {
+        "temporalairlinesconcept.api": "StartDebugging",
+        "cosmosdb-emulator": "StartWithoutDebugging",
+        "elasticsearch": "StartWithoutDebugging",
+        "postgresql": "StartWithoutDebugging",
+        "temporal": "StartWithoutDebugging",
+        "temporal-admin-tools": "StartWithoutDebugging",
+        "temporal-ui": "StartWithoutDebugging"
+      }
+    }
+  }
+}

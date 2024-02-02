@@ -33,7 +33,7 @@ app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
-    await app.InitializeDefaultUsers();
+    await app.InitializeDb();
 }
 
 app.MapControllerRoute(

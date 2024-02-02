@@ -27,7 +27,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    await app.InitializeDefaultUsers();
+
+    await app.CheckCosmosDb();
+    await app.InitializeDb();
 }
 
 app.UseHttpsRedirection();
