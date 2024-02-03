@@ -16452,6 +16452,31 @@ textarea.form-control-lg {
 .form-flight-booking .flight-price {
   font-size: 30px;
 }
+.form-flight-booking .seat-row {
+  margin-bottom: 15px;
+}
+.form-flight-booking .seat-row .seat {
+  width: 50px;
+  cursor: pointer;
+}
+.form-flight-booking .seat-row .seat input {
+  width: 50px;
+  position: absolute;
+  height: 50px;
+  opacity: 0;
+  cursor: pointer;
+}
+.form-flight-booking .seat-row .seat .seat-indicator {
+  width: 50px;
+  cursor: pointer;
+}
+.form-flight-booking .seat-row .seat input:checked ~ .seat-indicator {
+  background-color: #198754;
+  border-color: #198754;
+}
+.form-flight-booking .seat-row .seat:nth-child(3) {
+  margin-right: 20%;
+}
 
 html, body {
   height: 100%;
@@ -16465,6 +16490,13 @@ body {
 
 header, footer {
   background: white;
+}
+
+footer {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
 }
 
 a.btn {
@@ -16488,14 +16520,6 @@ a.navbar-brand {
 button.accept-policy {
   font-size: 1rem;
   line-height: inherit;
-}
-
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
 }
 
 /*# sourceMappingURL=index.css.map */

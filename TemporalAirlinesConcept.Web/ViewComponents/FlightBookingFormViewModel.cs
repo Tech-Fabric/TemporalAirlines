@@ -13,4 +13,5 @@ public class FlightBookingFormViewModel
 
     public List<Flight>? Flights { get; set; }
     public Dictionary<string,string>? Airports { get; set; }
+    public Dictionary<string,bool>? SelectedSeats { get; set; }
 }
