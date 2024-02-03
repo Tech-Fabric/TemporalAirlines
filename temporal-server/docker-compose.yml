@@ -118,7 +118,6 @@ services:
     depends_on:
       - cosmosdb-emulator
       - temporal
-    command: ["./init-script.sh"]
     networks:
       - temporal-network
 
