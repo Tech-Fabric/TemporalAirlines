@@ -98,7 +98,8 @@ services:
     networks:
       - temporal-network
     volumes:
-       - ./db_data:/data/db
+       - ./db_data:/tmp/cosmos/appdata # linux path
+       #- ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
 
   temporalairlinesconcept.api:  
     container_name: temporalairlinesconcept.api
@@ -118,7 +119,28 @@ services:
     depends_on:
       - cosmosdb-emulator
       - temporal
-    command: ["./init-script.sh"]
+    networks:
+      - temporal-network
+
+  temporalairlinesconcept.web:
+    container_name: temporalairlinesconcept.web
+    build:
+      context: ./../  # Specify the path to your .NET application
+      dockerfile: TemporalAirlinesConcept.Web/Dockerfile  # Replace with the actual name of your Dockerfile
+    ports:
+      - 5223:5050
+    healthcheck:
+      test: curl -f https://cosmosdb-emulator:8081/_explorer/index.html || exit 1
+      interval: 15s
+      timeout: 15s
+      retries: 15
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5050
+    depends_on:
+      - cosmosdb-emulator
+      - temporal
+    command: [ "./init-script.sh" ]
     networks:
       - temporal-network
 

@@ -26,4 +26,35 @@
   .flight-price {
     font-size: 30px;
   }
+
+  .seat-row {
+    margin-bottom: 15px;
+
+    .seat {
+      width: 50px;
+      cursor:pointer;
+
+      input {
+        width: 50px;
+        position: absolute;
+        height: 50px;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .seat-indicator {
+        width: 50px;
+        cursor: pointer;
+      }
+    }
+
+    .seat input:checked ~ .seat-indicator {
+      background-color: #198754;
+      border-color: #198754;
+    }
+
+    .seat:nth-child(3) {
+      margin-right: 20%;
+    }
+  }
 }

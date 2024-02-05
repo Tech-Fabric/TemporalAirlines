@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Htmx;
+using Microsoft.AspNetCore.Mvc;
+using TemporalAirlinesConcept.Services.Implementations.Purchase;
+using TemporalAirlinesConcept.Services.Models.Purchase;
 using TemporalAirlinesConcept.Web.ViewComponents;
 
 namespace TemporalAirlinesConcept.Web.Controllers;
@@ -7,20 +10,51 @@ namespace TemporalAirlinesConcept.Web.Controllers;
 [Route("flights")]
 public class FlightController : Controller
 {
-    public FlightController()
-    {
+    private readonly TicketService _ticketService;
 
+    public FlightController(TicketService ticketService)
+    {
+        _ticketService = ticketService;
     }
 
     [HttpGet("form")]
     public async Task<IActionResult> Form()
     {
-        return ViewComponent(typeof(FlightBookingFormViewComponent));
+        if (Request.IsHtmx())
+        {
+            return ViewComponent(typeof(FlightBookingFormViewComponent));
+        }
+        else
+        {
+            return View("~/Views/Home/Index.cshtml");
+        }
     }
 
     [HttpPost("form")]
-    public async Task<IActionResult> Form([FromForm] FlightBookingFormViewModel model)
+    public async Task<IActionResult> Form([FromForm] FlightBookingFormViewModel model, [FromQuery] string? selectedFlight)
     {
-        return ViewComponent(typeof(FlightBookingFormViewComponent), model);
+        if (!string.IsNullOrEmpty(selectedFlight))
+        {
+            model.SelectedFlight = selectedFlight;
+        }
+
+        if (model.SelectedSeats.Values.Any(v => v))
+        {
+            var result = await _ticketService.RequestTicketPurchaseAsync(
+                new PurchaseModel()
+                {
+                    FlightsId = new List<string>() { model.SelectedFlight }
+                }
+            );
+        }
+
+        if (Request.IsHtmx())
+        {
+            return ViewComponent(typeof(FlightBookingFormViewComponent), model);
+        }
+        else
+        {
+            return View("~/Views/Home/Index.cshtml", model);
+        }
     }
 }

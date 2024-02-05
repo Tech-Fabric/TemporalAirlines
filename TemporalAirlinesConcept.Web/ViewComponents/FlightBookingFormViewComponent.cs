@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TemporalAirlinesConcept.Services.Interfaces.Flight;
+using TemporalAirlinesConcept.Services.Models.Flight;
 
 namespace TemporalAirlinesConcept.Web.ViewComponents;
 
@@ -7,83 +8,72 @@ public class FlightBookingFormViewComponent : ViewComponent
 {
     private readonly Dictionary<string, string> _airports = new Dictionary<string, string>()
     {
-        { "LAX" ,"Los Angeles International Airport" },
-        { "JFK" ,"John F. Kennedy International Airport" },
-        { "LHR" ,"London Heathrow Airport" },
-        { "HND" ,"Tokyo International Airport" },
-        { "ATL" ,"Hartsfield Jackson Atlanta International" },
-        { "CDG" ,"Charles de Gaulle Airport" },
-        { "FRA" ,"Frankfurt Airport" },
-        { "AMS" ,"Amsterdam Airport Schiphol" },
-        { "IST" ,"Istanbul Airport" },
-        { "MAD" ,"Madrid Barajas Airport" },
-        { "BCN" ,"Barcelona–El Prat Airport" },
-        { "DUB" ,"Dublin Airport" },
-        { "ZRH" ,"Zurich Airport" },
-        { "LIS" ,"Lisbon Airport" },
-        { "FCO" ,"Fiumicino" },
-        { "SVO" ,"Sheremetyevo" },
+        { "LAX", "Los Angeles International Airport" },
+        { "JFK", "John F. Kennedy International Airport" },
+        { "LHR", "London Heathrow Airport" },
+        { "HND", "Tokyo International Airport" },
+        { "ATL", "Hartsfield Jackson Atlanta International" },
+        { "CDG", "Charles de Gaulle Airport" },
+        { "FRA", "Frankfurt Airport" },
+        { "AMS", "Amsterdam Airport Schiphol" },
+        { "IST", "Istanbul Airport" },
+        { "MAD", "Madrid Barajas Airport" },
+        { "BCN", "Barcelona–El Prat Airport" },
+        { "DUB", "Dublin Airport" },
+        { "ZRH", "Zurich Airport" },
+        { "LIS", "Lisbon Airport" },
+        { "FCO", "Fiumicino" },
+        { "SVO", "Sheremetyevo" },
     };
-    //
-    // private readonly List<FlightViewModel> _flights = new List<FlightViewModel>()
-    // {
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Amsterdam Airport Schiphol", ArrivalAirport = "Charles De Gaulle Airport", DepartureTime = DateTime.Now.AddHours(2),
-    //         ArrivalTime = DateTime.Now.AddHours(4), Airline = "KLM", FlightNumber = "KL1234"
-    //     },
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Heathrow Airport", ArrivalAirport = "Frankfurt Airport", DepartureTime = DateTime.Now.AddHours(3),
-    //         ArrivalTime = DateTime.Now.AddHours(5), Airline = "Lufthansa", FlightNumber = "LH5678"
-    //     },
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Istanbul Airport", ArrivalAirport = "Zurich Airport", DepartureTime = DateTime.Now.AddHours(3),
-    //         ArrivalTime = DateTime.Now.AddHours(6), Airline = "Turkish Airlines", FlightNumber = "TK9101"
-    //     },
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Madrid Barajas Airport", ArrivalAirport = "Lisbon Airport", DepartureTime = DateTime.Now.AddHours(1),
-    //         ArrivalTime = DateTime.Now.AddHours(3), Airline = "Iberia", FlightNumber = "IB7412"
-    //     },
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Dublin Airport", ArrivalAirport = "Heathrow Airport", DepartureTime = DateTime.Now.AddHours(2),
-    //         ArrivalTime = DateTime.Now.AddHours(4), Airline = "British Airways", FlightNumber = "BA8833"
-    //     },
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Barcelona-El Prat Airport", ArrivalAirport = "Frankfurt Airport", DepartureTime = DateTime.Now.AddHours(3),
-    //         ArrivalTime = DateTime.Now.AddHours(5), Airline = "Lufthansa", FlightNumber = "LH3456"
-    //     },
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Charles De Gaulle Airport", ArrivalAirport = "Madrid Barajas Airport", DepartureTime = DateTime.Now.AddHours(1),
-    //         ArrivalTime = DateTime.Now.AddHours(3), Airline = "Air France", FlightNumber = "AF5621"
-    //     },
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Zurich Airport", ArrivalAirport = "Amsterdam Airport Schiphol", DepartureTime = DateTime.Now.AddHours(2),
-    //         ArrivalTime = DateTime.Now.AddHours(4), Airline = "KLM", FlightNumber = "KL6449"
-    //     },
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Lisbon Airport", ArrivalAirport = "Istanbul Airport", DepartureTime = DateTime.Now.AddHours(3),
-    //         ArrivalTime = DateTime.Now.AddHours(7), Airline = "Turkish Airlines", FlightNumber = "TK2825"
-    //     },
-    //     new FlightViewModel
-    //     {
-    //         DepartureAirport = "Frankfurt Airport", ArrivalAirport = "Dublin Airport", DepartureTime = DateTime.Now.AddHours(1),
-    //         ArrivalTime = DateTime.Now.AddHours(2), Airline = "Ryanair", FlightNumber = "FR4332"
-    //     },
-    // };
 
     private readonly IFlightService _flightService;
 
     public FlightBookingFormViewComponent(IFlightService flightService)
     {
         _flightService = flightService;
+    }
+
+    public async Task GenerateFlights()
+    {
+        var columnIdentifiers = new List<string>()
+        {
+            "A", "B", "C", "D", "E", "F"
+        };
+
+        for (var i = 0; i < 10; i++)
+        {
+            var departureFrom = new Random().Next(0, _airports.Count);
+            var arrivalTo = new Random().Next(0, _airports.Count);
+
+            var departureTime = DateTime.UtcNow.AddDays(new Random().Next(0, 30));
+            var arrivalTime = departureTime.AddDays(new Random().Next(0, 7));
+
+            var seatRowsCount = 20;
+            var seatColumnsCount = columnIdentifiers.Count;
+
+            var flightToCreate = new FlightInputModel()
+            {
+                From = _airports.ElementAt(departureFrom).Key,
+                To = _airports.ElementAt(arrivalTo).Key,
+                Depart = departureTime,
+                Arrival = arrivalTime,
+                Seats = new List<string>()
+                {
+                }
+            };
+
+            for (var x = 0; x < seatRowsCount; x++)
+            {
+                for (var y = 0; y < seatColumnsCount; y++)
+                {
+                    flightToCreate.Seats.Add($"{columnIdentifiers[y]}{x + 1}");
+                }
+            }
+
+            await _flightService.CreateFlightAsync(
+                flightToCreate
+            );
+        }
     }
 
     public async Task<IViewComponentResult> InvokeAsync(FlightBookingFormViewModel? model)
@@ -99,6 +89,13 @@ public class FlightBookingFormViewComponent : ViewComponent
         }
 
         model.Airports = _airports;
+        model.Flights = await _flightService.GetFlightsAsync();
+
+        if (model.Flights.Count == 0)
+        {
+            await GenerateFlights();
+        }
+
         model.Flights = await _flightService.GetFlightsAsync();
 
         if (!string.IsNullOrEmpty(model.DepartureAirport) && model.DepartureAirport != "From")
