@@ -97,9 +97,10 @@ services:
        retries: 15
     networks:
       - temporal-network
-    volumes:
-       - ./db_data:/tmp/cosmos/appdata # linux path
-       #- ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
+    mem_limit: 8g
+    # volumes:
+       # - C:\Users\vladislav.mandryk\source\repos\Temporal-Airlines-Concept\temporal-server\db_data:/tmp/cosmos/appdata # linux path
+       # - ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
 
   temporalairlinesconcept.api:  
     container_name: temporalairlinesconcept.api
@@ -140,7 +141,6 @@ services:
     depends_on:
       - cosmosdb-emulator
       - temporal
-    command: [ "./init-script.sh" ]
     networks:
       - temporal-network
 
