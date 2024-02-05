@@ -23,13 +23,10 @@ public class TicketService : ITicketService
 
     public async Task<string> RequestTicketPurchaseAsync(PurchaseModel purchaseModel)
     {
-        foreach (var flightId in purchaseModel.FlightsId)
-        {
-            await CreateFlightWorkflowIfNotExistsAsync(flightId);
-        }
+        await CreateFlightWorkflowIfNotExistsAsync(purchaseModel.FlightId);
 
         var workflowId = Guid.NewGuid().ToString();
-        
+
         await _temporalClient.StartWorkflowAsync<PurchaseWorkflow>(
             wf => wf.RunAsync(purchaseModel), new WorkflowOptions
             {
@@ -50,7 +47,7 @@ public class TicketService : ITicketService
     {
         if (await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId))
             return;
-            
+
         var flight = await _flightRepository.GetFlightAsync(flightId);
 
         if (flight is null)
