@@ -40,19 +40,20 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             
             return true;
         }
-
+        
         /// <summary>
         /// Creates a ticket and books the corresponding flight.
         /// </summary>
         /// <param name="ticket">The ticket object to be created.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation. The task result indicates whether the ticket creation was successful or not.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation. The task result indicates whether
+        /// the ticket creation was successful or not.</returns>
         [Activity]
         public async Task<bool> CreateTicketAsync(Ticket ticket)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.BookAsync(new BookingRequestModel { Ticket = ticket }));
+                wf.BookAsync(new BookingSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -61,14 +62,15 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// Removes a ticket from the registered list of flight.
         /// </summary>
         /// <param name="ticket">The ticket object representing the ticket which needs to be removed.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains a boolean value indicating whether the ticket was removed successfully or not.</returns>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a boolean value indicating
+        /// whether the ticket was removed successfully or not.</returns>
         [Activity]
         public async Task<bool> CreateTicketCompensationAsync(Ticket ticket)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.BookCompensationAsync(new BookingRequestModel { Ticket = ticket }));
+                wf.BookCompensationAsync(new BookingSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -96,7 +98,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.MarkTicketPaidAsync(new MarkTicketPaidRequestModel { Ticket = ticket }));
+                wf.MarkTicketPaidAsync(new MarkTicketPaidSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -112,7 +114,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.MarkTicketPaidCompensationAsync(new MarkTicketPaidRequestModel { Ticket = ticket }));
+                wf.MarkTicketPaidCompensationAsync(new MarkTicketPaidSignalModel { Ticket = ticket }));
 
             return true;
         }

@@ -59,4 +59,48 @@ public class TicketService : ITicketService
         await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
             new WorkflowOptions(flightId, Temporal.DefaultQueue));
     }
+    
+    public async Task<bool> RequestSeatReservationAsync(SeatReservationInputModel seatReservationInputModel)
+    {
+        if (!await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient,
+                seatReservationInputModel.FlightId))
+            return false;
+
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(seatReservationInputModel.FlightId);
+
+        var flightDetails = await handle.QueryAsync(wf => wf.GetFlightDetails());
+
+        var ticket = flightDetails.Registered.FirstOrDefault(t => t.Id == seatReservationInputModel.TicketId);
+
+        if (ticket is null)
+            return false;
+
+        await handle.SignalAsync(wf => wf.ReserveSeatAsync(
+            new SeatReservationSignalModel(ticket, seatReservationInputModel.Seat.Name
+        )));
+
+        return true;
+    }
+
+    public async Task<bool> BoardPassengerAsync(BoardingInputModel boardingInputModel)
+    {
+        if (!await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, boardingInputModel.FlightId))
+            return false;
+
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(boardingInputModel.FlightId);
+
+        var flightDetails = await handle.QueryAsync(wf => wf.GetFlightDetails());
+
+        var ticket = flightDetails.Registered.FirstOrDefault(t => t.Id == boardingInputModel.TicketId);
+
+        if (ticket is null)
+            return false;
+
+        await handle.SignalAsync(wf => wf.BoardPassengerAsync(new BoardingSignalModel
+        {
+            Ticket = ticket
+        }));
+
+        return true;
+    }
 }
