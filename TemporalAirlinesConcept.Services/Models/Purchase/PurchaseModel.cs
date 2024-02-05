@@ -4,7 +4,7 @@ public class PurchaseModel
 {
     public string UserId { get; set; }
 
-    public List<string> FlightsId { get; set; }
+    public string FlightId { get; set; }
 
     public string Passenger { get; set; }
 }

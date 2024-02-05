@@ -23,6 +23,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    await app.CheckCosmosDb();
+    await app.InitializeDb();
 }
 
 app.UseHttpsRedirection();
@@ -30,11 +33,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-if (app.Environment.IsDevelopment())
-{
-    await app.InitializeDb();
-}
 
 app.MapControllerRoute(
     name: "default",

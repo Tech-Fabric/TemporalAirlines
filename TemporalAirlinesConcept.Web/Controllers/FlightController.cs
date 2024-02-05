@@ -43,7 +43,7 @@ public class FlightController : Controller
             var result = await _ticketService.RequestTicketPurchaseAsync(
                 new PurchaseModel()
                 {
-                    FlightsId = new List<string>() { model.SelectedFlight }
+                    FlightId = model.SelectedFlight
                 }
             );
         }

@@ -26,18 +26,15 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="flightsId">The list of flight IDs to check for availability.</param>
         /// <returns>Returns true if all the flights are available; otherwise, false.</returns>
         [Activity]
-        public async Task<bool> IsFlightsAvailableAsync(List<string> flightsId)
+        public async Task<bool> IsFlightAvailableAsync(string flightId)
         {
-            foreach (var flightId in flightsId)
-            {
-                var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
-                
-                var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
-                
-                if (flight.Seats.Count - flight.Registered.Count < 1) 
-                    return false;
-            }
-            
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
+
+            var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
+
+            if (flight.Seats.Count - flight.Registered.Count < 1)
+                return false;
+
             return true;
         }
 
@@ -72,13 +69,13 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 
             return true;
         }
-        
+
         [Activity]
         public async Task<bool> HoldMoneyAsync()
         {
             return true;
         }
-        
+
         [Activity]
         public async Task<bool> HoldMoneyCompensationAsync()
         {
@@ -197,9 +194,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <param name="flightsId">The list of flight IDs.</param>
         [Activity]
-        public async Task<DAL.Entities.Flight> GetLastFlightAsync(List<string> flightsId)
+        public async Task<DAL.Entities.Flight> GetFlightAsync(string flightId)
         {
-            return await _flightRepository.GetFlightAsync(flightsId.LastOrDefault()!);
+            return await _flightRepository.GetFlightAsync(flightId);
         }
     }
 }
