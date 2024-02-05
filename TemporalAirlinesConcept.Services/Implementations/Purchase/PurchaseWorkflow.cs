@@ -62,7 +62,7 @@ public class PurchaseWorkflow
     private async Task<bool> PurchaseWorkflowBodyAsync(PurchaseModel purchaseModel)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
-            (PurchaseActivities act) => act.IsFlightsAvailableAsync(purchaseModel.FlightId),
+            (PurchaseActivities act) => act.IsFlightAvailableAsync(purchaseModel.FlightId),
             _activityOptions);
 
         if (!isFlightsAvailable)

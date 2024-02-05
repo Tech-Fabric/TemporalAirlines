@@ -26,7 +26,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="flightsId">The list of flight IDs to check for availability.</param>
         /// <returns>Returns true if all the flights are available; otherwise, false.</returns>
         [Activity]
-        public async Task<bool> IsFlightsAvailableAsync(string flightId)
+        public async Task<bool> IsFlightAvailableAsync(string flightId)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
 
