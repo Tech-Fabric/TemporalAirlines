@@ -21,10 +21,10 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         }
 
         /// <summary>
-        /// Checks whether the flights specified by the flight IDs are available for booking.
+        /// Checks whether the flight specified by the flight IDs is available for booking.
         /// </summary>
-        /// <param name="flightsId">The list of flight IDs to check for availability.</param>
-        /// <returns>Returns true if all the flights are available; otherwise, false.</returns>
+        /// <param name="flightsId">Flight ID to check for availability.</param>
+        /// <returns>Returns true if flight is available; otherwise, false.</returns>
         [Activity]
         public async Task<bool> IsFlightAvailableAsync(string flightId)
         {
@@ -56,7 +56,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         }
 
         /// <summary>
-        /// Removes a ticket from the registered list of flight.
+        /// Removes a ticket from the registered flight.
         /// </summary>
         /// <param name="ticket">The ticket object representing the ticket which needs to be removed.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a boolean value indicating
