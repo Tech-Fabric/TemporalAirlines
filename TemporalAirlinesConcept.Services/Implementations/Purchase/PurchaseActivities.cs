@@ -1,4 +1,5 @@
-﻿using TemporalAirlinesConcept.DAL.Entities;
+﻿using TemporalAirlinesConcept.Common.Constants;
+using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
@@ -31,6 +32,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
 
             var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
+
+            if (string.Equals(flight.From, Airports.ErrorCode) || string.Equals(flight.To, Airports.ErrorCode))
+                throw new Exception("Artificial error exception");
 
             if (flight.Seats.Count - flight.Registered.Count < 1)
                 return false;

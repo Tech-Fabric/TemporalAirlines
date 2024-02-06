@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Services.Interfaces.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
 
@@ -16,6 +17,7 @@ public class FlightBookingFormViewComponent : ViewComponent
         { "CDG", "Charles de Gaulle Airport" },
         { "FRA", "Frankfurt Airport" },
         { "AMS", "Amsterdam Airport Schiphol" },
+        { Airports.ErrorCode, Airports.ErrorName },
         { "IST", "Istanbul Airport" },
         { "MAD", "Madrid Barajas Airport" },
         { "BCN", "Barcelona–El Prat Airport" },
