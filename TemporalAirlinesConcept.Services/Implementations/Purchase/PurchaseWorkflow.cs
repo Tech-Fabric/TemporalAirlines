@@ -1,4 +1,6 @@
-﻿using TemporalAirlinesConcept.Common.Helpers;
+﻿using System.Net.Sockets;
+using TemporalAirlinesConcept.Common.Constants;
+using TemporalAirlinesConcept.Common.Helpers;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.Services.Models.Purchase;
@@ -59,6 +61,40 @@ public class PurchaseWorkflow
         }
     }
 
+    /// <summary>
+    /// Sets the paid status to true.
+    /// </summary>
+    [WorkflowSignal]
+    public Task SetPaidStatus()
+    {
+        if (!_isPaid)
+            _isPaid = true;
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Cancels the current workflow.
+    /// </summary>
+    [WorkflowSignal]
+    public Task Cancel()
+    {
+        if (!_isCancelled)
+            _isCancelled = true;
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Retrieve a ticket.
+    /// </summary>
+    /// <returns>A List of Ticket objects.</returns>
+    [WorkflowQuery]
+    public Ticket GetTicket()
+    {
+        return _ticket;
+    }
+
     private async Task<bool> PurchaseWorkflowBodyAsync(PurchaseModel purchaseModel)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
@@ -81,7 +117,7 @@ public class PurchaseWorkflow
     private async Task<bool> ProceedPaymentAsync(PurchaseModel purchaseModel)
     {
         await HoldMoneyAsync();
-        
+
         await MarkTicketPaidAsync(_ticket);
 
         await GenerateBlobTicketsAsync();
@@ -90,8 +126,7 @@ public class PurchaseWorkflow
 
         await SaveTicketsAsync();
 
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.ConfirmWithdrawAsync(),
-            _activityOptions);
+        await ConfirmWithdraw();
 
         var lastFlight = await Workflow.ExecuteActivityAsync(
             (PurchaseActivities act) => act.GetFlightAsync(purchaseModel.FlightId),
@@ -125,6 +160,16 @@ public class PurchaseWorkflow
             Seat = null,
             PaymentStatus = PaymentStatus.Pending
         });
+    }
+
+    private async Task ConfirmWithdraw()
+    {
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.ConfirmWithdrawAsync(),
+          _activityOptions);
+
+        _saga.AddCompensation(async () =>
+           await Workflow.ExecuteActivityAsync(
+               (PurchaseActivities act) => act.ConfirmWithdrawCompensation(), _activityOptions));
     }
 
     private async Task CreateTicketAsync(Ticket ticket)
@@ -183,39 +228,5 @@ public class PurchaseWorkflow
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync(
                 (PurchaseActivities act) => act.SaveTicketCompensationAsync(_ticket), _activityOptions));
-    }
-
-    /// <summary>
-    /// Sets the paid status to true.
-    /// </summary>
-    [WorkflowSignal]
-    public Task SetPaidStatus()
-    {
-        if (!_isPaid)
-            _isPaid = true;
-
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Cancels the current workflow.
-    /// </summary>
-    [WorkflowSignal]
-    public Task Cancel()
-    {
-        if (!_isCancelled)
-            _isCancelled = true;
-
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Retrieve a ticket.
-    /// </summary>
-    /// <returns>A List of Ticket objects.</returns>
-    [WorkflowQuery]
-    public Ticket GetTicket()
-    {
-        return _ticket;
     }
 }
