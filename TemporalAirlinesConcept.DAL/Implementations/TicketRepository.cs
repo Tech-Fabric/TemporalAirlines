@@ -25,6 +25,20 @@ public class TicketRepository : DbAccessService<Ticket>, ITicketRepository
         return queryResult.ToList();
     }
 
+    public async Task<List<Ticket>> GetTicketsByUserIdAsync(string userId)
+    {
+        var queryResult = await GetItemsAsync($"select * from c where c.UserId = '{userId}'");
+
+        return queryResult.ToList();
+    }
+
+    public async Task<List<Ticket>> GetTicketsByUserIdFlightAsync(string userId, string flightId)
+    {
+        var queryResult = await GetItemsAsync($"select * from c where c.UserId = '{userId}' and c.FlightId = '{flightId}'");
+
+        return queryResult.ToList();
+    }
+
     public async Task<List<Ticket>> QueryAsync(string query)
     {
         var queryResult = await GetItemsAsync(query);
