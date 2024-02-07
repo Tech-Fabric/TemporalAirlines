@@ -84,13 +84,16 @@ $enable-dark-mode: false;
 @import "../Views/Shared/Components/FlightBookingForm/Default.scss";
 
 html, body {
-  height: 100%;
+
 }
 
 body {
   background: url("/img/20201012_195538.jpg");
   background-size: cover;
   background-position: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 header, footer {
@@ -98,9 +101,8 @@ header, footer {
 }
 
 footer {
-  bottom: 0;
-  left: 0;
-  right: 0;
+  margin-top: auto;
+  height: 55px;
   padding: 15px;
 }
 
@@ -126,4 +128,8 @@ a.navbar-brand {
 button.accept-policy {
   font-size: 1rem;
   line-height: inherit;
+}
+
+.invalid-feedback {
+  display: block;
 }
