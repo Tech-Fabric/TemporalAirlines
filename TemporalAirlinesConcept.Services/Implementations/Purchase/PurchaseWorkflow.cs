@@ -11,7 +11,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase;
 [Workflow]
 public class PurchaseWorkflow
 {
-    private List<Ticket> _tickets = [];
+    private Ticket _ticket;
 
     private Saga _saga = new([]);
 
@@ -81,9 +81,8 @@ public class PurchaseWorkflow
     private async Task<bool> ProceedPaymentAsync(PurchaseModel purchaseModel)
     {
         await HoldMoneyAsync();
-
-        foreach (var ticket in _tickets)
-            await MarkTicketPaidAsync(ticket);
+        
+        await MarkTicketPaidAsync(_ticket);
 
         await GenerateBlobTicketsAsync();
 
@@ -110,11 +109,9 @@ public class PurchaseWorkflow
 
     private async Task BookTicketsForFlightAsync(PurchaseModel purchaseModel)
     {
-        var ticket = await FormTicketAsync(purchaseModel.FlightId, purchaseModel);
+        _ticket = await FormTicketAsync(purchaseModel.FlightId, purchaseModel);
 
-        await CreateTicketAsync(ticket);
-
-        _tickets.Add(ticket);
+        await CreateTicketAsync(_ticket);
     }
 
     private static Task<Ticket> FormTicketAsync(string flightId, PurchaseModel purchaseModel)
@@ -180,12 +177,12 @@ public class PurchaseWorkflow
 
     private async Task SaveTicketsAsync()
     {
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SaveTicketsAsync(_tickets),
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SaveTicketAsync(_ticket),
             _activityOptions);
 
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.SaveTicketsCompensationAsync(_tickets), _activityOptions));
+                (PurchaseActivities act) => act.SaveTicketCompensationAsync(_ticket), _activityOptions));
     }
 
     /// <summary>
@@ -213,12 +210,12 @@ public class PurchaseWorkflow
     }
 
     /// <summary>
-    /// Retrieves a list of tickets.
+    /// Retrieve a ticket.
     /// </summary>
     /// <returns>A List of Ticket objects.</returns>
     [WorkflowQuery]
-    public List<Ticket> GetTickets()
+    public Ticket GetTicket()
     {
-        return _tickets;
+        return _ticket;
     }
 }
