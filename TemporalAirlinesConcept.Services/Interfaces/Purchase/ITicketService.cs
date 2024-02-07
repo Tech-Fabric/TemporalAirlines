@@ -14,4 +14,7 @@ public interface ITicketService
     Task<Ticket> GetTicket(string ticketId);
 
     Task MarkAsPaid(string purchaseWorkflowId);
+
+    public Task SetSeatsSelection(string purchaseWorkflowId, List<string> selectedSeats);
+    public Task SetPassengerDetails(string purchaseWorkflowId, List<string> passengerDetails);
 }

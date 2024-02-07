@@ -35,5 +35,5 @@ public class FlightBookingFormViewModel
 
     public Dictionary<string,bool>? SelectedSeats { get; set; }
 
-    public bool ShowSeatSelectionScreen { get; set; }
+    public string? PurchaseWorkflowId { get; set; }
 }

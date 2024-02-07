@@ -74,6 +74,18 @@ public class TicketService : ITicketService
         return workflowId;
     }
 
+    public Task SetSeatsSelection(string purchaseWorkflowId, List<string> selectedSeats)
+    {
+        var wh = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
+        return wh.SignalAsync(wf => wf.SetSeatsSelection(selectedSeats));
+    }
+
+    public Task SetPassengerDetails(string purchaseWorkflowId, List<string> passengerDetails)
+    {
+        var wh = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
+        return wh.SignalAsync(wf => wf.SetPassengerDetails(passengerDetails));
+    }
+
     private async Task CreateFlightWorkflowIfNotExistsAsync(string flightId)
     {
         if (await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId))

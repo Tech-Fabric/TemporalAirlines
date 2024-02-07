@@ -65,14 +65,13 @@ public class FlightController : Controller
             model.SelectedFlight = selectedFlight;
         }
 
-        var purchaseWorkflowId = "";
-
         if (!string.IsNullOrEmpty(model.CreditCardDetails.CardNumber))
         {
-            purchaseWorkflowId = await _ticketService.RequestTicketPurchaseAsync(
+            model.PurchaseWorkflowId = await _ticketService.RequestTicketPurchaseAsync(
                 new PurchaseModel()
                 {
-                    FlightId = model.SelectedFlight
+                    FlightId = model.SelectedFlight,
+
                 }
             );
 
@@ -83,11 +82,11 @@ public class FlightController : Controller
 
         if (Request.IsHtmx())
         {
-            if (!string.IsNullOrEmpty(purchaseWorkflowId))
+            if (!string.IsNullOrEmpty(model.PurchaseWorkflowId))
             {
                 Response.Htmx(h =>
                 {
-                    h.PushUrl($"/flights/{model.SelectedFlight}/ticket/{purchaseWorkflowId}");
+                    h.PushUrl($"/flights/{model.SelectedFlight}/ticket/{model.PurchaseWorkflowId}");
                 });
             }
 
@@ -112,6 +111,8 @@ public class FlightController : Controller
             model.SelectedFlight = selectedFlight;
         }
 
+        model.PurchaseWorkflowId = purchaseWorkflowId;
+        model.PaymentSuccessful = true;
 
         if (Request.IsHtmx())
         {
@@ -134,6 +135,9 @@ public class FlightController : Controller
             model.SelectedFlight = selectedFlight;
         }
 
+        model.PurchaseWorkflowId = purchaseWorkflowId;
+        model.PaymentSuccessful = true;
+
         var selectedSeatsCount = model.SelectedSeats.Count(kv => kv.Value == true);
 
         if (selectedSeatsCount > model.NumberOfSeats)
@@ -143,7 +147,7 @@ public class FlightController : Controller
 
         if (ModelState.IsValid)
         {
-
+            await _ticketService.SetSeatsSelection(model.PurchaseWorkflowId, model.SelectedSeats.Where(kv => kv.Value).Select(kv => kv.Key).ToList());
         }
 
         if (Request.IsHtmx())
