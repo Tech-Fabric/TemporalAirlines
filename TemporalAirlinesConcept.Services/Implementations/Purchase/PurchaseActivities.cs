@@ -159,12 +159,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <summary>
         /// Saves a list of tickets.
         /// </summary>
-        /// <param name="tickets">The list of tickets to be saved.</param>
+        /// <param name="ticket"></param>
         /// <returns>A boolean indicating whether the tickets were saved successfully.</returns>
         [Activity]
-        public async Task<bool> SaveTicketsAsync(List<Ticket> tickets)
+        public async Task<bool> SaveTicketAsync(Ticket ticket)
         {
-            await Task.WhenAll(tickets.Select(ticket => _ticketRepository.AddTicketAsync(ticket)));
+            await _ticketRepository.AddTicketAsync(ticket);
 
             return true;
         }
@@ -173,11 +173,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// Removes the tickets.
         /// </summary>
         /// <param name="tickets">The list of tickets to save compensation for.</param>
+        /// <param name="ticket"></param>
         /// <returns>The task result is true if the operation is successful; otherwise, false.</returns>
         [Activity]
-        public async Task<bool> SaveTicketsCompensationAsync(List<Ticket> tickets)
+        public async Task<bool> SaveTicketCompensationAsync(Ticket ticket)
         {
-            await Task.WhenAll(tickets.Select(ticket => _ticketRepository.DeleteTicketAsync(ticket.Id)));
+            await _ticketRepository.DeleteTicketAsync(ticket.Id);
 
             return true;
         }
