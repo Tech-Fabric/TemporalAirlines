@@ -219,7 +219,7 @@ public class PurchaseWorkflow
         {
             if (selectedSeats.Count > i)
             {
-                _tickets[i].Seat = selectedSeats[i];
+                _tickets[i].Seat.Name = selectedSeats[i];
             }
         }
 

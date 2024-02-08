@@ -1,5 +1,6 @@
 ﻿using Htmx;
 using Microsoft.AspNetCore.Mvc;
+using TemporalAirlinesConcept.DAL.Models.Seat;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using TemporalAirlinesConcept.Web.ViewComponents;
@@ -147,7 +148,21 @@ public class FlightController : Controller
 
         if (ModelState.IsValid)
         {
-            await _ticketService.SetSeatsSelection(model.PurchaseWorkflowId, model.SelectedSeats.Where(kv => kv.Value).Select(kv => kv.Key).ToList());
+            foreach (var s in model.SelectedSeats)
+            {
+                await _ticketService.RequestSeatReservationAsync(
+                    new SeatReservationInputModel()
+                    {
+                        FlightId = model.SelectedFlight,
+                        Seat = new Seat()
+                        {
+                            Name = s.Key,
+                            TicketId = model.PurchaseWorkflowId
+                        }
+                    }
+                );
+            }
+            //model.PurchaseWorkflowId, model.SelectedSeats.Where(kv => kv.Value).Select(kv => kv.Key).ToList());
         }
 
         if (Request.IsHtmx())

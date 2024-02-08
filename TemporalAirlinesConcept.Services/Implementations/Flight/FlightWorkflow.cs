@@ -23,6 +23,9 @@ public class FlightWorkflow
         
         await ChangeStatusAtTimeAsync(FlightStatus.CheckIn, _flight.Depart.Subtract(TimeSpan.FromDays(1)));
         
+        _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) => 
+            act.AssignSeatsAsync(_flight), _activityOptions);
+        
         await ChangeStatusAtTimeAsync(FlightStatus.Boarding, _flight.Depart.Subtract(TimeSpan.FromHours(2)));
         
         await ChangeStatusAtTimeAsync(FlightStatus.Closed, _flight.Depart.Subtract(TimeSpan.FromMinutes(5)));
@@ -50,21 +53,21 @@ public class FlightWorkflow
     /// <summary>
     /// Registers a ticket for booking.
     /// </summary>
-    /// <param name="bookingRequestModel">The booking request model.</param>
+    /// <param name="bookingSignalModel">The booking request model.</param>
     [WorkflowSignal]
-    public async Task BookAsync(BookingRequestModel bookingRequestModel)
+    public async Task BookAsync(BookingSignalModel bookingSignalModel)
     {
-        _flight.Registered.Add(bookingRequestModel.Ticket);
+        _flight.Registered.Add(bookingSignalModel.Ticket);
     }
 
     /// <summary>
     /// Removes a ticket booking.
     /// </summary>
-    /// <param name="bookingRequestModel">The model containing the booking request information.</param>
+    /// <param name="bookingSignalModel">The model containing the booking request information.</param>
     [WorkflowSignal]
-    public async Task BookCompensationAsync(BookingRequestModel bookingRequestModel)
+    public async Task BookCompensationAsync(BookingSignalModel bookingSignalModel)
     {
-        var index = _flight.Registered.FindIndex(s => s.Id == bookingRequestModel.Ticket.Id);
+        var index = _flight.Registered.FindIndex(s => s.Id == bookingSignalModel.Ticket.Id);
         
         _flight.Registered.RemoveAt(index);
     }
@@ -72,11 +75,11 @@ public class FlightWorkflow
     /// <summary>
     /// Marks a ticket as paid.
     /// </summary>
-    /// <param name="markTicketPaidRequestModel">The request model containing the ticket to be marked as paid.</param>
+    /// <param name="markTicketPaidSignalModel">The request model containing the ticket to be marked as paid.</param>
     [WorkflowSignal]
-    public async Task MarkTicketPaidAsync(MarkTicketPaidRequestModel markTicketPaidRequestModel)
+    public async Task MarkTicketPaidAsync(MarkTicketPaidSignalModel markTicketPaidSignalModel)
     {
-        var ticket = _flight.Registered.Find(s => s.Id == markTicketPaidRequestModel.Ticket.Id);
+        var ticket = _flight.Registered.Find(s => s.Id == markTicketPaidSignalModel.Ticket.Id);
 
         ticket.PaymentStatus = PaymentStatus.Paid;
     }
@@ -84,11 +87,11 @@ public class FlightWorkflow
     /// <summary>
     /// Marks a ticket as cancelled.
     /// </summary>
-    /// <param name="markTicketPaidRequestModel">The model containing information about the ticket to mark as paid.</param>
+    /// <param name="markTicketPaidSignalModel">The model containing information about the ticket to mark as paid.</param>
     [WorkflowSignal]
-    public async Task MarkTicketPaidCompensationAsync(MarkTicketPaidRequestModel markTicketPaidRequestModel)
+    public async Task MarkTicketPaidCompensationAsync(MarkTicketPaidSignalModel markTicketPaidSignalModel)
     {
-        var ticket = _flight.Registered.Find(s => s.Id == markTicketPaidRequestModel.Ticket.Id);
+        var ticket = _flight.Registered.Find(s => s.Id == markTicketPaidSignalModel.Ticket.Id);
 
         ticket.PaymentStatus = PaymentStatus.Cancelled;
     }
@@ -96,30 +99,43 @@ public class FlightWorkflow
     /// <summary>
     /// Reserves a seat for a ticket in the flight.
     /// </summary>
-    /// <param name="seatReservationRequestModel">The model containing the seat and ticket information.</param>
+    /// <param name="seatReservationSignalModel">The model containing the seat and ticket information.</param>
     [WorkflowSignal]
-    public async Task ReserveSeatAsync(SeatReservationRequestModel seatReservationRequestModel)
+    public async Task ReserveSeatAsync(SeatReservationSignalModel seatReservationSignalModel)
     {
-        _flight.Seats[seatReservationRequestModel.Seat] = seatReservationRequestModel.Ticket;
+        var seat = _flight.Seats.FirstOrDefault(f => f.Name == seatReservationSignalModel.Seat);
+        
+        seat.TicketId = seatReservationSignalModel.Ticket.Id;
+
+        var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
+
+        ticket.Seat = seat;
     }
 
     /// <summary>
     /// Removes seat reservation.
     /// </summary>
-    /// <param name="seatReservationRequestModel">The seat reservation request model that contains the seat information.</param>
-    public async Task ReserveSeatCompensationAsync(SeatReservationRequestModel seatReservationRequestModel)
+    /// <param name="seatReservationSignalModel">The seat reservation request model that contains the seat information.</param>
+    [WorkflowSignal]
+    public async Task ReserveSeatCompensationAsync(SeatReservationSignalModel seatReservationSignalModel)
     {
-        _flight.Seats[seatReservationRequestModel.Seat] = null;
+        var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
+
+        ticket.Seat = null;
+        
+        var seat = _flight.Seats.FirstOrDefault(f => f.Name == seatReservationSignalModel.Seat);
+        
+        seat.TicketId = null;
     }
 
     /// <summary>
     /// Adds a passenger's ticket to the boarded list of a flight.
     /// </summary>
-    /// <param name="boardingRequestModel">The model containing the information of the passenger's boarding request.</param>
+    /// <param name="boardingSignalModel">The model containing the information of the passenger's boarding request.</param>
     [WorkflowSignal]
-    public async Task BoardPassengerAsync(BoardingRequestModel boardingRequestModel)
+    public async Task BoardPassengerAsync(BoardingSignalModel boardingSignalModel)
     {
-        _flight.Boarded.Add(boardingRequestModel.Ticket);
+        _flight.Boarded.Add(boardingSignalModel.Ticket);
     }
 
     /// <summary>

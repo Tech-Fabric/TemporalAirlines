@@ -15,6 +15,9 @@ public interface ITicketService
 
     Task MarkAsPaid(string purchaseWorkflowId);
 
-    public Task SetSeatsSelection(string purchaseWorkflowId, List<string> selectedSeats);
+    Task<bool> RequestSeatReservationAsync(SeatReservationInputModel seatReservationInputModel);
+
+    Task<bool> BoardPassengerAsync(BoardingInputModel boardingInputModel);
+
     public Task SetPassengerDetails(string purchaseWorkflowId, List<string> passengerDetails);
 }
