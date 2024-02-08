@@ -1,4 +1,5 @@
-﻿using TemporalAirlinesConcept.DAL.Entities;
+﻿using TemporalAirlinesConcept.Common.Constants;
+using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
@@ -176,7 +177,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         [Activity]
         public async Task<bool> SaveTicketCompensationAsync(Ticket ticket)
         {
-            await _ticketRepository.DeleteTicketAsync(ticket.Id);
+            var ticketToDelete = await _ticketRepository.GetTicketAsync(ticket.Id);
+
+            if (ticketToDelete != null)
+            {
+                await _ticketRepository.DeleteTicketAsync(ticket.Id);
+            }
 
             return true;
         }
@@ -190,6 +196,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             return true;
         }
 
+        [Activity]
+        public async Task<bool> ConfirmWithdrawCompensation()
+        {
+            return true;
+        }
+
         /// <summary>
         /// Retrieves the last flight from the given list of flight IDs.
         /// </summary>
@@ -197,7 +209,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         [Activity]
         public async Task<DAL.Entities.Flight> GetFlightAsync(string flightId)
         {
-            return await _flightRepository.GetFlightAsync(flightId);
+            var flight = await _flightRepository.GetFlightAsync(flightId);
+
+            if (string.Equals(flight.From, Airports.ErrorCode) || string.Equals(flight.To, Airports.ErrorCode))
+                throw new Exception("Artificial error exception");
+
+            return flight;
         }
     }
 }
