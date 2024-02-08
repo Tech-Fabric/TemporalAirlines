@@ -44,7 +44,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="ticket">The ticket object to be created.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation. The task result indicates whether the ticket creation was successful or not.</returns>
         [Activity]
-        public async Task<bool> CreateTicketAsync(Ticket ticket)
+        public async Task<bool> NotifyFlightWorkflowOnTicketCreated(Ticket ticket)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
@@ -60,7 +60,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="ticket">The ticket object representing the ticket which needs to be removed.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a boolean value indicating whether the ticket was removed successfully or not.</returns>
         [Activity]
-        public async Task<bool> CreateTicketCompensationAsync(Ticket ticket)
+        public async Task<bool> NotifyFlightWorkflowOnTicketCreatedCompensation(Ticket ticket)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
