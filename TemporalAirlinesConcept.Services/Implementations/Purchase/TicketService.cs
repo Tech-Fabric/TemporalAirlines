@@ -96,7 +96,7 @@ public class TicketService : ITicketService
 
     public async Task<bool> RequestSeatReservationAsync(SeatReservationInputModel seatReservationInputModel)
     {
-        if (!await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient,
+        if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient,
                 seatReservationInputModel.FlightId))
             return false;
 
@@ -118,7 +118,7 @@ public class TicketService : ITicketService
 
     public async Task<bool> BoardPassengerAsync(BoardingInputModel boardingInputModel)
     {
-        if (!await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, boardingInputModel.FlightId))
+        if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, boardingInputModel.FlightId))
             return false;
 
         var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(boardingInputModel.FlightId);

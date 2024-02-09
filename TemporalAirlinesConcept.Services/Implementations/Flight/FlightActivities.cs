@@ -31,7 +31,7 @@ public class FlightActivities
                 continue;
 
             var seat = flight.Seats.FirstOrDefault(s => s.TicketId is null);
-            
+
             ticket.Seat = seat;
 
             seat.TicketId = ticket.Id;
@@ -39,12 +39,12 @@ public class FlightActivities
 
         return flight;
     }
-    
+
     [Activity]
     public async Task<bool> SaveFlightDetailsAsync(FlightDetailsModel flightDetailsModel)
     {
         var flight = _mapper.Map<DAL.Entities.Flight>(flightDetailsModel);
-        
+
         await _flightRepository.UpdateFlightAsync(flight);
 
         return true;

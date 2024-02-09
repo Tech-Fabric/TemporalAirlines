@@ -91,9 +91,28 @@ public class PurchaseWorkflow
     /// </summary>
     /// <returns>A List of Ticket objects.</returns>
     [WorkflowQuery]
-    public Ticket GetTicket()
+    public List<Ticket> GetTicket()
     {
-        return _ticket;
+        return _tickets;
+    }
+
+    [WorkflowSignal]
+    public Task SetPassengerDetails(List<string> passengerDetails)
+    {
+        for (var i = 0; i < _tickets.Count; i++)
+        {
+            if (passengerDetails.Count > i)
+            {
+                _tickets[i].Passenger = passengerDetails[i];
+            }
+        }
+
+        if (passengerDetails.Count == _tickets.Count)
+        {
+            _passengerInfoFilled = true;
+        }
+
+        return Task.CompletedTask;
     }
 
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
@@ -119,9 +138,9 @@ public class PurchaseWorkflow
     {
         await HoldMoney();
 
-        foreach (var t in _tickets)
+        foreach (var ticketItem in _tickets)
         {
-            await MarkTicketPaidAsync(t);
+            await MarkTicketAsPaid(ticketItem);
         }
 
         var flight = await Workflow.ExecuteActivityAsync(
@@ -132,7 +151,7 @@ public class PurchaseWorkflow
 
         var allInfoFilled = await Workflow.WaitConditionAsync(() => _seatsSelected && _passengerInfoFilled, timeUntilDepart);
 
-        await GenerateBlobTicketsAsync();
+        await GenerateBlobTickets();
 
         await SendTickets();
 
@@ -150,18 +169,18 @@ public class PurchaseWorkflow
 
     private async Task BookTicketsForFlight(PurchaseModel purchaseModel)
     {
-        for (var i=0;i < purchaseModel.NumberOfTickets; i++)
+        for (var i = 0; i < purchaseModel.NumberOfTickets; i++)
         {
-            var ticket = await FormTicketAsync(purchaseModel.FlightId, purchaseModel);
+            var ticket = await GetTicket(purchaseModel);
 
             _tickets.Add(ticket);
 
-            await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.NotifyFlightWorkflowOnTicketCreated(ticket),
+            await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.BookTicket(ticket),
                 _activityOptions);
 
             _saga.AddCompensation(async () =>
                 await Workflow.ExecuteActivityAsync(
-                    (PurchaseActivities act) => act.NotifyFlightWorkflowOnTicketCreatedCompensation(ticket), _activityOptions));
+                    (PurchaseActivities act) => act.BookTicketCompensation(ticket), _activityOptions));
         }
     }
 
@@ -240,14 +259,14 @@ public class PurchaseWorkflow
         foreach (var t in _tickets)
         {
             await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.SaveTicketAsync(t),
+                (PurchaseActivities act) => act.SaveTicket(t),
                 _activityOptions
             );
 
             _saga.AddCompensation(
                 async () =>
                     await Workflow.ExecuteActivityAsync(
-                        (PurchaseActivities act) => act.SaveTicketCompensationAsync(t), _activityOptions
+                        (PurchaseActivities act) => act.SaveTicketCompensation(t), _activityOptions
                     )
             );
         }
@@ -280,37 +299,6 @@ public class PurchaseWorkflow
         {
             _seatsSelected = true;
         }
-
-        return Task.CompletedTask;
-    }
-
-    [WorkflowSignal]
-    public Task SetPassengerDetails(List<string> passengerDetails)
-    {
-        for (var i = 0; i < _tickets.Count; i++)
-        {
-            if (passengerDetails.Count > i)
-            {
-                _tickets[i].Passenger = passengerDetails[i];
-            }
-        }
-
-        if (passengerDetails.Count == _tickets.Count)
-        {
-            _passengerInfoFilled = true;
-        }
-
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Cancels the current workflow.
-    /// </summary>
-    [WorkflowSignal]
-    public Task Cancel()
-    {
-        if (!_isCancelled)
-            _isCancelled = true;
 
         return Task.CompletedTask;
     }
