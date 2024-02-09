@@ -16,7 +16,7 @@ services:
     expose:
       - 9200
     volumes:
-      - /var/lib/elasticsearch/data
+      - ./data/elasticsearch/:/var/lib/elasticsearch/data
   postgresql:
     container_name: temporal-postgresql
     environment:
@@ -28,8 +28,19 @@ services:
     ports:
       - 5455:5432
     volumes:
-      - /var/lib/postgresql/data
-      # - ./temporal_db_data:/var/lib/postgresql/data
+      - ./data/postgresql/:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 15455:80
+    env_file:
+      - .env
+    depends_on:
+      - postgresql
+    networks:
+      - temporal-network
+    volumes:
+      - ./data/pgadmin/:/var/lib/pgadmin/
   temporal:
     container_name: temporal
     depends_on:
@@ -98,8 +109,9 @@ services:
        retries: 15
     networks:
       - temporal-network
-    # volumes:
-       # - ./db_data:/tmp/cosmos/appdata # linux path
+    #mem_limit: 8g
+    volumes:
+       - ./data/cosmosdb:/tmp/cosmos/appdata # linux path
        # - ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
 
   temporalairlinesconcept.api:  
