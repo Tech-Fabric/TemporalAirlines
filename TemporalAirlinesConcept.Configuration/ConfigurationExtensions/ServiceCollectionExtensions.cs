@@ -3,10 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Exporter;
-using OpenTelemetry.Logs;
 using OpenTelemetry.Trace;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Settings;
+using TemporalAirlinesConcept.DAL.Codec;
 using TemporalAirlinesConcept.DAL.Implementations;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -18,6 +18,7 @@ using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Interfaces.User;
 using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
 using TemporalAirlinesConcept.Services.Profiles;
+using Temporalio.Converters;
 using Temporalio.Extensions.Hosting;
 using Temporalio.Extensions.OpenTelemetry;
 
@@ -84,6 +85,8 @@ public static class ServiceCollectionExtensions
 
             // Need to check how to get
             options.LoggerFactory = LoggerFactory.Create(builder => builder.AddTelemetryLogger("Client-T"));
+            
+            options.DataConverter = DataConverter.Default with { PayloadCodec = new EncryptionCodec() };
         });
 
         return services;
@@ -100,6 +103,8 @@ public static class ServiceCollectionExtensions
             {
                 options.Interceptors = [new TracingInterceptor()];
                 options.LoggerFactory = LoggerFactory.Create(builder => builder.AddTelemetryLogger("Worker"));
+                if (options.ClientOptions != null)
+                    options.ClientOptions.DataConverter = DataConverter.Default with { PayloadCodec = new EncryptionCodec() };
             })
             .AddScopedActivities<FlightActivities>()
             .AddWorkflow<FlightWorkflow>()
