@@ -6,5 +6,5 @@ public class PurchaseModel
 
     public string FlightId { get; set; }
 
-    public string Passenger { get; set; }
+    public int NumberOfTickets { get; set; }
 }

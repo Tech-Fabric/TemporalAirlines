@@ -14,4 +14,10 @@ public interface ITicketService
     Task<Ticket> GetTicket(string ticketId);
 
     Task MarkAsPaid(string purchaseWorkflowId);
+
+    Task<bool> RequestSeatReservationAsync(SeatReservationInputModel seatReservationInputModel);
+
+    Task<bool> BoardPassengerAsync(BoardingInputModel boardingInputModel);
+
+    public Task SetPassengerDetails(string purchaseWorkflowId, List<string> passengerDetails);
 }

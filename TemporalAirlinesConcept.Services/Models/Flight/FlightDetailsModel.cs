@@ -1,5 +1,6 @@
 ﻿using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
+using TemporalAirlinesConcept.DAL.Models.Seat;
 
 namespace TemporalAirlinesConcept.Services.Models.Flight;
 
@@ -14,8 +15,10 @@ public class FlightDetailsModel
     public DateTime Depart { get; set; }
 
     public DateTime Arrival { get; set; }
+    
+    public decimal Price { get; set; }
 
-    public Dictionary<string, Ticket> Seats { get; set; } = new();
+    public List<Seat> Seats { get; set; } = [];
 
     public List<Ticket> Registered { get; set; } = [];
 
