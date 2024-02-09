@@ -4,6 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -31,7 +32,4 @@
 		<ProjectReference Include="..\TemporalAirlinesConcept.Services\TemporalAirlinesConcept.Services.csproj" />
 	</ItemGroup>
 
-	<Target Name="PreBuildCustomCommand" BeforeTargets="BeforeBuild">
-		<Exec Command="sass --load-path=node_modules --update ./Scss/Index.scss wwwroot/css/index.css" />
-	</Target>
 </Project>
