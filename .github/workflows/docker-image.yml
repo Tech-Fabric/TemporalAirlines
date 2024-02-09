@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build web image
-      run: docker build . --file TemporalAirlinesConcept.Web/Dockerfile --tag ghcr.io/Tech-Fabric/temporal-airlines-web:$(date +%s)
+      run: docker build . --file TemporalAirlinesConcept.Web/Dockerfile --tag ghcr.io/tech-fabric/temporal-airlines-web:$(date +%s)
     - name: Push image to registry
       run: docker push ghcr.io/Tech-Fabric/temporal-airlines-web:$(date +%s)
 
