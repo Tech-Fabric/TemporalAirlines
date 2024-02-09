@@ -27,7 +27,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="flightsId">Flight ID to check for availability.</param>
         /// <returns>Returns true if flight is available; otherwise, false.</returns>
         [Activity]
-        public async Task<bool> IsFlightAvailableAsync(string flightId)
+        public async Task<bool> IsFlightAvailable(string flightId)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
 
@@ -46,12 +46,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <returns>A <see cref="Task"/> representing the asynchronous operation. The task result indicates whether
         /// the ticket creation was successful or not.</returns>
         [Activity]
-        public async Task<bool> NotifyFlightWorkflowOnTicketCreated(Ticket ticket)
+        public async Task<bool> BookTicket(Ticket ticket)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.BookAsync(new BookingSignalModel { Ticket = ticket }));
+                wf.Book(new BookingSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -63,26 +63,26 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <returns>A task that represents the asynchronous operation. The task result contains a boolean value indicating
         /// whether the ticket was removed successfully or not.</returns>
         [Activity]
-        public async Task<bool> NotifyFlightWorkflowOnTicketCreatedCompensation(Ticket ticket)
+        public async Task<bool> BookTicketCompensation(Ticket ticket)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.BookCompensationAsync(new BookingSignalModel { Ticket = ticket }));
+                wf.BookCompensation(new BookingSignalModel { Ticket = ticket }));
 
             return true;
         }
 
         [Activity]
-        public async Task<bool> HoldMoneyAsync()
+        public Task<bool> HoldMoney()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         [Activity]
-        public async Task<bool> HoldMoneyCompensationAsync()
+        public Task<bool> HoldMoneyCompensation()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -91,12 +91,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="ticket">The ticket to mark as paid.</param>
         /// <returns>A boolean value indicating whether the ticket was marked as paid successfully.</returns>
         [Activity]
-        public async Task<bool> MarkTicketPaidAsync(Ticket ticket)
+        public async Task<bool> MarkTicketAsPaid(Ticket ticket)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.MarkTicketPaidAsync(new MarkTicketPaidSignalModel { Ticket = ticket }));
+                wf.MarkTicketPaid(new MarkTicketPaidSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -107,12 +107,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="ticket">The ticket to mark as canceled.</param>
         /// <returns>A boolean value indicating whether the tickets was marked as canceled successfully.</returns>
         [Activity]
-        public async Task<bool> MarkTicketPaidCompensationAsync(Ticket ticket)
+        public async Task<bool> MarkTicketAsPaidCompensation(Ticket ticket)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.MarkTicketPaidCompensationAsync(new MarkTicketPaidSignalModel { Ticket = ticket }));
+                wf.MarkTicketPaidCompensation(new MarkTicketPaidSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -122,7 +122,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <returns>A boolean value indicating whether the tickets was generated successfully.</returns>
         [Activity]
-        public async Task<List<TicketBlobModel>> GenerateBlobTicketsAsync()
+        public async Task<List<TicketBlobModel>> GenerateBlobTickets()
         {
             return [];
         }
@@ -132,9 +132,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <returns>A boolean value indicating whether the tickets was removed successfully.</returns>
         [Activity]
-        public async Task<bool> GenerateBlobTicketsCompensationAsync()
+        public Task<bool> GenerateBlobTicketsCompensation()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -142,9 +142,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <returns>A boolean value indicating whether the tickets was sent successfully.</returns>
         [Activity]
-        public async Task<bool> SendTicketsAsync()
+        public Task<bool> SendTickets()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -152,9 +152,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <returns>A boolean value indicating whether the tickets compensation was sent successfully.</returns>
         [Activity]
-        public async Task<bool> SendTicketsCompensationAsync()
+        public Task<bool> SendTicketsCompensation()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="ticket"></param>
         /// <returns>A boolean indicating whether the tickets were saved successfully.</returns>
         [Activity]
-        public async Task<bool> SaveTicketAsync(Ticket ticket)
+        public async Task<bool> SaveTicket(Ticket ticket)
         {
             await _ticketRepository.AddTicketAsync(ticket);
 
@@ -177,7 +177,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="ticket"></param>
         /// <returns>The task result is true if the operation is successful; otherwise, false.</returns>
         [Activity]
-        public async Task<bool> SaveTicketCompensationAsync(Ticket ticket)
+        public async Task<bool> SaveTicketCompensation(Ticket ticket)
         {
             var ticketToDelete = await _ticketRepository.GetTicketAsync(ticket.Id);
 
@@ -193,15 +193,15 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// Confirms a withdrawal.
         /// </summary>
         [Activity]
-        public async Task<bool> ConfirmWithdrawAsync()
+        public Task<bool> ConfirmWithdraw()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         [Activity]
-        public async Task<bool> ConfirmWithdrawCompensation()
+        public Task<bool> ConfirmWithdrawCompensation()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -209,11 +209,11 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <param name="flightsId">The list of flight IDs.</param>
         [Activity]
-        public async Task<DAL.Entities.Flight> GetFlightAsync(string flightId)
+        public async Task<DAL.Entities.Flight> GetFlight(string flightId)
         {
             var flight = await _flightRepository.GetFlightAsync(flightId);
 
-            if (string.Equals(flight.From, Airports.ErrorCode) || string.Equals(flight.To, Airports.ErrorCode))
+            if (string.Equals(flight?.From, Airports.ErrorCode) || string.Equals(flight?.To, Airports.ErrorCode))
                 throw new Exception("Artificial error exception");
 
             return flight;

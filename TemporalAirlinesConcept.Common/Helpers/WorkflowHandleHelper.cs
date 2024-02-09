@@ -5,7 +5,7 @@ namespace TemporalAirlinesConcept.Common.Helpers;
 
 public class WorkflowHandleHelper
 {
-    public static async Task<bool> IsWorkflowExists<T>(ITemporalClient client, string workflowId)
+    public static async Task<bool> IsWorkflowRunning<T>(ITemporalClient client, string workflowId)
     {
         var handle = client.GetWorkflowHandle<T>(workflowId);
 

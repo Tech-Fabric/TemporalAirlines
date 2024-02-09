@@ -19,7 +19,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DAL.Entities.Flight>>> GetFlights()
         {
-            var flights = await _flightService.GetFlightsAsync();
+            var flights = await _flightService.GetFlights();
 
             return Ok(flights);
         }
@@ -28,7 +28,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DAL.Entities.Flight>> GetFlight(string id)
         {
-            var flight = await _flightService.GetFlightAsync(id);
+            var flight = await _flightService.GetFlight(id);
 
             return Ok(flight);
         }
@@ -37,7 +37,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<DAL.Entities.Flight>> CreateFlight(FlightInputModel model)
         {
-            var createdFlight = await _flightService.CreateFlightAsync(model);
+            var createdFlight = await _flightService.CreateFlight(model);
 
             return CreatedAtAction(nameof(GetFlight), new { id = createdFlight.Id }, createdFlight);
         }
@@ -46,7 +46,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFlight(string id)
         {
-            await _flightService.RemoveFlightAsync(id);
+            await _flightService.RemoveFlight(id);
 
             return NoContent();
         }

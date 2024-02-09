@@ -1,4 +1,4 @@
-version: "3.4"
+version: "3.5"
 services:
   elasticsearch:
     container_name: temporal-elasticsearch
@@ -28,7 +28,7 @@ services:
     ports:
       - 5455:5432
     volumes:
-      - ./data/temporal/:/var/lib/postgresql/data
+      - ./data/postgresql/:/var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
     ports:

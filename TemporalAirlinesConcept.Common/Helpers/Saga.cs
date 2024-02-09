@@ -28,7 +28,7 @@ public class Saga
         _compensations.Push(compensation);
     }
 
-    public async Task CompensateAsync()
+    public async Task Compensate()
     {
         var i = 0;
 
