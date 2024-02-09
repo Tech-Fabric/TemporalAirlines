@@ -38,5 +38,5 @@ public class FlightBookingFormViewModel
 
     public string? PurchaseWorkflowId { get; set; }
 
-    public string? WorkflowId { get; set; }
+    public bool IsPaid { get; set; }
 }

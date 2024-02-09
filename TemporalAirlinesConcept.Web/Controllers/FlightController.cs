@@ -1,6 +1,7 @@
 ﻿using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using TemporalAirlinesConcept.DAL.Models.Seat;
+using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using TemporalAirlinesConcept.Web.ViewComponents;
@@ -185,11 +186,18 @@ public class FlightController : Controller
         if (!string.IsNullOrEmpty(workflowId))
         {
             await _ticketService.MarkAsPaid(workflowId);
+            model.IsPaid = true;
+            model.PurchaseWorkflowId = workflowId;
+            model.PaymentSuccessful = true;
         }
-
 
         if (Request.IsHtmx())
         {
+            Response.Htmx(h =>
+            {
+                h.PushUrl($"/flights/{model.SelectedFlight}/ticket/{model.PurchaseWorkflowId}");
+            });
+
             return ViewComponent(typeof(FlightBookingFormViewComponent), model);
         }
         else
