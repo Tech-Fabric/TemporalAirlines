@@ -16,13 +16,13 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public Task<List<DAL.Entities.User>> GetUsersAsync() =>
+    public Task<List<DAL.Entities.User>> GetUsers() =>
         _userRepository.GetUsersAsync();
 
-    public Task<DAL.Entities.User> GetUserAsync(string id) =>
+    public Task<DAL.Entities.User> GetUser(string id) =>
         _userRepository.GetUserAsync(id);
 
-    public async Task<DAL.Entities.User> CreateUserAsync(UserInputModel model)
+    public async Task<DAL.Entities.User> CreateUser(UserInputModel model)
     {
         var user = _mapper.Map<DAL.Entities.User>(model);
 
@@ -31,6 +31,6 @@ public class UserService : IUserService
         return user;
     }
 
-    public Task RemoveUserAsync(string id) =>
+    public Task RemoveUser(string id) =>
         _userRepository.DeleteUserAsync(id);
 }

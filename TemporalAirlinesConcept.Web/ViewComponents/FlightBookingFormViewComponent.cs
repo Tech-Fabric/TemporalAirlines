@@ -59,8 +59,9 @@ public class FlightBookingFormViewComponent : ViewComponent
                 To = _airports.ElementAt(arrivalTo).Key,
                 Depart = departureTime,
                 Arrival = arrivalTime,
-                Seats = new List<string>()
+                Seats = new List<DAL.Models.Seat.SeatInputModel>
                 {
+
                 }
             };
 
@@ -68,11 +69,14 @@ public class FlightBookingFormViewComponent : ViewComponent
             {
                 for (var y = 0; y < seatColumnsCount; y++)
                 {
-                    flightToCreate.Seats.Add($"{columnIdentifiers[y]}{x + 1}");
+                    flightToCreate.Seats.Add(new DAL.Models.Seat.SeatInputModel
+                    {
+                        Name = $"{columnIdentifiers[y]}{x + 1}"
+                    });
                 }
             }
 
-            await _flightService.CreateFlightAsync(
+            await _flightService.CreateFlight(
                 flightToCreate
             );
         }
@@ -91,14 +95,14 @@ public class FlightBookingFormViewComponent : ViewComponent
         }
 
         model.Airports = _airports;
-        model.Flights = await _flightService.GetFlightsAsync();
+        model.Flights = await _flightService.GetFlights();
 
         if (model.Flights.Count == 0)
         {
             await GenerateFlights();
         }
 
-        model.Flights = await _flightService.GetFlightsAsync();
+        model.Flights = await _flightService.GetFlights();
 
         if (!string.IsNullOrEmpty(model.DepartureAirport) && model.DepartureAirport != "From")
         {

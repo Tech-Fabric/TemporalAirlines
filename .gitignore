@@ -363,3 +363,4 @@ FodyWeavers.xsd
 /Monolith/.idea
 /temporal-server/db_data
 /.idea
+/temporal-server/temporal_db_data

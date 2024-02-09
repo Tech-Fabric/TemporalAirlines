@@ -29,6 +29,7 @@ services:
       - 5455:5432
     volumes:
       - /var/lib/postgresql/data
+      # - ./temporal_db_data:/var/lib/postgresql/data
   temporal:
     container_name: temporal
     depends_on:
@@ -97,9 +98,8 @@ services:
        retries: 15
     networks:
       - temporal-network
-    mem_limit: 8g
     # volumes:
-       # - C:\Users\vladislav.mandryk\source\repos\Temporal-Airlines-Concept\temporal-server\db_data:/tmp/cosmos/appdata # linux path
+       # - ./db_data:/tmp/cosmos/appdata # linux path
        # - ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
 
   temporalairlinesconcept.api:  

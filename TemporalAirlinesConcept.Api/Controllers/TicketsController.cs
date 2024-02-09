@@ -15,17 +15,15 @@ public class TicketsController : ControllerBase
     {
         _ticketService = ticketService;
     }
-
+    
     [HttpPost("purchase")]
-    public async Task<ActionResult<string>> PurchaseTicketAsync(PurchaseModel purchaseModel)
+    public async Task<ActionResult<string>> PurchaseTicket(PurchaseModel purchaseModel)
     {
-        var purchaseWorkflowId = await _ticketService.RequestTicketPurchaseAsync(purchaseModel);
-
-        return Ok(purchaseWorkflowId);
+        return Ok(await _ticketService.RequestTicketPurchase(purchaseModel));
     }
 
     [HttpGet("by-user/{userId}")]
-    public async Task<ActionResult<string>> GetTicketsAsync([FromRoute] string userId)
+    public async Task<ActionResult<string>> GetTickets([FromRoute] string userId)
     {
         var tickets = await _ticketService.GetTickets(userId);
 
@@ -33,7 +31,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpGet("{userId}/{flightId}")]
-    public async Task<ActionResult<string>> GetTicketAsync([FromRoute] string userId, [FromRoute] string flightId)
+    public async Task<ActionResult<string>> GetTicket([FromRoute] string userId, [FromRoute] string flightId)
     {
         var tickets = await _ticketService.GetTickets(userId, flightId);
 
@@ -41,7 +39,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpGet("{ticketId}")]
-    public async Task<ActionResult<Ticket>> GetTicketAsync([FromRoute] string ticketId)
+    public async Task<ActionResult<Ticket>> GetTicket([FromRoute] string ticketId)
     {
         var ticket = await _ticketService.GetTicket(ticketId);
 
@@ -54,5 +52,17 @@ public class TicketsController : ControllerBase
         await _ticketService.MarkAsPaid(purchaseWorkflowId);
 
         return Ok();
+    }
+    
+    [HttpPost("check-in")]
+    public async Task<ActionResult<bool>> ReserveSeat(SeatReservationInputModel seatReservationInputModel)
+    {
+        return Ok(await _ticketService.RequestSeatReservation(seatReservationInputModel));
+    }
+    
+    [HttpPost("board")]
+    public async Task<ActionResult<bool>> BoardPassenger(BoardingInputModel boardingInputModel)
+    {
+        return Ok(await _ticketService.BoardPassenger(boardingInputModel));
     }
 }

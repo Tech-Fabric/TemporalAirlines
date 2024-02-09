@@ -28,7 +28,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration
         [Activity]
         public async Task<DAL.Entities.User> CreateUser(UserRegistrationModel registrationModel)
         {
-            var user = await _userService.CreateUserAsync(new UserInputModel
+            var user = await _userService.CreateUser(new UserInputModel
             {
                 Email = registrationModel.Email,
                 Name = registrationModel.Name,

@@ -49,17 +49,17 @@ public class TicketService : ITicketService
     {
         var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
 
-        await handle.SignalAsync(x => x.SetPaidStatus());
+        await handle.SignalAsync(x => x.SetAsPaid());
     }
 
-    public async Task<string> RequestTicketPurchaseAsync(PurchaseModel purchaseModel)
+    public async Task<string> RequestTicketPurchase(PurchaseModel purchaseModel)
     {
         await CreateFlightWorkflowIfNotExistsAsync(purchaseModel.FlightId);
 
         var workflowId = Guid.NewGuid().ToString();
 
         await _temporalClient.StartWorkflowAsync<PurchaseWorkflow>(
-            wf => wf.RunAsync(purchaseModel), new WorkflowOptions
+            wf => wf.Run(purchaseModel), new WorkflowOptions
             {
                 TaskQueue = Temporal.DefaultQueue,
                 Id = workflowId,
@@ -74,9 +74,15 @@ public class TicketService : ITicketService
         return workflowId;
     }
 
+    public Task SetPassengerDetails(string purchaseWorkflowId, List<string> passengerDetails)
+    {
+        var wh = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
+        return wh.SignalAsync(wf => wf.SetPassengerDetails(passengerDetails));
+    }
+
     private async Task CreateFlightWorkflowIfNotExistsAsync(string flightId)
     {
-        if (await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId))
+        if (await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, flightId))
             return;
 
         var flight = await _flightRepository.GetFlightAsync(flightId);
@@ -84,7 +90,51 @@ public class TicketService : ITicketService
         if (flight is null)
             throw new EntityNotFoundException($"Flight {flightId} was not found.");
 
-        await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
+        await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
             new WorkflowOptions(flightId, Temporal.DefaultQueue));
+    }
+
+    public async Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel)
+    {
+        if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient,
+                seatReservationInputModel.FlightId))
+            return false;
+
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(seatReservationInputModel.FlightId);
+
+        var flightDetails = await handle.QueryAsync(wf => wf.GetFlightDetails());
+
+        var ticket = flightDetails.Registered.FirstOrDefault(t => t.Id == seatReservationInputModel.TicketId);
+
+        if (ticket is null)
+            return false;
+
+        await handle.SignalAsync(wf => wf.ReserveSeat(
+            new SeatReservationSignalModel(ticket, seatReservationInputModel.Seat.Name
+        )));
+
+        return true;
+    }
+
+    public async Task<bool> BoardPassenger(BoardingInputModel boardingInputModel)
+    {
+        if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, boardingInputModel.FlightId))
+            return false;
+
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(boardingInputModel.FlightId);
+
+        var flightDetails = await handle.QueryAsync(wf => wf.GetFlightDetails());
+
+        var ticket = flightDetails.Registered.FirstOrDefault(t => t.Id == boardingInputModel.TicketId);
+
+        if (ticket is null)
+            return false;
+
+        await handle.SignalAsync(wf => wf.BoardPassenger(new BoardingSignalModel
+        {
+            Ticket = ticket
+        }));
+
+        return true;
     }
 }
