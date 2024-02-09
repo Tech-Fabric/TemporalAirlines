@@ -1,4 +1,6 @@
-﻿using TemporalAirlinesConcept.Common.Helpers;
+﻿using System.Net.Sockets;
+using TemporalAirlinesConcept.Common.Constants;
+using TemporalAirlinesConcept.Common.Helpers;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.Services.Models.Purchase;
@@ -104,8 +106,7 @@ public class PurchaseWorkflow
 
         await SaveTicketsAsync();
 
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.ConfirmWithdrawAsync(),
-            _activityOptions);
+        await ConfirmWithdraw();
 
         var isCancelled = await Workflow.WaitConditionAsync(() => _isCancelled, timeUntilDepart);
 
@@ -142,6 +143,16 @@ public class PurchaseWorkflow
             Seat = null,
             PaymentStatus = PaymentStatus.Pending
         });
+    }
+
+    private async Task ConfirmWithdraw()
+    {
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.ConfirmWithdrawAsync(),
+          _activityOptions);
+
+        _saga.AddCompensation(async () =>
+           await Workflow.ExecuteActivityAsync(
+               (PurchaseActivities act) => act.ConfirmWithdrawCompensation(), _activityOptions));
     }
 
     private async Task HoldMoneyAsync()

@@ -14,22 +14,22 @@ public class FlightWorkflow
     };
 
     private FlightDetailsModel _flight;
-    
+
     [WorkflowRun]
     public async Task RunAsync(DAL.Entities.Flight flight)
     {
         _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) => act.MapFlightModelAsync(flight),
             _activityOptions);
-        
+
         await ChangeStatusAtTimeAsync(FlightStatus.CheckIn, _flight.Depart.Subtract(TimeSpan.FromDays(1)));
-        
-        _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) => 
+
+        _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) =>
             act.AssignSeatsAsync(_flight), _activityOptions);
-        
+
         await ChangeStatusAtTimeAsync(FlightStatus.Boarding, _flight.Depart.Subtract(TimeSpan.FromHours(2)));
-        
+
         await ChangeStatusAtTimeAsync(FlightStatus.Closed, _flight.Depart.Subtract(TimeSpan.FromMinutes(5)));
-        
+
         await ChangeStatusAtTimeAsync(FlightStatus.Departed, _flight.Depart);
 
         await ChangeStatusAtTimeAsync(FlightStatus.Arrived, _flight.Arrival);
@@ -41,12 +41,12 @@ public class FlightWorkflow
     private async Task ChangeStatusAtTimeAsync(FlightStatus status, DateTime time)
     {
         var delay = time.Subtract(Workflow.UtcNow);
-        
+
         if (delay > TimeSpan.Zero)
         {
             await Workflow.DelayAsync(delay);
         }
-        
+
         _flight.Status = status;
     }
 
@@ -93,7 +93,8 @@ public class FlightWorkflow
     {
         var ticket = _flight.Registered.Find(s => s.Id == markTicketPaidSignalModel.Ticket.Id);
 
-        ticket.PaymentStatus = PaymentStatus.Cancelled;
+        if (ticket is not null)
+            ticket.PaymentStatus = PaymentStatus.Cancelled;
     }
 
     /// <summary>
@@ -104,7 +105,7 @@ public class FlightWorkflow
     public async Task ReserveSeatAsync(SeatReservationSignalModel seatReservationSignalModel)
     {
         var seat = _flight.Seats.FirstOrDefault(f => f.Name == seatReservationSignalModel.Seat);
-        
+
         seat.TicketId = seatReservationSignalModel.Ticket.Id;
 
         var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
@@ -122,9 +123,9 @@ public class FlightWorkflow
         var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
 
         ticket.Seat = null;
-        
+
         var seat = _flight.Seats.FirstOrDefault(f => f.Name == seatReservationSignalModel.Seat);
-        
+
         seat.TicketId = null;
     }
 

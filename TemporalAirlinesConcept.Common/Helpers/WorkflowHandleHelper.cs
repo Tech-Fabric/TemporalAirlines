@@ -11,9 +11,11 @@ public class WorkflowHandleHelper
 
         try
         {
-            await handle.DescribeAsync();
+            var handleDescription = await handle.DescribeAsync();
 
-            return true;
+            var checkResult = handleDescription.Status == Temporalio.Api.Enums.V1.WorkflowExecutionStatus.Running;
+
+            return checkResult;
         }
         catch (RpcException ex)
         {
