@@ -106,10 +106,10 @@ public class PurchaseWorkflow
 
         await BookTicketsForFlightAsync(purchaseModel);
 
-        // var isPaid = await Workflow.WaitConditionAsync(() => _isPaid, TimeSpan.FromMinutes(15));
-        //
-        // if (!isPaid)
-        //     throw new ApplicationFailureException("Tickets was not paid in 15 min.");
+        var isPaid = await Workflow.WaitConditionAsync(() => _isPaid, TimeSpan.FromMinutes(15));
+
+        if (!isPaid)
+            throw new ApplicationFailureException("Tickets was not paid in 15 min.");
 
         return await ProceedPaymentAsync(purchaseModel);
     }

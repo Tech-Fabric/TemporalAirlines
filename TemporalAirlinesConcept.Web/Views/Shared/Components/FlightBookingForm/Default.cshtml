@@ -235,7 +235,7 @@
 
             <div class="text-end">
                 <button class="btn btn-success btn-lg mt-5 flight-select-action"
-                        hx-post="/flights/@Model.SelectedFlight/details"
+                        hx-post="/flights/@Model.WorkflowId/payment"
                         hx-swap="outerHTML"
                         hx-push-url="true"
                         hx-target="#form-flight-booking">

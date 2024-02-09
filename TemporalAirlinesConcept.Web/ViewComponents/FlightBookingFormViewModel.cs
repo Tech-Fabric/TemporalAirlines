@@ -18,12 +18,13 @@ public class CreditCardDetails
 public class FlightBookingFormViewModel
 {
     public string? DepartureAirport { get; set; }
+
     public string? ArrivalAirport { get; set; }
 
     public DateTime? When { get; set; }
 
     public List<Flight>? Flights { get; set; }
-    public Dictionary<string,string>? Airports { get; set; }
+    public Dictionary<string, string>? Airports { get; set; }
 
     public int NumberOfSeats { get; set; }
 
@@ -33,7 +34,9 @@ public class FlightBookingFormViewModel
 
     public bool PaymentSuccessful { get; set; }
 
-    public Dictionary<string,bool>? SelectedSeats { get; set; }
+    public Dictionary<string, bool>? SelectedSeats { get; set; }
 
     public bool ShowSeatSelectionScreen { get; set; }
+
+    public string? WorkflowId { get; set; }
 }

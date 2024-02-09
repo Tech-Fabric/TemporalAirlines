@@ -59,17 +59,18 @@ public class FlightController : Controller
     public async Task<IActionResult> Purchase(
         [FromForm] FlightBookingFormViewModel model,
         [FromRoute] string? selectedFlight
-    ) {
+    )
+    {
         if (!string.IsNullOrEmpty(selectedFlight))
         {
             model.SelectedFlight = selectedFlight;
         }
 
-        var purchaseWorkflowId = "";
+        model.WorkflowId = string.Empty;
 
         if (!string.IsNullOrEmpty(model.CreditCardDetails.CardNumber))
         {
-            purchaseWorkflowId = await _ticketService.RequestTicketPurchaseAsync(
+            model.WorkflowId = await _ticketService.RequestTicketPurchaseAsync(
                 new PurchaseModel()
                 {
                     FlightId = model.SelectedFlight
@@ -83,11 +84,11 @@ public class FlightController : Controller
 
         if (Request.IsHtmx())
         {
-            if (!string.IsNullOrEmpty(purchaseWorkflowId))
+            if (!string.IsNullOrEmpty(model.WorkflowId))
             {
                 Response.Htmx(h =>
                 {
-                    h.PushUrl($"/flights/{model.SelectedFlight}/ticket/{purchaseWorkflowId}");
+                    h.PushUrl($"/flights/{model.SelectedFlight}/ticket/{model.WorkflowId}");
                 });
             }
 
@@ -128,7 +129,8 @@ public class FlightController : Controller
         [FromForm] FlightBookingFormViewModel model,
         [FromRoute] string? selectedFlight,
         [FromRoute] string? purchaseWorkflowId
-    ) {
+    )
+    {
         if (!string.IsNullOrEmpty(selectedFlight))
         {
             model.SelectedFlight = selectedFlight;
@@ -145,6 +147,27 @@ public class FlightController : Controller
         {
 
         }
+
+        if (Request.IsHtmx())
+        {
+            return ViewComponent(typeof(FlightBookingFormViewComponent), model);
+        }
+        else
+        {
+            return View("~/Views/Flight/Index.cshtml", model);
+        }
+    }
+
+    [HttpPost("{WorkflowId}/payment")]
+    public async Task<IActionResult> MarkAsPaid(
+        [FromForm] FlightBookingFormViewModel model,
+        [FromRoute] string? workflowId)
+    {
+        if (!string.IsNullOrEmpty(workflowId))
+        {
+            await _ticketService.MarkAsPaid(workflowId);
+        }
+
 
         if (Request.IsHtmx())
         {
