@@ -25,7 +25,7 @@ public class FlightService : IFlightService
     {
         var flights = await _flightRepository.GetFlightsAsync();
 
-        var flightDetails = await Task.WhenAll(flights.Select(flight => GetFlightAsync(flight.Id)));
+        var flightDetails = await Task.WhenAll(flights.Select(FetchFlightDetailFromWorkflow));
 
         flights = flightDetails.ToList();
 
@@ -36,10 +36,17 @@ public class FlightService : IFlightService
     {
         var flight = await _flightRepository.GetFlightAsync(id);
 
+        var fetchedFlight = await FetchFlightDetailFromWorkflow(flight);
+
+        return fetchedFlight;
+    }
+
+    public async Task<DAL.Entities.Flight> FetchFlightDetailFromWorkflow(DAL.Entities.Flight flight)
+    {
         if (flight is null)
             throw new EntityNotFoundException("Flight was not found.");
 
-        if (!await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flight.Id))
+        if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, flight.Id))
             return flight;
 
         var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id);

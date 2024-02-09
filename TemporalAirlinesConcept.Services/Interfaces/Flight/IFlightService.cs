@@ -8,6 +8,8 @@ public interface IFlightService
 
     public Task<DAL.Entities.Flight> GetFlightAsync(string id);
 
+    public Task<DAL.Entities.Flight> FetchFlightDetailFromWorkflow(DAL.Entities.Flight flight);
+
     public Task<DAL.Entities.Flight> CreateFlightAsync(FlightInputModel model);
 
     public Task RemoveFlightAsync(string id);

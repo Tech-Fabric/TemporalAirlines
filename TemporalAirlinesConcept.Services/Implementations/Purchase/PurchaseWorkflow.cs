@@ -1,6 +1,4 @@
-﻿using System.Net.Sockets;
-using TemporalAirlinesConcept.Common.Constants;
-using TemporalAirlinesConcept.Common.Helpers;
+﻿using TemporalAirlinesConcept.Common.Helpers;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.Services.Models.Purchase;
@@ -33,11 +31,11 @@ public class PurchaseWorkflow
     };
 
     [WorkflowRun]
-    public async Task<bool> RunAsync(PurchaseModel purchaseModel)
+    public async Task<bool> Run(PurchaseModel purchaseModel)
     {
         try
         {
-            return await PurchaseWorkflowBodyAsync(purchaseModel);
+            return await ProcessPurchase(purchaseModel);
         }
         catch (Exception)
         {
@@ -55,7 +53,7 @@ public class PurchaseWorkflow
                 return Task.CompletedTask;
             });
 
-            await _saga.CompensateAsync();
+            await _saga.Compensate();
 
             throw;
         }
@@ -65,7 +63,7 @@ public class PurchaseWorkflow
     /// Sets the paid status to true.
     /// </summary>
     [WorkflowSignal]
-    public Task SetPaidStatus()
+    public Task SetAsPaid()
     {
         if (!_isPaid)
             _isPaid = true;
@@ -95,38 +93,38 @@ public class PurchaseWorkflow
         return _ticket;
     }
 
-    private async Task<bool> PurchaseWorkflowBodyAsync(PurchaseModel purchaseModel)
+    private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
-            (PurchaseActivities act) => act.IsFlightAvailableAsync(purchaseModel.FlightId),
+            (PurchaseActivities act) => act.IsFlightAvailable(purchaseModel.FlightId),
             _activityOptions);
 
         if (!isFlightsAvailable)
             return false;
 
-        await BookTicketsForFlightAsync(purchaseModel);
+        await BookTicketsForFlight(purchaseModel);
 
         // var isPaid = await Workflow.WaitConditionAsync(() => _isPaid, TimeSpan.FromMinutes(15));
         //
         // if (!isPaid)
         //     throw new ApplicationFailureException("Tickets was not paid in 15 min.");
 
-        return await ProceedPaymentAsync(purchaseModel);
+        return await ProceedPayment(purchaseModel);
     }
 
-    private async Task<bool> ProceedPaymentAsync(PurchaseModel purchaseModel)
+    private async Task<bool> ProceedPayment(PurchaseModel purchaseModel)
     {
-        await HoldMoneyAsync();
+        await HoldMoney();
 
-        await MarkTicketPaidAsync(_ticket);
+        await MarkTicketAsPaid(_ticket);
 
-        await GenerateBlobTicketsAsync();
+        await GenerateBlobTickets();
 
-        await SendTicketsAsync();
+        await SendTickets();
 
-        await SaveTicketsAsync();
+        await SaveTickets();
 
-        await ConfirmWithdraw();
+        await ConfirmWithdrawal();
 
         var lastFlight = await Workflow.ExecuteActivityAsync(
             (PurchaseActivities act) => act.GetFlightAsync(purchaseModel.FlightId),
@@ -142,19 +140,19 @@ public class PurchaseWorkflow
         return true;
     }
 
-    private async Task BookTicketsForFlightAsync(PurchaseModel purchaseModel)
+    private async Task BookTicketsForFlight(PurchaseModel purchaseModel)
     {
-        _ticket = await FormTicketAsync(purchaseModel.FlightId, purchaseModel);
+        _ticket = await GetTicket(purchaseModel);
 
-        await CreateTicketAsync(_ticket);
+        await BookTicketAsync(_ticket);
     }
 
-    private static Task<Ticket> FormTicketAsync(string flightId, PurchaseModel purchaseModel)
+    private static Task<Ticket> GetTicket(PurchaseModel purchaseModel)
     {
         return Task.FromResult(new Ticket
         {
             Id = Guid.NewGuid().ToString(),
-            FlightId = flightId,
+            FlightId = purchaseModel.FlightId,
             Passenger = purchaseModel.Passenger,
             UserId = purchaseModel.UserId,
             Seat = null,
@@ -162,9 +160,9 @@ public class PurchaseWorkflow
         });
     }
 
-    private async Task ConfirmWithdraw()
+    private async Task ConfirmWithdrawal()
     {
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.ConfirmWithdrawAsync(),
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.ConfirmWithdraw(),
           _activityOptions);
 
         _saga.AddCompensation(async () =>
@@ -172,61 +170,61 @@ public class PurchaseWorkflow
                (PurchaseActivities act) => act.ConfirmWithdrawCompensation(), _activityOptions));
     }
 
-    private async Task CreateTicketAsync(Ticket ticket)
+    private async Task BookTicketAsync(Ticket ticket)
     {
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.CreateTicketAsync(ticket),
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.BookTicket(ticket),
             _activityOptions);
 
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.CreateTicketCompensationAsync(ticket), _activityOptions));
+                (PurchaseActivities act) => act.BookTicketCompensation(ticket), _activityOptions));
     }
 
-    private async Task HoldMoneyAsync()
+    private async Task HoldMoney()
     {
         await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
-            act.HoldMoneyAsync(), _activityOptions);
+            act.HoldMoney(), _activityOptions);
 
         _saga.AddCompensation(async () => await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
-            act.HoldMoneyCompensationAsync(), _activityOptions));
+            act.HoldMoneyCompensation(), _activityOptions));
     }
 
-    private async Task MarkTicketPaidAsync(Ticket ticket)
+    private async Task MarkTicketAsPaid(Ticket ticket)
     {
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.MarkTicketPaidAsync(ticket),
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.MarkTicketAsPaid(ticket),
             _activityOptions);
 
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.MarkTicketPaidCompensationAsync(ticket), _activityOptions));
+                (PurchaseActivities act) => act.MarkTicketAsPaidCompensation(ticket), _activityOptions));
     }
 
-    private async Task GenerateBlobTicketsAsync()
+    private async Task GenerateBlobTickets()
     {
         await Workflow.ExecuteActivityAsync(
-            (PurchaseActivities act) => act.GenerateBlobTicketsAsync(), _activityOptions);
+            (PurchaseActivities act) => act.GenerateBlobTickets(), _activityOptions);
 
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.GenerateBlobTicketsCompensationAsync(), _activityOptions));
+                (PurchaseActivities act) => act.GenerateBlobTicketsCompensation(), _activityOptions));
     }
 
-    private async Task SendTicketsAsync()
+    private async Task SendTickets()
     {
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SendTicketsAsync(), _activityOptions);
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SendTickets(), _activityOptions);
 
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.SendTicketsCompensationAsync(), _activityOptions));
+                (PurchaseActivities act) => act.SendTicketsCompensation(), _activityOptions));
     }
 
-    private async Task SaveTicketsAsync()
+    private async Task SaveTickets()
     {
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SaveTicketAsync(_ticket),
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SaveTicket(_ticket),
             _activityOptions);
 
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.SaveTicketCompensationAsync(_ticket), _activityOptions));
+                (PurchaseActivities act) => act.SaveTicketCompensation(_ticket), _activityOptions));
     }
 }

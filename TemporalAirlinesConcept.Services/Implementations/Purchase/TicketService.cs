@@ -49,7 +49,7 @@ public class TicketService : ITicketService
     {
         var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
 
-        await handle.SignalAsync(x => x.SetPaidStatus());
+        await handle.SignalAsync(x => x.SetAsPaid());
     }
 
     public async Task<string> RequestTicketPurchaseAsync(PurchaseModel purchaseModel)
@@ -59,7 +59,7 @@ public class TicketService : ITicketService
         var workflowId = Guid.NewGuid().ToString();
 
         await _temporalClient.StartWorkflowAsync<PurchaseWorkflow>(
-            wf => wf.RunAsync(purchaseModel), new WorkflowOptions
+            wf => wf.Run(purchaseModel), new WorkflowOptions
             {
                 TaskQueue = Temporal.DefaultQueue,
                 Id = workflowId,
@@ -76,7 +76,7 @@ public class TicketService : ITicketService
 
     private async Task CreateFlightWorkflowIfNotExistsAsync(string flightId)
     {
-        if (await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flightId))
+        if (await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, flightId))
             return;
 
         var flight = await _flightRepository.GetFlightAsync(flightId);
