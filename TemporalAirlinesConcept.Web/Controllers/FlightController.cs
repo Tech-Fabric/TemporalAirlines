@@ -68,7 +68,7 @@ public class FlightController : Controller
 
         if (!string.IsNullOrEmpty(model.CreditCardDetails.CardNumber))
         {
-            model.PurchaseWorkflowId = await _ticketService.RequestTicketPurchaseAsync(
+            model.PurchaseWorkflowId = await _ticketService.RequestTicketPurchase(
                 new PurchaseModel()
                 {
                     FlightId = model.SelectedFlight,
@@ -150,7 +150,7 @@ public class FlightController : Controller
         {
             foreach (var s in model.SelectedSeats)
             {
-                await _ticketService.RequestSeatReservationAsync(
+                await _ticketService.RequestSeatReservation(
                     new SeatReservationInputModel()
                     {
                         FlightId = model.SelectedFlight,

@@ -21,25 +21,32 @@ public class FlightService : IFlightService
         _flightRepository = flightRepository;
     }
 
-    public async Task<List<DAL.Entities.Flight>> GetFlightsAsync()
+    public async Task<List<DAL.Entities.Flight>> GetFlights()
     {
         var flights = await _flightRepository.GetFlightsAsync();
 
-        var flightDetails = await Task.WhenAll(flights.Select(flight => GetFlightAsync(flight.Id)));
+        var flightDetails = await Task.WhenAll(flights.Select(FetchFlightDetailFromWorkflow));
 
         flights = flightDetails.ToList();
 
         return flights;
     }
 
-    public async Task<DAL.Entities.Flight> GetFlightAsync(string id)
+    public async Task<DAL.Entities.Flight> GetFlight(string id)
     {
         var flight = await _flightRepository.GetFlightAsync(id);
 
+        var fetchedFlight = await FetchFlightDetailFromWorkflow(flight);
+
+        return fetchedFlight;
+    }
+
+    public async Task<DAL.Entities.Flight> FetchFlightDetailFromWorkflow(DAL.Entities.Flight flight)
+    {
         if (flight is null)
             throw new EntityNotFoundException("Flight was not found.");
 
-        if (!await WorkflowHandleHelper.IsWorkflowExists<FlightWorkflow>(_temporalClient, flight.Id))
+        if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, flight.Id))
             return flight;
 
         var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id);
@@ -49,7 +56,7 @@ public class FlightService : IFlightService
         return _mapper.Map<DAL.Entities.Flight>(flightDetails);
     }
 
-    public async Task<DAL.Entities.Flight> CreateFlightAsync(FlightInputModel model)
+    public async Task<DAL.Entities.Flight> CreateFlight(FlightInputModel model)
     {
         var flight = _mapper.Map<DAL.Entities.Flight>(model);
 
@@ -58,7 +65,7 @@ public class FlightService : IFlightService
         return flight;
     }
 
-    public async Task RemoveFlightAsync(string id)
+    public async Task RemoveFlight(string id)
     {
         var flight = await _flightRepository.GetFlightAsync(id);
 

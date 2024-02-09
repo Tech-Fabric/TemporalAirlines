@@ -22,7 +22,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DAL.Entities.User>>> GetUsers()
         {
-            var users = await _userService.GetUsersAsync();
+            var users = await _userService.GetUsers();
 
             return Ok(users);
         }
@@ -31,7 +31,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DAL.Entities.User>> GetUser(string id)
         {
-            var user = await _userService.GetUserAsync(id);
+            var user = await _userService.GetUser(id);
 
             return Ok(user);
         }
@@ -67,7 +67,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            await _userService.RemoveUserAsync(id);
+            await _userService.RemoveUser(id);
 
             return NoContent();
         }

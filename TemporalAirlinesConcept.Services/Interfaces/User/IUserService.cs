@@ -4,11 +4,11 @@ namespace TemporalAirlinesConcept.Services.Interfaces.User;
 
 public interface IUserService
 {
-    public Task<List<DAL.Entities.User>> GetUsersAsync();
+    public Task<List<DAL.Entities.User>> GetUsers();
 
-    public Task<DAL.Entities.User> GetUserAsync(string id);
+    public Task<DAL.Entities.User> GetUser(string id);
 
-    public Task<DAL.Entities.User> CreateUserAsync(UserInputModel model);
+    public Task<DAL.Entities.User> CreateUser(UserInputModel model);
 
-    public Task RemoveUserAsync(string id);
+    public Task RemoveUser(string id);
 }

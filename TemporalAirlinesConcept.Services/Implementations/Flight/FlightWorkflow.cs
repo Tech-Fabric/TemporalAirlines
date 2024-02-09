@@ -16,29 +16,29 @@ public class FlightWorkflow
     private FlightDetailsModel _flight;
 
     [WorkflowRun]
-    public async Task RunAsync(DAL.Entities.Flight flight)
+    public async Task Run(DAL.Entities.Flight flight)
     {
-        _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) => act.MapFlightModelAsync(flight),
+        _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) => act.MapFlightModel(flight),
             _activityOptions);
 
-        await ChangeStatusAtTimeAsync(FlightStatus.CheckIn, _flight.Depart.Subtract(TimeSpan.FromDays(1)));
+        await ChangeStatusAtTime(FlightStatus.CheckIn, _flight.Depart.Subtract(TimeSpan.FromDays(1)));
 
         _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) =>
-            act.AssignSeatsAsync(_flight), _activityOptions);
+            act.AssignSeats(_flight), _activityOptions);
 
-        await ChangeStatusAtTimeAsync(FlightStatus.Boarding, _flight.Depart.Subtract(TimeSpan.FromHours(2)));
+        await ChangeStatusAtTime(FlightStatus.Boarding, _flight.Depart.Subtract(TimeSpan.FromHours(2)));
 
-        await ChangeStatusAtTimeAsync(FlightStatus.Closed, _flight.Depart.Subtract(TimeSpan.FromMinutes(5)));
+        await ChangeStatusAtTime(FlightStatus.Closed, _flight.Depart.Subtract(TimeSpan.FromMinutes(5)));
 
-        await ChangeStatusAtTimeAsync(FlightStatus.Departed, _flight.Depart);
+        await ChangeStatusAtTime(FlightStatus.Departed, _flight.Depart);
 
-        await ChangeStatusAtTimeAsync(FlightStatus.Arrived, _flight.Arrival);
+        await ChangeStatusAtTime(FlightStatus.Arrived, _flight.Arrival);
 
-        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.SaveFlightDetailsAsync(_flight),
+        await Workflow.ExecuteActivityAsync((FlightActivities act) => act.SaveFlightDetails(_flight),
             _activityOptions);
     }
 
-    private async Task ChangeStatusAtTimeAsync(FlightStatus status, DateTime time)
+    private async Task ChangeStatusAtTime(FlightStatus status, DateTime time)
     {
         var delay = time.Subtract(Workflow.UtcNow);
 
@@ -55,9 +55,11 @@ public class FlightWorkflow
     /// </summary>
     /// <param name="bookingSignalModel">The booking request model.</param>
     [WorkflowSignal]
-    public async Task BookAsync(BookingSignalModel bookingSignalModel)
+    public Task Book(BookingSignalModel bookingSignalModel)
     {
         _flight.Registered.Add(bookingSignalModel.Ticket);
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -65,11 +67,14 @@ public class FlightWorkflow
     /// </summary>
     /// <param name="bookingSignalModel">The model containing the booking request information.</param>
     [WorkflowSignal]
-    public async Task BookCompensationAsync(BookingSignalModel bookingSignalModel)
+    public Task BookCompensation(BookingSignalModel bookingSignalModel)
     {
-        var index = _flight.Registered.FindIndex(s => s.Id == bookingSignalModel.Ticket.Id);
-        
-        _flight.Registered.RemoveAt(index);
+        var bookedTicket = _flight.Registered.FirstOrDefault(s => s.Id == bookingSignalModel.Ticket.Id);
+
+        if (bookedTicket is not null)
+            _flight.Registered.Remove(bookedTicket);
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -77,11 +82,14 @@ public class FlightWorkflow
     /// </summary>
     /// <param name="markTicketPaidSignalModel">The request model containing the ticket to be marked as paid.</param>
     [WorkflowSignal]
-    public async Task MarkTicketPaidAsync(MarkTicketPaidSignalModel markTicketPaidSignalModel)
+    public Task MarkTicketPaid(MarkTicketPaidSignalModel markTicketPaidSignalModel)
     {
-        var ticket = _flight.Registered.Find(s => s.Id == markTicketPaidSignalModel.Ticket.Id);
+        var ticket = _flight.Registered.FirstOrDefault(s => s.Id == markTicketPaidSignalModel.Ticket.Id);
 
-        ticket.PaymentStatus = PaymentStatus.Paid;
+        if (ticket is not null)
+            ticket.PaymentStatus = PaymentStatus.Paid;
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -89,12 +97,14 @@ public class FlightWorkflow
     /// </summary>
     /// <param name="markTicketPaidSignalModel">The model containing information about the ticket to mark as paid.</param>
     [WorkflowSignal]
-    public async Task MarkTicketPaidCompensationAsync(MarkTicketPaidSignalModel markTicketPaidSignalModel)
+    public Task MarkTicketPaidCompensation(MarkTicketPaidSignalModel markTicketPaidSignalModel)
     {
-        var ticket = _flight.Registered.Find(s => s.Id == markTicketPaidSignalModel.Ticket.Id);
+        var ticket = _flight.Registered.FirstOrDefault(s => s.Id == markTicketPaidSignalModel.Ticket.Id);
 
         if (ticket is not null)
             ticket.PaymentStatus = PaymentStatus.Cancelled;
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -102,7 +112,7 @@ public class FlightWorkflow
     /// </summary>
     /// <param name="seatReservationSignalModel">The model containing the seat and ticket information.</param>
     [WorkflowSignal]
-    public async Task ReserveSeatAsync(SeatReservationSignalModel seatReservationSignalModel)
+    public Task ReserveSeat(SeatReservationSignalModel seatReservationSignalModel)
     {
         var seat = _flight.Seats.FirstOrDefault(f => f.Name == seatReservationSignalModel.Seat);
 
@@ -111,6 +121,8 @@ public class FlightWorkflow
         var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
 
         ticket.Seat = seat;
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -118,7 +130,7 @@ public class FlightWorkflow
     /// </summary>
     /// <param name="seatReservationSignalModel">The seat reservation request model that contains the seat information.</param>
     [WorkflowSignal]
-    public async Task ReserveSeatCompensationAsync(SeatReservationSignalModel seatReservationSignalModel)
+    public Task ReserveSeatCompensation(SeatReservationSignalModel seatReservationSignalModel)
     {
         var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
 
@@ -127,6 +139,8 @@ public class FlightWorkflow
         var seat = _flight.Seats.FirstOrDefault(f => f.Name == seatReservationSignalModel.Seat);
 
         seat.TicketId = null;
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -134,9 +148,11 @@ public class FlightWorkflow
     /// </summary>
     /// <param name="boardingSignalModel">The model containing the information of the passenger's boarding request.</param>
     [WorkflowSignal]
-    public async Task BoardPassengerAsync(BoardingSignalModel boardingSignalModel)
+    public Task BoardPassenger(BoardingSignalModel boardingSignalModel)
     {
         _flight.Boarded.Add(boardingSignalModel.Ticket);
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
