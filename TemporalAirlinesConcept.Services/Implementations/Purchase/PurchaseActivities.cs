@@ -51,7 +51,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.BookAsync(new BookingSignalModel { Ticket = ticket }));
+                wf.Book(new BookingSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -68,7 +68,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.BookCompensationAsync(new BookingSignalModel { Ticket = ticket }));
+                wf.BookCompensation(new BookingSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -96,7 +96,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.MarkTicketPaidAsync(new MarkTicketPaidSignalModel { Ticket = ticket }));
+                wf.MarkTicketPaid(new MarkTicketPaidSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -112,7 +112,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
             await flightHandle.SignalAsync(wf =>
-                wf.MarkTicketPaidCompensationAsync(new MarkTicketPaidSignalModel { Ticket = ticket }));
+                wf.MarkTicketPaidCompensation(new MarkTicketPaidSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -209,7 +209,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <param name="flightsId">The list of flight IDs.</param>
         [Activity]
-        public async Task<DAL.Entities.Flight> GetFlightAsync(string flightId)
+        public async Task<DAL.Entities.Flight> GetFlight(string flightId)
         {
             var flight = await _flightRepository.GetFlightAsync(flightId);
 

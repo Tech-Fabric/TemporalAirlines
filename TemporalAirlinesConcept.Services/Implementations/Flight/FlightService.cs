@@ -21,7 +21,7 @@ public class FlightService : IFlightService
         _flightRepository = flightRepository;
     }
 
-    public async Task<List<DAL.Entities.Flight>> GetFlightsAsync()
+    public async Task<List<DAL.Entities.Flight>> GetFlights()
     {
         var flights = await _flightRepository.GetFlightsAsync();
 
@@ -32,7 +32,7 @@ public class FlightService : IFlightService
         return flights;
     }
 
-    public async Task<DAL.Entities.Flight> GetFlightAsync(string id)
+    public async Task<DAL.Entities.Flight> GetFlight(string id)
     {
         var flight = await _flightRepository.GetFlightAsync(id);
 
@@ -56,7 +56,7 @@ public class FlightService : IFlightService
         return _mapper.Map<DAL.Entities.Flight>(flightDetails);
     }
 
-    public async Task<DAL.Entities.Flight> CreateFlightAsync(FlightInputModel model)
+    public async Task<DAL.Entities.Flight> CreateFlight(FlightInputModel model)
     {
         var flight = _mapper.Map<DAL.Entities.Flight>(model);
 
@@ -65,7 +65,7 @@ public class FlightService : IFlightService
         return flight;
     }
 
-    public async Task RemoveFlightAsync(string id)
+    public async Task RemoveFlight(string id)
     {
         var flight = await _flightRepository.GetFlightAsync(id);
 

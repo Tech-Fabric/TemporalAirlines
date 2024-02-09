@@ -52,7 +52,7 @@ public class TicketService : ITicketService
         await handle.SignalAsync(x => x.SetAsPaid());
     }
 
-    public async Task<string> RequestTicketPurchaseAsync(PurchaseModel purchaseModel)
+    public async Task<string> RequestTicketPurchase(PurchaseModel purchaseModel)
     {
         await CreateFlightWorkflowIfNotExistsAsync(purchaseModel.FlightId);
 
@@ -90,11 +90,11 @@ public class TicketService : ITicketService
         if (flight is null)
             throw new EntityNotFoundException($"Flight {flightId} was not found.");
 
-        await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
+        await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
             new WorkflowOptions(flightId, Temporal.DefaultQueue));
     }
 
-    public async Task<bool> RequestSeatReservationAsync(SeatReservationInputModel seatReservationInputModel)
+    public async Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel)
     {
         if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient,
                 seatReservationInputModel.FlightId))
@@ -109,14 +109,14 @@ public class TicketService : ITicketService
         if (ticket is null)
             return false;
 
-        await handle.SignalAsync(wf => wf.ReserveSeatAsync(
+        await handle.SignalAsync(wf => wf.ReserveSeat(
             new SeatReservationSignalModel(ticket, seatReservationInputModel.Seat.Name
         )));
 
         return true;
     }
 
-    public async Task<bool> BoardPassengerAsync(BoardingInputModel boardingInputModel)
+    public async Task<bool> BoardPassenger(BoardingInputModel boardingInputModel)
     {
         if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, boardingInputModel.FlightId))
             return false;
@@ -130,7 +130,7 @@ public class TicketService : ITicketService
         if (ticket is null)
             return false;
 
-        await handle.SignalAsync(wf => wf.BoardPassengerAsync(new BoardingSignalModel
+        await handle.SignalAsync(wf => wf.BoardPassenger(new BoardingSignalModel
         {
             Ticket = ticket
         }));

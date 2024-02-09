@@ -4,13 +4,13 @@ namespace TemporalAirlinesConcept.Services.Interfaces.Flight;
 
 public interface IFlightService
 {
-    public Task<List<DAL.Entities.Flight>> GetFlightsAsync();
+    public Task<List<DAL.Entities.Flight>> GetFlights();
 
-    public Task<DAL.Entities.Flight> GetFlightAsync(string id);
+    public Task<DAL.Entities.Flight> GetFlight(string id);
 
     public Task<DAL.Entities.Flight> FetchFlightDetailFromWorkflow(DAL.Entities.Flight flight);
 
-    public Task<DAL.Entities.Flight> CreateFlightAsync(FlightInputModel model);
+    public Task<DAL.Entities.Flight> CreateFlight(FlightInputModel model);
 
-    public Task RemoveFlightAsync(string id);
+    public Task RemoveFlight(string id);
 }

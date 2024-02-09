@@ -76,7 +76,7 @@ public class FlightBookingFormViewComponent : ViewComponent
                 }
             }
 
-            await _flightService.CreateFlightAsync(
+            await _flightService.CreateFlight(
                 flightToCreate
             );
         }
@@ -95,14 +95,14 @@ public class FlightBookingFormViewComponent : ViewComponent
         }
 
         model.Airports = _airports;
-        model.Flights = await _flightService.GetFlightsAsync();
+        model.Flights = await _flightService.GetFlights();
 
         if (model.Flights.Count == 0)
         {
             await GenerateFlights();
         }
 
-        model.Flights = await _flightService.GetFlightsAsync();
+        model.Flights = await _flightService.GetFlights();
 
         if (!string.IsNullOrEmpty(model.DepartureAirport) && model.DepartureAirport != "From")
         {

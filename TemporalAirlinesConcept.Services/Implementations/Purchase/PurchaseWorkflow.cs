@@ -144,7 +144,7 @@ public class PurchaseWorkflow
         }
 
         var flight = await Workflow.ExecuteActivityAsync(
-            (PurchaseActivities act) => act.GetFlightAsync(purchaseModel.FlightId),
+            (PurchaseActivities act) => act.GetFlight(purchaseModel.FlightId),
             _activityOptions);
 
         var timeUntilDepart = flight.Depart.Subtract(Workflow.UtcNow);

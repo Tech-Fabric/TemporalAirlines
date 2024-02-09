@@ -49,7 +49,7 @@ public class FlightWorkflowTests
         // Act
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
-            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
+            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
                 new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
 
             await handle.GetResultAsync();
@@ -80,16 +80,16 @@ public class FlightWorkflowTests
         // Act
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
-            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
+            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
                 new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
 
             await env.DelayAsync(TimeSpan.FromMinutes(1));
 
-            await handle.SignalAsync(wf => wf.BookAsync(bookingRequestModel));
+            await handle.SignalAsync(wf => wf.Book(bookingRequestModel));
 
             flightDetailsModelWithTicket = await handle.QueryAsync(wf => wf.GetFlightDetails());
 
-            await handle.SignalAsync(wf => wf.BookCompensationAsync(bookingRequestModel));
+            await handle.SignalAsync(wf => wf.BookCompensation(bookingRequestModel));
 
             flightDetailsModelWithoutTicket = await handle.QueryAsync(wf => wf.GetFlightDetails());
 
@@ -127,18 +127,18 @@ public class FlightWorkflowTests
         // Act
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
-            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
+            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
                 new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
 
             await env.DelayAsync(TimeSpan.FromMinutes(1));
 
-            await handle.SignalAsync(wf => wf.BookAsync(bookingRequestModel));
+            await handle.SignalAsync(wf => wf.Book(bookingRequestModel));
 
-            await handle.SignalAsync(wf => wf.MarkTicketPaidAsync(markTicketPaidRequestModel));
+            await handle.SignalAsync(wf => wf.MarkTicketPaid(markTicketPaidRequestModel));
 
             flightDetailsModelWithPaidTicket = await handle.QueryAsync(wf => wf.GetFlightDetails());
 
-            await handle.SignalAsync(wf => wf.MarkTicketPaidCompensationAsync(markTicketPaidRequestModel));
+            await handle.SignalAsync(wf => wf.MarkTicketPaidCompensation(markTicketPaidRequestModel));
 
             flightDetailsModelWithCancelledTicket = await handle.QueryAsync(wf => wf.GetFlightDetails());
 
@@ -181,18 +181,18 @@ public class FlightWorkflowTests
         // Act
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
-            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
+            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
                 new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
 
             await env.DelayAsync(TimeSpan.FromMinutes(1));
 
-            await handle.SignalAsync(wf => wf.BookAsync(bookingRequestModel));
+            await handle.SignalAsync(wf => wf.Book(bookingRequestModel));
             
-            await handle.SignalAsync(wf => wf.ReserveSeatAsync(seatReservationRequestModel));
+            await handle.SignalAsync(wf => wf.ReserveSeat(seatReservationRequestModel));
 
             flightDetailsModelWithReservedSeat = await handle.QueryAsync(wf => wf.GetFlightDetails());
 
-            await handle.SignalAsync(wf => wf.ReserveSeatCompensationAsync(seatReservationRequestModel));
+            await handle.SignalAsync(wf => wf.ReserveSeatCompensation(seatReservationRequestModel));
 
             flightDetailsModelWithEmptySeat = await handle.QueryAsync(wf => wf.GetFlightDetails());
 
@@ -233,12 +233,12 @@ public class FlightWorkflowTests
         // Act
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
-            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.RunAsync(flight),
+            var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
                 new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
 
             await env.DelayAsync(TimeSpan.FromMinutes(1));
 
-            await handle.SignalAsync(wf => wf.BoardPassengerAsync(boardingRequestModel));
+            await handle.SignalAsync(wf => wf.BoardPassenger(boardingRequestModel));
 
             flightDetailsModelWithBoardedPassenger = await handle.QueryAsync(wf => wf.GetFlightDetails());
 

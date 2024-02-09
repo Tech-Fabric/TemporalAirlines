@@ -17,13 +17,13 @@ public class FlightActivities
     }
 
     [Activity]
-    public async Task<FlightDetailsModel> MapFlightModelAsync(DAL.Entities.Flight flight)
+    public Task<FlightDetailsModel> MapFlightModel(DAL.Entities.Flight flight)
     {
-        return _mapper.Map<FlightDetailsModel>(flight);
+        return Task.FromResult(_mapper.Map<FlightDetailsModel>(flight));
     }
 
     [Activity]
-    public async Task<FlightDetailsModel> AssignSeatsAsync(FlightDetailsModel flight)
+    public Task<FlightDetailsModel> AssignSeats(FlightDetailsModel flight)
     {
         foreach (var ticket in flight.Registered)
         {
@@ -37,11 +37,11 @@ public class FlightActivities
             seat.TicketId = ticket.Id;
         }
 
-        return flight;
+        return Task.FromResult(flight);
     }
 
     [Activity]
-    public async Task<bool> SaveFlightDetailsAsync(FlightDetailsModel flightDetailsModel)
+    public async Task<bool> SaveFlightDetails(FlightDetailsModel flightDetailsModel)
     {
         var flight = _mapper.Map<DAL.Entities.Flight>(flightDetailsModel);
 
