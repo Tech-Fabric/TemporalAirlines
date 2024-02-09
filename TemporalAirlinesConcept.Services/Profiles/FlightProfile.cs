@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using TemporalAirlinesConcept.DAL.Entities;
+using TemporalAirlinesConcept.DAL.Models.Seat;
 using TemporalAirlinesConcept.Services.Models.Flight;
 
 namespace TemporalAirlinesConcept.Services.Profiles;
@@ -8,22 +9,13 @@ public class FlightProfile : Profile
 {
     public FlightProfile()
     {
-        CreateMap<List<string>, Dictionary<string, string>>().ConvertUsing<ListToDictionaryConverter>();
-
+        CreateMap<SeatInputModel, Seat>();
+        
         CreateMap<FlightInputModel, Flight>();
 
-        CreateMap<Flight, FlightDetailsModel>()
-            .ForMember(dest => dest.Seats,
-                opt => 
-                    opt.MapFrom(src => src.Seats.ToDictionary(s =>
-                        s.Key, s => (Ticket)null)));
+        CreateMap<Flight, FlightDetailsModel>();
 
         CreateMap<FlightDetailsModel, Flight>()
-            .ForMember(dest => dest.Seats,
-                opt =>
-                    opt.MapFrom(src =>
-                        src.Seats.ToDictionary(s =>
-                            s.Key, s => s.Value == null ? null : s.Value)))
             .ForMember(dest => dest.Registered,
                 opt =>
                     opt.MapFrom(src => src.Registered.Select(s => s.Id)))

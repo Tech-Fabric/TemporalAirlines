@@ -59,8 +59,9 @@ public class FlightBookingFormViewComponent : ViewComponent
                 To = _airports.ElementAt(arrivalTo).Key,
                 Depart = departureTime,
                 Arrival = arrivalTime,
-                Seats = new List<string>()
+                Seats = new List<DAL.Models.Seat.SeatInputModel>
                 {
+
                 }
             };
 
@@ -68,7 +69,10 @@ public class FlightBookingFormViewComponent : ViewComponent
             {
                 for (var y = 0; y < seatColumnsCount; y++)
                 {
-                    flightToCreate.Seats.Add($"{columnIdentifiers[y]}{x + 1}");
+                    flightToCreate.Seats.Add(new DAL.Models.Seat.SeatInputModel
+                    {
+                        Name = $"{columnIdentifiers[y]}{x + 1}"
+                    });
                 }
             }
 

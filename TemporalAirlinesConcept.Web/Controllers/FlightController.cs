@@ -1,5 +1,6 @@
 ﻿using Htmx;
 using Microsoft.AspNetCore.Mvc;
+using TemporalAirlinesConcept.DAL.Models.Seat;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using TemporalAirlinesConcept.Web.ViewComponents;
@@ -65,14 +66,13 @@ public class FlightController : Controller
             model.SelectedFlight = selectedFlight;
         }
 
-        var purchaseWorkflowId = "";
-
         if (!string.IsNullOrEmpty(model.CreditCardDetails.CardNumber))
         {
-            purchaseWorkflowId = await _ticketService.RequestTicketPurchaseAsync(
+            model.PurchaseWorkflowId = await _ticketService.RequestTicketPurchaseAsync(
                 new PurchaseModel()
                 {
-                    FlightId = model.SelectedFlight
+                    FlightId = model.SelectedFlight,
+
                 }
             );
 
@@ -83,11 +83,11 @@ public class FlightController : Controller
 
         if (Request.IsHtmx())
         {
-            if (!string.IsNullOrEmpty(purchaseWorkflowId))
+            if (!string.IsNullOrEmpty(model.PurchaseWorkflowId))
             {
                 Response.Htmx(h =>
                 {
-                    h.PushUrl($"/flights/{model.SelectedFlight}/ticket/{purchaseWorkflowId}");
+                    h.PushUrl($"/flights/{model.SelectedFlight}/ticket/{model.PurchaseWorkflowId}");
                 });
             }
 
@@ -112,6 +112,8 @@ public class FlightController : Controller
             model.SelectedFlight = selectedFlight;
         }
 
+        model.PurchaseWorkflowId = purchaseWorkflowId;
+        model.PaymentSuccessful = true;
 
         if (Request.IsHtmx())
         {
@@ -134,6 +136,9 @@ public class FlightController : Controller
             model.SelectedFlight = selectedFlight;
         }
 
+        model.PurchaseWorkflowId = purchaseWorkflowId;
+        model.PaymentSuccessful = true;
+
         var selectedSeatsCount = model.SelectedSeats.Count(kv => kv.Value == true);
 
         if (selectedSeatsCount > model.NumberOfSeats)
@@ -143,7 +148,21 @@ public class FlightController : Controller
 
         if (ModelState.IsValid)
         {
-
+            foreach (var s in model.SelectedSeats)
+            {
+                await _ticketService.RequestSeatReservationAsync(
+                    new SeatReservationInputModel()
+                    {
+                        FlightId = model.SelectedFlight,
+                        Seat = new Seat()
+                        {
+                            Name = s.Key,
+                            TicketId = model.PurchaseWorkflowId
+                        }
+                    }
+                );
+            }
+            //model.PurchaseWorkflowId, model.SelectedSeats.Where(kv => kv.Value).Select(kv => kv.Key).ToList());
         }
 
         if (Request.IsHtmx())

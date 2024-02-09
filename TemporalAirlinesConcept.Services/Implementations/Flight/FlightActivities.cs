@@ -23,6 +23,24 @@ public class FlightActivities
     }
 
     [Activity]
+    public async Task<FlightDetailsModel> AssignSeatsAsync(FlightDetailsModel flight)
+    {
+        foreach (var ticket in flight.Registered)
+        {
+            if (ticket.Seat is not null)
+                continue;
+
+            var seat = flight.Seats.FirstOrDefault(s => s.TicketId is null);
+            
+            ticket.Seat = seat;
+
+            seat.TicketId = ticket.Id;
+        }
+
+        return flight;
+    }
+    
+    [Activity]
     public async Task<bool> SaveFlightDetailsAsync(FlightDetailsModel flightDetailsModel)
     {
         var flight = _mapper.Map<DAL.Entities.Flight>(flightDetailsModel);
