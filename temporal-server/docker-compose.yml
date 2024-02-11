@@ -33,8 +33,9 @@ services:
     image: dpage/pgadmin4
     ports:
       - 15455:80
-    env_file:
-      - .env
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=temporal@temporal.io
+      - PGADMIN_DEFAULT_PASSWORD=temporal
     depends_on:
       - postgresql
     networks:
@@ -100,7 +101,7 @@ services:
       - "10253:10253"  # Port for the emulator's communication with services
       - "10254:10254"  # Port for the emulator's communication with services
     environment:
-      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10  
+      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=2
       - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
     healthcheck:
        test: ["CMD", "curl", "-f", "-k", "https://cosmosdb-emulator:8081/_explorer/emulator.pem"]
