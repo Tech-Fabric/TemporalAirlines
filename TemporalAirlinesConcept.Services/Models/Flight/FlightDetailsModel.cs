@@ -12,11 +12,11 @@ public class FlightDetailsModel
 
     public string To { get; set; }
 
-    public DateTime Depart { get; set; }
+    public DateTime? Depart { get; set; }
 
-    public DateTime Arrival { get; set; }
+    public DateTime? Arrival { get; set; }
     
-    public decimal Price { get; set; }
+    public decimal? Price { get; set; }
 
     public List<Seat> Seats { get; set; } = [];
 
