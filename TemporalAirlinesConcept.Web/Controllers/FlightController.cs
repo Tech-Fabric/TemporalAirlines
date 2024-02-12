@@ -1,6 +1,7 @@
 ﻿using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using TemporalAirlinesConcept.DAL.Models.Seat;
+using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using TemporalAirlinesConcept.Web.ViewComponents;
@@ -60,7 +61,8 @@ public class FlightController : Controller
     public async Task<IActionResult> Purchase(
         [FromForm] FlightBookingFormViewModel model,
         [FromRoute] string? selectedFlight
-    ) {
+    )
+    {
         if (!string.IsNullOrEmpty(selectedFlight))
         {
             model.SelectedFlight = selectedFlight;
@@ -130,7 +132,8 @@ public class FlightController : Controller
         [FromForm] FlightBookingFormViewModel model,
         [FromRoute] string? selectedFlight,
         [FromRoute] string? purchaseWorkflowId
-    ) {
+    )
+    {
         if (!string.IsNullOrEmpty(selectedFlight))
         {
             model.SelectedFlight = selectedFlight;
@@ -167,6 +170,34 @@ public class FlightController : Controller
 
         if (Request.IsHtmx())
         {
+            return ViewComponent(typeof(FlightBookingFormViewComponent), model);
+        }
+        else
+        {
+            return View("~/Views/Flight/Index.cshtml", model);
+        }
+    }
+
+    [HttpPost("{WorkflowId}/payment")]
+    public async Task<IActionResult> MarkAsPaid(
+        [FromForm] FlightBookingFormViewModel model,
+        [FromRoute] string? workflowId)
+    {
+        if (!string.IsNullOrEmpty(workflowId))
+        {
+            await _ticketService.MarkAsPaid(workflowId);
+            model.IsPaid = true;
+            model.PurchaseWorkflowId = workflowId;
+            model.PaymentSuccessful = true;
+        }
+
+        if (Request.IsHtmx())
+        {
+            Response.Htmx(h =>
+            {
+                h.PushUrl($"/flights/{model.SelectedFlight}/ticket/{model.PurchaseWorkflowId}");
+            });
+
             return ViewComponent(typeof(FlightBookingFormViewComponent), model);
         }
         else

@@ -238,7 +238,7 @@
             }
 
             @if (ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid &&
-                 ViewContext.ViewData.ModelState[nameof(Model.NumberOfSeats)].Errors.Count > 0)
+           ViewContext.ViewData.ModelState[nameof(Model.NumberOfSeats)].Errors.Count > 0)
             {
                 <div class="alert alert-danger mt-5">
                     <span asp-validation-for="@Model.NumberOfSeats"></span>
@@ -246,13 +246,26 @@
             }
 
             <div class="text-end">
-                <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                        hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
-                        hx-swap="outerHTML"
-                        hx-push-url="true"
-                        hx-target="#form-flight-booking">
-                    Confirm seat selection
-                </button>
+                @if (!Model.IsPaid)
+                {
+                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                            hx-post="/flights/@Model.PurchaseWorkflowId/payment"
+                            hx-swap="outerHTML"
+                            hx-push-url="true"
+                            hx-target="#form-flight-booking">
+                        Emulate payment success
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                            hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
+                            hx-swap="outerHTML"
+                            hx-push-url="true"
+                            hx-target="#form-flight-booking">
+                        Confirm seat selection
+                    </button>
+                }
             </div>
 
             <hr class="mb-4">
