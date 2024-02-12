@@ -91,7 +91,7 @@ public class PurchaseWorkflow
     /// </summary>
     /// <returns>A List of Ticket objects.</returns>
     [WorkflowQuery]
-    public List<Ticket> GetTicket()
+    public List<Ticket> GetTickets()
     {
         return _tickets;
     }
