@@ -149,7 +149,7 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="tickets-number">Number of tickets</label>
-                    <input type="number" class="form-control" id="tickets-number" placeholder="" required="" value="1" asp-for="NumberOfSeats">
+                    <input type="number" class="form-control" id="tickets-number" placeholder="" required="" value="1" asp-for="@Model.NumberOfSeats">
                     <small class="text-muted">Number of tickets to buy. You will be able to select seats later.</small>
                 </div>
                 <div class="col-md-6 mb-3">
@@ -257,7 +257,7 @@
             </div>}
 
             @if (ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid &&
-                 ViewContext.ViewData.ModelState[nameof(Model.NumberOfSeats)].Errors.Count > 0)
+           ViewContext.ViewData.ModelState[nameof(Model.NumberOfSeats)].Errors.Count > 0)
             {
                 <div class="alert alert-danger mt-5">
                     <span asp-validation-for="@Model.NumberOfSeats"></span>
@@ -265,13 +265,26 @@
             }
 
             <div class="text-end">
-                <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                        hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
-                        hx-swap="outerHTML"
-                        hx-push-url="true"
-                        hx-target="#form-flight-booking">
-                    Confirm seat selection
-                </button>
+                @if (!Model.IsPaid)
+                {
+                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                            hx-post="/flights/@Model.PurchaseWorkflowId/payment"
+                            hx-swap="outerHTML"
+                            hx-push-url="true"
+                            hx-target="#form-flight-booking">
+                        Emulate payment success
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                            hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
+                            hx-swap="outerHTML"
+                            hx-push-url="true"
+                            hx-target="#form-flight-booking">
+                        Confirm seat selection
+                    </button>
+                }
             </div>
 
             <hr class="mb-4">

@@ -1,6 +1,7 @@
 ﻿using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using TemporalAirlinesConcept.DAL.Models.Seat;
+using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using TemporalAirlinesConcept.Web.ViewComponents;
@@ -60,7 +61,8 @@ public class FlightController : Controller
     public async Task<IActionResult> Purchase(
         [FromForm] FlightBookingFormViewModel model,
         [FromRoute] string? selectedFlight
-    ) {
+    )
+    {
         if (!string.IsNullOrEmpty(selectedFlight))
         {
             model.SelectedFlight = selectedFlight;
@@ -72,10 +74,12 @@ public class FlightController : Controller
                 new PurchaseModel()
                 {
                     FlightId = model.SelectedFlight,
-
+                    NumberOfTickets = model.NumberOfSeats
                 }
             );
 
+            HttpContext.Session.SetInt32("NumberOfSeats", model.NumberOfSeats);
+            
             // TODO: fetch workflow status
 
             model.PaymentSuccessful = true;
@@ -100,12 +104,13 @@ public class FlightController : Controller
     }
 
     [HttpGet("{SelectedFlight}/ticket/{PurchaseWorkflowId}")]
-    public async Task<IActionResult> Details(
+    public async Task<IActionResult> GetDetails(
+        [FromForm] FlightBookingFormViewModel model,
         [FromRoute] string? selectedFlight,
         [FromRoute] string? purchaseWorkflowId
     )
     {
-        FlightBookingFormViewModel model = new FlightBookingFormViewModel();
+        model ??= new FlightBookingFormViewModel();
 
         if (!string.IsNullOrEmpty(selectedFlight))
         {
@@ -130,43 +135,68 @@ public class FlightController : Controller
         [FromForm] FlightBookingFormViewModel model,
         [FromRoute] string? selectedFlight,
         [FromRoute] string? purchaseWorkflowId
-    ) {
+    )
+    {
         if (!string.IsNullOrEmpty(selectedFlight))
         {
             model.SelectedFlight = selectedFlight;
         }
 
+        model.NumberOfSeats = HttpContext.Session.GetInt32("NumberOfSeats") ?? default;
+
         model.PurchaseWorkflowId = purchaseWorkflowId;
         model.PaymentSuccessful = true;
 
-        var selectedSeatsCount = model.SelectedSeats.Count(kv => kv.Value == true);
+        var seatsList = model.SelectedSeats.Where(s => s.Value)
+            .Select(s => s.Key).ToList();
 
-        if (selectedSeatsCount > model.NumberOfSeats)
+        if (seatsList.Count > model.NumberOfSeats)
         {
             ModelState.AddModelError(nameof(model.NumberOfSeats), "Too many seats selected");
         }
 
         if (ModelState.IsValid)
         {
-            foreach (var s in model.SelectedSeats)
+            await _ticketService.RequestSeatReservation(new SeatReservationInputModel()
             {
-                await _ticketService.RequestSeatReservation(
-                    new SeatReservationInputModel()
-                    {
-                        FlightId = model.SelectedFlight,
-                        Seat = new Seat()
-                        {
-                            Name = s.Key,
-                            TicketId = model.PurchaseWorkflowId
-                        }
-                    }
-                );
-            }
+                FlightId = model.SelectedFlight,
+                PurchaseId = model.PurchaseWorkflowId,
+                Seats = seatsList
+            });
+            
             //model.PurchaseWorkflowId, model.SelectedSeats.Where(kv => kv.Value).Select(kv => kv.Key).ToList());
         }
 
         if (Request.IsHtmx())
         {
+            return ViewComponent(typeof(FlightBookingFormViewComponent), model);
+        }
+        else
+        {
+            return View("~/Views/Flight/Index.cshtml", model);
+        }
+    }
+
+    [HttpPost("{WorkflowId}/payment")]
+    public async Task<IActionResult> MarkAsPaid(
+        [FromForm] FlightBookingFormViewModel model,
+        [FromRoute] string? workflowId)
+    {
+        if (!string.IsNullOrEmpty(workflowId))
+        {
+            await _ticketService.MarkAsPaid(workflowId);
+            model.IsPaid = true;
+            model.PurchaseWorkflowId = workflowId;
+            model.PaymentSuccessful = true;
+        }
+
+        if (Request.IsHtmx())
+        {
+            Response.Htmx(h =>
+            {
+                h.PushUrl($"/flights/{model.SelectedFlight}/ticket/{model.PurchaseWorkflowId}");
+            });
+
             return ViewComponent(typeof(FlightBookingFormViewComponent), model);
         }
         else
