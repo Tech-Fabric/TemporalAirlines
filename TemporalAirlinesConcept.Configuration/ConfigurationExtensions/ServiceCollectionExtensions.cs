@@ -110,4 +110,15 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    public static IServiceCollection ConfigureSession(this IServiceCollection services)
+    {
+        services.AddSession(options =>
+        {
+            options.Cookie.Name = ".BookingSession";
+            options.IdleTimeout = TimeSpan.FromMinutes(15);
+        });
+
+        return services;
+    }
 }

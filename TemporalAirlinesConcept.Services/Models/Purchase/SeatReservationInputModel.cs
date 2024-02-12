@@ -6,7 +6,7 @@ public class SeatReservationInputModel
 {
     public string FlightId { get; set; }
     
-    public string TicketId { get; set; }
+    public string PurchaseId { get; set; }
     
-    public Seat Seat { get; set; }
+    public List<string> Seats { get; set; }
 }
