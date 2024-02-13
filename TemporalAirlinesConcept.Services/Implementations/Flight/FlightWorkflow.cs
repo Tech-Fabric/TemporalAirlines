@@ -21,18 +21,18 @@ public class FlightWorkflow
         _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) => act.MapFlightModel(flight),
             _activityOptions);
 
-        await ChangeStatusAtTime(FlightStatus.CheckIn, _flight.Depart.Subtract(TimeSpan.FromDays(1)));
+        await ChangeStatusAtTime(FlightStatus.CheckIn, _flight.Depart.Value.Subtract(TimeSpan.FromDays(1)));
 
         _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) =>
             act.AssignSeats(_flight), _activityOptions);
 
-        await ChangeStatusAtTime(FlightStatus.Boarding, _flight.Depart.Subtract(TimeSpan.FromHours(2)));
+        await ChangeStatusAtTime(FlightStatus.Boarding, _flight.Depart.Value.Subtract(TimeSpan.FromHours(2)));
 
-        await ChangeStatusAtTime(FlightStatus.Closed, _flight.Depart.Subtract(TimeSpan.FromMinutes(5)));
+        await ChangeStatusAtTime(FlightStatus.Closed, _flight.Depart.Value.Subtract(TimeSpan.FromMinutes(5)));
 
-        await ChangeStatusAtTime(FlightStatus.Departed, _flight.Depart);
+        await ChangeStatusAtTime(FlightStatus.Departed, _flight.Depart.Value);
 
-        await ChangeStatusAtTime(FlightStatus.Arrived, _flight.Arrival);
+        await ChangeStatusAtTime(FlightStatus.Arrived, _flight.Arrival.Value);
 
         await Workflow.ExecuteActivityAsync((FlightActivities act) => act.SaveFlightDetails(_flight),
             _activityOptions);

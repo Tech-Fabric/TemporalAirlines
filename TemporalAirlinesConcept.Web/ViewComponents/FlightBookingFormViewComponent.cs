@@ -42,13 +42,15 @@ public class FlightBookingFormViewComponent : ViewComponent
             "A", "B", "C", "D", "E", "F"
         };
 
+        var minutesFlightTime = new []{15, 30, 45};
+
         for (var i = 0; i < 10; i++)
         {
             var departureFrom = new Random().Next(0, _airports.Count);
             var arrivalTo = new Random().Next(0, _airports.Count);
 
             var departureTime = DateTime.UtcNow.AddDays(new Random().Next(0, 30));
-            var arrivalTime = departureTime.AddDays(new Random().Next(0, 7));
+            var arrivalTime = departureTime.AddHours(new Random().Next(0, 3)).AddMinutes(minutesFlightTime[new Random().Next(0, 2)]);
 
             var seatRowsCount = 20;
             var seatColumnsCount = columnIdentifiers.Count;

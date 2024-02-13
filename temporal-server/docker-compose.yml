@@ -16,7 +16,7 @@ services:
     expose:
       - 9200
     volumes:
-      - /var/lib/elasticsearch/data
+      - ./data/elasticsearch/:/var/lib/elasticsearch/data
   postgresql:
     container_name: temporal-postgresql
     environment:
@@ -28,8 +28,20 @@ services:
     ports:
       - 5455:5432
     volumes:
-      - /var/lib/postgresql/data
-      # - ./temporal_db_data:/var/lib/postgresql/data
+      - ./data/postgresql/:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 15455:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=temporal@temporal.io
+      - PGADMIN_DEFAULT_PASSWORD=temporal
+    depends_on:
+      - postgresql
+    networks:
+      - temporal-network
+    volumes:
+      - ./data/pgadmin/:/var/lib/pgadmin/
   temporal:
     container_name: temporal
     depends_on:
@@ -89,7 +101,7 @@ services:
       - "10253:10253"  # Port for the emulator's communication with services
       - "10254:10254"  # Port for the emulator's communication with services
     environment:
-      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10  
+      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=2
       - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
     healthcheck:
        test: ["CMD", "curl", "-f", "-k", "https://cosmosdb-emulator:8081/_explorer/emulator.pem"]
@@ -98,8 +110,9 @@ services:
        retries: 15
     networks:
       - temporal-network
-    # volumes:
-       # - ./db_data:/tmp/cosmos/appdata # linux path
+    #mem_limit: 8g
+    volumes:
+       - ./data/cosmosdb:/tmp/cosmos/appdata # linux path
        # - ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
 
   temporalairlinesconcept.api:  

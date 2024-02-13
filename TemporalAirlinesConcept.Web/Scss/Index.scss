@@ -81,6 +81,12 @@ $enable-dark-mode: false;
 @import "../wwwroot/lib/bootstrap-5.3.2/scss/utilities/api";
 
 
+@import "basic";
+@import "buttons";
+@import "datetime";
+@import "classes";
+@import "spacing";
+
 @import "../Views/Shared/Components/FlightBookingForm/Default.scss";
 
 html, body {

@@ -30,5 +30,4 @@ README.md
 !.git/packed-refs
 !.git/refs/heads/**
 
-temporal-server/**
-./data/**
+**/temporal-server/**
