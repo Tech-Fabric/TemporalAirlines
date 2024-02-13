@@ -28,7 +28,10 @@ services:
     ports:
       - 5455:5432
     volumes:
+      # - ":/var/lib/postgresql/data"
       - ./data/postgresql/:/var/lib/postgresql/data
+      # - postgredata:/var/lib/postgresql/data
+      # - /var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
     ports:
@@ -93,6 +96,7 @@ services:
     tty: true
     container_name: cosmosdb-emulator
     restart: always
+    user: root
     ports:
       - "8081:8081"  # Port for the emulator's Data Explorer
       - "10250:10250"
@@ -112,8 +116,13 @@ services:
       - temporal-network
     #mem_limit: 8g
     volumes:
-       - ./data/cosmosdb:/tmp/cosmos/appdata # linux path
+       # - ./data/cosmosdb:/tmp/cosmos/appdata # linux path
+       # - cosmosdata:/tmp/cosmos/appdata # linux path
+       # - cosmosdata:/usr/share/cosmosdbemulator/data # linux path
        # - ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
+       - type: bind
+         source: ./cosmosdata-44
+         target: /tmp/cosmos/appdata/
 
   temporalairlinesconcept.api:  
     container_name: temporalairlinesconcept.api
@@ -157,7 +166,15 @@ services:
     networks:
       - temporal-network
 
-networks:
+networks: 
   temporal-network:
     driver: bridge
     name: temporal-network
+
+volumes:
+  cosmosdata:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "C:/Users/vladislav.mandryk/source/repos/Temporal-Airlines-Concept/temporal-server/data/cosmosdata-333"
