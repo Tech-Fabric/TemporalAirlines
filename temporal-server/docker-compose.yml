@@ -110,11 +110,9 @@ services:
        retries: 15
     networks:
       - temporal-network
-    #mem_limit: 8g
     volumes:
        - ./data/cosmosdb:/tmp/cosmos/appdata # linux path
        # - ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
-
   temporalairlinesconcept.api:  
     container_name: temporalairlinesconcept.api
     build:
@@ -157,7 +155,7 @@ services:
     networks:
       - temporal-network
 
-networks:
+networks: 
   temporal-network:
     driver: bridge
     name: temporal-network
