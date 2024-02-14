@@ -13,10 +13,10 @@ public class Seat
         if (obj is not Seat seat)
             return false;
 
-        var comparationResult = string.Equals(Name, seat.Name, StringComparison.OrdinalIgnoreCase)
+        var comparisonResult = string.Equals(Name, seat.Name, StringComparison.OrdinalIgnoreCase)
             && string.Equals(TicketId, seat.TicketId, StringComparison.OrdinalIgnoreCase)
             && Price == seat.Price;
 
-        return comparationResult;
+        return comparisonResult;
     }
 }

@@ -28,12 +28,12 @@ public class Ticket
         if (obj is not Ticket ticket)
             return false;
 
-        var comparationResult = string.Equals(Id, ticket.Id, StringComparison.OrdinalIgnoreCase)
+        var comparisonResult = string.Equals(Id, ticket.Id, StringComparison.OrdinalIgnoreCase)
             && string.Equals(FlightId, ticket.FlightId, StringComparison.OrdinalIgnoreCase)
             && string.Equals(UserId, ticket.UserId, StringComparison.OrdinalIgnoreCase)
             && string.Equals(Passenger, ticket.Passenger, StringComparison.OrdinalIgnoreCase)
             && PaymentStatus == ticket.PaymentStatus;
 
-        return comparationResult;
+        return comparisonResult;
     }
 }
