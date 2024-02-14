@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Exceptions;
 using TemporalAirlinesConcept.Common.Helpers;
 using TemporalAirlinesConcept.DAL.Interfaces;
@@ -61,6 +62,9 @@ public class FlightService : IFlightService
         var flight = _mapper.Map<DAL.Entities.Flight>(model);
 
         await _flightRepository.AddFlightAsync(flight);
+
+        await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
+            new WorkflowOptions(flight.Id, Temporal.DefaultQueue));
 
         return flight;
     }
