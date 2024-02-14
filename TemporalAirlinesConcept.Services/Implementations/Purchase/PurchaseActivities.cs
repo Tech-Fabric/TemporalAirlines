@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using TemporalAirlinesConcept.Common.Constants;
+﻿using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -34,10 +33,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 
             var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
 
-            if (flight.Seats.Count - flight.Registered.Count < 1)
-                return false;
+            var isAnySeatsLeft = (flight.Seats.Count - flight.Registered.Count) > 0;
 
-            return true;
+            return isAnySeatsLeft;
         }
 
         /// <summary>

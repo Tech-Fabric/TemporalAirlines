@@ -1,6 +1,8 @@
-﻿using TemporalAirlinesConcept.Common.Helpers;
+﻿using System.Reflection.Metadata;
+using TemporalAirlinesConcept.Common.Helpers;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
+using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Common;
 using Temporalio.Exceptions;
@@ -129,8 +131,8 @@ public class PurchaseWorkflow
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
-            (PurchaseActivities act) => act.IsFlightAvailable(purchaseModel.FlightId),
-            _activityOptions);
+           (PurchaseActivities act) => act.IsFlightAvailable(purchaseModel.FlightId),
+           _activityOptions);
 
         if (!isFlightsAvailable)
             return false;
