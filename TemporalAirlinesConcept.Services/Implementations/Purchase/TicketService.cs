@@ -1,5 +1,4 @@
 ﻿using TemporalAirlinesConcept.Common.Constants;
-using TemporalAirlinesConcept.Common.Exceptions;
 using TemporalAirlinesConcept.Common.Helpers;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
@@ -14,13 +13,11 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase;
 public class TicketService : ITicketService
 {
     private readonly ITemporalClient _temporalClient;
-    private readonly IFlightRepository _flightRepository;
     private readonly ITicketRepository _ticketRepository;
 
-    public TicketService(ITemporalClient temporalClient, IFlightRepository flightRepository, ITicketRepository ticketRepository)
+    public TicketService(ITemporalClient temporalClient, ITicketRepository ticketRepository)
     {
         _temporalClient = temporalClient;
-        _flightRepository = flightRepository;
         _ticketRepository = ticketRepository;
     }
 
@@ -54,8 +51,6 @@ public class TicketService : ITicketService
 
     public async Task<string> RequestTicketPurchase(PurchaseModel purchaseModel)
     {
-        var isFlightWorkflowCreated = await CreateFlightWorkflowIfNotExistsAsync(purchaseModel.FlightId);
-
         var workflowId = Guid.NewGuid().ToString();
 
         await _temporalClient.StartWorkflowAsync<PurchaseWorkflow>(
@@ -63,7 +58,6 @@ public class TicketService : ITicketService
             {
                 TaskQueue = Temporal.DefaultQueue,
                 Id = workflowId,
-                StartDelay = isFlightWorkflowCreated ? TimeSpan.FromSeconds(5) : TimeSpan.Zero,
                 RetryPolicy = new RetryPolicy
                 {
                     MaximumAttempts = 1,
@@ -79,22 +73,6 @@ public class TicketService : ITicketService
     {
         var wh = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
         return wh.SignalAsync(wf => wf.SetPassengerDetails(passengerDetails));
-    }
-
-    private async Task<bool> CreateFlightWorkflowIfNotExistsAsync(string flightId)
-    {
-        if (await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, flightId))
-            return false;
-
-        var flight = await _flightRepository.GetFlightAsync(flightId);
-
-        if (flight is null)
-            throw new EntityNotFoundException($"Flight {flightId} was not found.");
-
-        await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
-            new WorkflowOptions(flightId, Temporal.DefaultQueue));
-
-        return true;
     }
 
     public async Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel)
