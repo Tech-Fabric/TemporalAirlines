@@ -115,6 +115,17 @@ public class PurchaseWorkflow
         return Task.CompletedTask;
     }
 
+    [WorkflowSignal]
+    public async Task TicketReservation(PurchaseTicketReservationSignal seatReservation)
+    {
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.TicketReservation(seatReservation),
+               _activityOptions);
+
+        _saga.AddCompensation(async () =>
+            await Workflow.ExecuteActivityAsync(
+                (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions));
+    }
+
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(

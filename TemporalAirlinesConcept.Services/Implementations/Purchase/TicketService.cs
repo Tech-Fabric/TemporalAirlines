@@ -100,17 +100,36 @@ public class TicketService : ITicketService
             || !await WorkflowHandleHelper.IsWorkflowRunning<PurchaseWorkflow>(_temporalClient, seatReservationInputModel.PurchaseId))
             return false;
 
-        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(seatReservationInputModel.FlightId);
-
         var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(seatReservationInputModel.PurchaseId);
-
         var tickets = await purchaseHandle.QueryAsync(wf => wf.GetTickets());
 
-        for (var i = 0; i < tickets.Count; i++)
+        //var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(seatReservationInputModel.FlightId);
+
+        //var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(seatReservationInputModel.PurchaseId);
+
+        //var tickets = await purchaseHandle.QueryAsync(wf => wf.GetTickets());
+
+        //for (var i = 0; i < tickets.Count; i++)
+        //{
+        //    await flightHandle.SignalAsync(wf => wf.ReserveSeat(
+        //        new SeatReservationSignalModel(tickets[i], seatReservationInputModel.Seats[i])));
+        //}
+
+        var seatReservations = tickets
+           .Select((ticketItem, number) => new SeatReservationSignalModel
+           {
+               Ticket = ticketItem,
+               Seat = seatReservationInputModel.Seats[number]
+           })
+           .ToList();
+
+        var signalModel = new PurchaseTicketReservationSignal
         {
-            await flightHandle.SignalAsync(wf => wf.ReserveSeat(
-                new SeatReservationSignalModel(tickets[i], seatReservationInputModel.Seats[i])));   
-        }
+            SeatReservations = seatReservations,
+            FlightId = seatReservationInputModel.FlightId
+        };
+
+        await purchaseHandle.SignalAsync(x => x.TicketReservation(signalModel));
 
         return true;
     }

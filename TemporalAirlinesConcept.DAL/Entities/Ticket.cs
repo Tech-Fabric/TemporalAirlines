@@ -25,13 +25,15 @@ public class Ticket
 
     public override bool Equals(object obj)
     {
-        if (obj is not Ticket other) 
+        if (obj is not Ticket ticket)
             return false;
-        
-        return Id.Equals(other.Id) && 
-               FlightId.Equals(other.FlightId) &&
-               UserId.Equals(other.UserId) &&
-               Passenger.Equals(other.Passenger) &&
-               PaymentStatus.Equals(other.PaymentStatus);
+
+        var comparationResult = string.Equals(Id, ticket.Id, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(FlightId, ticket.FlightId, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(UserId, ticket.UserId, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(Passenger, ticket.Passenger, StringComparison.OrdinalIgnoreCase)
+            && PaymentStatus == ticket.PaymentStatus;
+
+        return comparationResult;
     }
 }
