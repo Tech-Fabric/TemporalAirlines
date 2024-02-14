@@ -33,9 +33,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 
             var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
 
-            var flightCheckResult = flight.Seats.Count - flight.Registered.Count < 1;
+            var isAnySeatsLeft = (flight.Seats.Count - flight.Registered.Count) > 0;
 
-            return flightCheckResult;
+            return isAnySeatsLeft;
         }
 
         /// <summary>
