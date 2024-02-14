@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using TemporalAirlinesConcept.Common.Constants;
+﻿using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -32,7 +31,13 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
 
+            if (flightHandle is null)
+                return false;
+
             var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
+
+            if (flight?.Seats is null || flight?.Registered is null)
+                return false;
 
             if (flight.Seats.Count - flight.Registered.Count < 1)
                 return false;

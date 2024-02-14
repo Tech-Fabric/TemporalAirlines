@@ -54,7 +54,7 @@ public class TicketService : ITicketService
 
     public async Task<string> RequestTicketPurchase(PurchaseModel purchaseModel)
     {
-        await CreateFlightWorkflowIfNotExistsAsync(purchaseModel.FlightId);
+        var isFlightWorkflowCreated = await CreateFlightWorkflowIfNotExistsAsync(purchaseModel.FlightId);
 
         var workflowId = Guid.NewGuid().ToString();
 
@@ -63,6 +63,7 @@ public class TicketService : ITicketService
             {
                 TaskQueue = Temporal.DefaultQueue,
                 Id = workflowId,
+                StartDelay = isFlightWorkflowCreated ? TimeSpan.FromSeconds(5) : TimeSpan.Zero,
                 RetryPolicy = new RetryPolicy
                 {
                     MaximumAttempts = 1,
@@ -80,10 +81,10 @@ public class TicketService : ITicketService
         return wh.SignalAsync(wf => wf.SetPassengerDetails(passengerDetails));
     }
 
-    private async Task CreateFlightWorkflowIfNotExistsAsync(string flightId)
+    private async Task<bool> CreateFlightWorkflowIfNotExistsAsync(string flightId)
     {
         if (await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, flightId))
-            return;
+            return false;
 
         var flight = await _flightRepository.GetFlightAsync(flightId);
 
@@ -92,6 +93,8 @@ public class TicketService : ITicketService
 
         await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
             new WorkflowOptions(flightId, Temporal.DefaultQueue));
+
+        return true;
     }
 
     public async Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel)
