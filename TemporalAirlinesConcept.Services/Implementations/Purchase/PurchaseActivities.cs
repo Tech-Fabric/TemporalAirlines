@@ -1,4 +1,5 @@
-﻿using TemporalAirlinesConcept.Common.Constants;
+﻿using System.Net.Sockets;
+using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -38,7 +39,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 
             return true;
         }
-        
+
         /// <summary>
         /// Creates a ticket and books the corresponding flight.
         /// </summary>
@@ -217,6 +218,34 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
                 throw new Exception("Artificial error exception");
 
             return flight;
+        }
+
+        [Activity]
+        public async Task TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation)
+        {
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
+
+            if (purchaseTicketReservation?.SeatReservations is null)
+                return;
+
+            foreach (var seat in purchaseTicketReservation?.SeatReservations)
+            {
+                await flightHandle.SignalAsync(wf => wf.ReserveSeat(seat));
+            }
+        }
+
+        [Activity]
+        public async Task TicketReservationCompensation(PurchaseTicketReservationSignal purchaseTicketReservation)
+        {
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
+
+            if (purchaseTicketReservation?.SeatReservations is null)
+                return;
+
+            foreach (var seat in purchaseTicketReservation?.SeatReservations)
+            {
+                await flightHandle.SignalAsync(wf => wf.ReserveSeatCompensation(seat));
+            }
         }
     }
 }

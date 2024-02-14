@@ -115,6 +115,17 @@ public class PurchaseWorkflow
         return Task.CompletedTask;
     }
 
+    [WorkflowSignal]
+    public async Task TicketReservation(PurchaseTicketReservationSignal seatReservation)
+    {
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.TicketReservation(seatReservation),
+               _activityOptions);
+
+        _saga.AddCompensation(async () =>
+            await Workflow.ExecuteActivityAsync(
+                (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions));
+    }
+
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
@@ -175,12 +186,7 @@ public class PurchaseWorkflow
 
             _tickets.Add(ticket);
 
-            await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.BookTicket(ticket),
-                _activityOptions);
-
-            _saga.AddCompensation(async () =>
-                await Workflow.ExecuteActivityAsync(
-                    (PurchaseActivities act) => act.BookTicketCompensation(ticket), _activityOptions));
+            await BookTicket(ticket);
         }
     }
 
@@ -206,7 +212,7 @@ public class PurchaseWorkflow
                (PurchaseActivities act) => act.ConfirmWithdrawCompensation(), _activityOptions));
     }
 
-    private async Task BookTicketAsync(Ticket ticket)
+    private async Task BookTicket(Ticket ticket)
     {
         await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.BookTicket(ticket),
             _activityOptions);
