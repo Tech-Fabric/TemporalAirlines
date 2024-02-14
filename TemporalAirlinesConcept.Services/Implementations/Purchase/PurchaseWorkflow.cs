@@ -130,7 +130,12 @@ public class PurchaseWorkflow
 
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
     {
-        await CheckIfFlightAvailable(purchaseModel);
+        var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
+           (PurchaseActivities act) => act.IsFlightAvailable(purchaseModel.FlightId),
+           _activityOptions);
+
+        if (!isFlightsAvailable)
+            return false;
 
         await BookTicketsForFlight(purchaseModel);
 
@@ -140,21 +145,6 @@ public class PurchaseWorkflow
             throw new ApplicationFailureException("Tickets was not paid in 15 min.");
 
         return await ProceedPayment(purchaseModel);
-    }
-
-    private async Task CheckIfFlightAvailable(PurchaseModel purchaseModel)
-    {
-        var isFlightsAvailable = false;
-
-        while (!isFlightsAvailable)
-        {
-            isFlightsAvailable = await Workflow.ExecuteActivityAsync(
-               (PurchaseActivities act) => act.IsFlightAvailable(purchaseModel.FlightId),
-               _activityOptions);
-
-            if (!isFlightsAvailable)
-                await Workflow.DelayAsync(TimeSpan.FromSeconds(2));
-        }
     }
 
     private async Task<bool> ProceedPayment(PurchaseModel purchaseModel)
