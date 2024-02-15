@@ -79,7 +79,7 @@ public class FlightController : Controller
             );
 
             HttpContext.Session.SetInt32("NumberOfSeats", model.NumberOfSeats);
-            
+
             // TODO: fetch workflow status
 
             model.PaymentSuccessful = true;
@@ -163,7 +163,9 @@ public class FlightController : Controller
                 PurchaseId = model.PurchaseWorkflowId,
                 Seats = seatsList
             });
-            
+
+            model.IsConfirmed = true;
+
             //model.PurchaseWorkflowId, model.SelectedSeats.Where(kv => kv.Value).Select(kv => kv.Key).ToList());
         }
 
@@ -185,9 +187,9 @@ public class FlightController : Controller
         if (!string.IsNullOrEmpty(workflowId))
         {
             await _ticketService.MarkAsPaid(workflowId);
-            model.IsPaid = true;
             model.PurchaseWorkflowId = workflowId;
             model.PaymentSuccessful = true;
+            model.IsConfirmed = true;
         }
 
         if (Request.IsHtmx())

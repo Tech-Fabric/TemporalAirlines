@@ -42,7 +42,7 @@ public class FlightBookingFormViewComponent : ViewComponent
             "A", "B", "C", "D", "E", "F"
         };
 
-        var minutesFlightTime = new []{15, 30, 45};
+        var minutesFlightTime = new[] { 15, 30, 45 };
 
         for (var i = 0; i < 10; i++)
         {
@@ -78,9 +78,7 @@ public class FlightBookingFormViewComponent : ViewComponent
                 }
             }
 
-            await _flightService.CreateFlight(
-                flightToCreate
-            );
+            await _flightService.CreateFlight(flightToCreate);
         }
     }
 

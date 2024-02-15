@@ -33,12 +33,11 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 
             var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
 
-            if (flight.Seats.Count - flight.Registered.Count < 1)
-                return false;
+            var isAnySeatsLeft = (flight.Seats.Count - flight.Registered.Count) > 0;
 
-            return true;
+            return isAnySeatsLeft;
         }
-        
+
         /// <summary>
         /// Creates a ticket and books the corresponding flight.
         /// </summary>
@@ -50,8 +49,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
-            await flightHandle.SignalAsync(wf =>
-                wf.Book(new BookingSignalModel { Ticket = ticket }));
+            await flightHandle.SignalAsync(wf => wf.Book(new BookingSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -122,9 +120,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <returns>A boolean value indicating whether the tickets was generated successfully.</returns>
         [Activity]
-        public async Task<List<TicketBlobModel>> GenerateBlobTickets()
+        public Task<List<TicketBlobModel>> GenerateBlobTickets()
         {
-            return [];
+            return Task.FromResult(new List<TicketBlobModel>());
         }
 
         /// <summary>
@@ -182,9 +180,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var ticketToDelete = await _ticketRepository.GetTicketAsync(ticket.Id);
 
             if (ticketToDelete != null)
-            {
                 await _ticketRepository.DeleteTicketAsync(ticket.Id);
-            }
 
             return true;
         }
@@ -217,6 +213,34 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
                 throw new Exception("Artificial error exception");
 
             return flight;
+        }
+
+        [Activity]
+        public async Task TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation)
+        {
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
+
+            if (purchaseTicketReservation?.SeatReservations is null)
+                return;
+
+            foreach (var seat in purchaseTicketReservation?.SeatReservations)
+            {
+                await flightHandle.SignalAsync(wf => wf.ReserveSeat(seat));
+            }
+        }
+
+        [Activity]
+        public async Task TicketReservationCompensation(PurchaseTicketReservationSignal purchaseTicketReservation)
+        {
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
+
+            if (purchaseTicketReservation?.SeatReservations is null)
+                return;
+
+            foreach (var seat in purchaseTicketReservation?.SeatReservations)
+            {
+                await flightHandle.SignalAsync(wf => wf.ReserveSeatCompensation(seat));
+            }
         }
     }
 }

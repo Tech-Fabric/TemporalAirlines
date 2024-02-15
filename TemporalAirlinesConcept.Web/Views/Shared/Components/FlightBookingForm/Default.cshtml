@@ -199,7 +199,7 @@
                 </div>
             </div>
 
-            <hr class="mb-4"/>
+            <hr class="mb-4" />
 
             <div class="text-end">
                 <button class="btn btn-success btn-lg flight-select-action"
@@ -224,37 +224,38 @@
             @{
                 var flight = Model.Flights.First(f => f.Id == Model.SelectedFlight);
 
-            <div class="seat-select">
-                @for (var i = 0; i < 20; i++)
-                {
-                    <div class="seat-row d-flex flex-row justify-content-around">
-                        @for (var j = 0; j < 6; j++)
-                        {
-                            <div class="seat">
+                <div class="seat-select">
+                    @for (var i = 0; i < 20; i++)
+                    {
+                        <div class="seat-row d-flex flex-row justify-content-around">
+                            @for (var j = 0; j < 6; j++)
+                            {
+                                <div class="seat">
 
-                                @{
-                                    var seat = flight.Seats.ElementAt(i * 6 + j);
+                                    @{
+                                        var seat = flight.Seats.ElementAt(i * 6 + j);
 
-                                    if (!Model.SelectedSeats.ContainsKey(seat.Name))
-                                    {
-                                        Model.SelectedSeats.Add(seat.Name, false);
-                                    }
+                                        if (!Model.SelectedSeats.ContainsKey(seat.Name))
+                                        {
+                                            Model.SelectedSeats.Add(seat.Name, false);
+                                        }
 
-                                    if (string.IsNullOrEmpty(seat.TicketId))
-                                    {
-                                        <input type="checkbox" class="" asp-for="@Model.SelectedSeats[seat.Name]"></input>
-                                        <div class="seat-indicator btn btn-primary">@seat.Name</div>
+                                        if (string.IsNullOrEmpty(seat.TicketId))
+                                        {
+                                            <input type="checkbox" class="" asp-for="@Model.SelectedSeats[seat.Name]"></input>
+                                            <div class="seat-indicator btn btn-primary">@seat.Name</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="seat-indicator btn btn-warning" disabled>@seat.Name</div>
+                                        }
                                     }
-                                    else
-                                    {
-                                        <div class="seat-indicator btn btn-warning" disabled>@seat.Name</div>
-                                    }
-                                }
-                            </div>
-                        }
-                    </div>
-                }
-            </div>}
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
 
             @if (ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid &&
            ViewContext.ViewData.ModelState[nameof(Model.NumberOfSeats)].Errors.Count > 0)
@@ -265,14 +266,14 @@
             }
 
             <div class="text-end">
-                @if (!Model.IsPaid)
+                @if (Model.IsConfirmed)
                 {
                     <button class="btn btn-success btn-lg mt-3 flight-select-action"
                             hx-post="/flights/@Model.PurchaseWorkflowId/payment"
                             hx-swap="outerHTML"
                             hx-push-url="true"
                             hx-target="#form-flight-booking">
-                        Emulate payment success
+                        Emulate payment
                     </button>
                 }
                 else
