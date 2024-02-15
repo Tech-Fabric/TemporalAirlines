@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using TemporalAirlinesConcept.Services.Interfaces.User;
+﻿using TemporalAirlinesConcept.Services.Interfaces.User;
 using TemporalAirlinesConcept.Services.Models.User;
 using TemporalAirlinesConcept.Services.Models.UserRegistration;
 using Temporalio.Activities;
@@ -9,12 +8,10 @@ namespace TemporalAirlinesConcept.Services.Implementations.UserRegistration
     public class UserRegistrationActivities
     {
         private readonly IUserService _userService;
-        private readonly ILogger _logger;
 
-        public UserRegistrationActivities(IUserService userService, ILogger<UserRegistrationActivities> logger)
+        public UserRegistrationActivities(IUserService userService)
         {
             _userService = userService;
-            _logger = logger;
         }
 
         [Activity]

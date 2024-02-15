@@ -16,11 +16,19 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public Task<List<DAL.Entities.User>> GetUsers() =>
-        _userRepository.GetUsersAsync();
+    public async Task<List<DAL.Entities.User>> GetUsers()
+    {
+        var user = await _userRepository.GetUsersAsync();
 
-    public Task<DAL.Entities.User> GetUser(string id) =>
-        _userRepository.GetUserAsync(id);
+        return user;
+    }
+
+    public async Task<DAL.Entities.User> GetUser(string id)
+    {
+        var user = await _userRepository.GetUserAsync(id);
+
+        return user;
+    }
 
     public async Task<DAL.Entities.User> CreateUser(UserInputModel model)
     {
@@ -31,6 +39,8 @@ public class UserService : IUserService
         return user;
     }
 
-    public Task RemoveUser(string id) =>
-        _userRepository.DeleteUserAsync(id);
+    public async Task RemoveUser(string id)
+    {
+        await _userRepository.DeleteUserAsync(id);
+    }
 }

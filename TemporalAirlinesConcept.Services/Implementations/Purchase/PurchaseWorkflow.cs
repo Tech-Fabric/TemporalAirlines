@@ -1,8 +1,6 @@
-﻿using System.Reflection.Metadata;
-using TemporalAirlinesConcept.Common.Helpers;
+﻿using TemporalAirlinesConcept.Common.Helpers;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Common;
 using Temporalio.Exceptions;
