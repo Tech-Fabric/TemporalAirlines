@@ -1,7 +1,5 @@
 ﻿using Htmx;
 using Microsoft.AspNetCore.Mvc;
-using TemporalAirlinesConcept.DAL.Models.Seat;
-using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using TemporalAirlinesConcept.Web.ViewComponents;
@@ -79,9 +77,9 @@ public class FlightController : Controller
             );
 
             HttpContext.Session.SetInt32("NumberOfSeats", model.NumberOfSeats);
-
-            // TODO: fetch workflow status
-
+            
+            HttpContext.Session.SetInt32("IsConfirmed", 0);
+            
             model.PaymentSuccessful = true;
         }
 
@@ -110,13 +108,15 @@ public class FlightController : Controller
         [FromRoute] string? purchaseWorkflowId
     )
     {
-        model ??= new FlightBookingFormViewModel();
-
         if (!string.IsNullOrEmpty(selectedFlight))
         {
             model.SelectedFlight = selectedFlight;
         }
-
+        
+        model.IsConfirmed = HttpContext.Session.GetInt32("IsConfirmed") is 1;
+        
+        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseWorkflowId);
+        
         model.PurchaseWorkflowId = purchaseWorkflowId;
         model.PaymentSuccessful = true;
 
@@ -124,10 +124,8 @@ public class FlightController : Controller
         {
             return ViewComponent(typeof(FlightBookingFormViewComponent), model);
         }
-        else
-        {
-            return View("~/Views/Flight/Index.cshtml", model);
-        }
+
+        return View("~/Views/Flight/Index.cshtml", model);
     }
 
     [HttpPost("{SelectedFlight}/ticket/{PurchaseWorkflowId}")]
@@ -147,6 +145,8 @@ public class FlightController : Controller
         model.PurchaseWorkflowId = purchaseWorkflowId;
         model.PaymentSuccessful = true;
 
+        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseWorkflowId);
+
         var seatsList = model.SelectedSeats.Where(s => s.Value)
             .Select(s => s.Key).ToList();
 
@@ -157,7 +157,7 @@ public class FlightController : Controller
 
         if (ModelState.IsValid)
         {
-            await _ticketService.RequestSeatReservation(new SeatReservationInputModel()
+            await _ticketService.RequestSeatReservation(new SeatReservationInputModel
             {
                 FlightId = model.SelectedFlight,
                 PurchaseId = model.PurchaseWorkflowId,
@@ -165,8 +165,8 @@ public class FlightController : Controller
             });
 
             model.IsConfirmed = true;
-
-            //model.PurchaseWorkflowId, model.SelectedSeats.Where(kv => kv.Value).Select(kv => kv.Key).ToList());
+            
+            HttpContext.Session.SetInt32("IsConfirmed", 1);
         }
 
         if (Request.IsHtmx())
@@ -190,6 +190,9 @@ public class FlightController : Controller
             model.PurchaseWorkflowId = workflowId;
             model.PaymentSuccessful = true;
             model.IsConfirmed = true;
+            
+            if(model.PurchaseWorkflowId is not null)
+                model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(model.PurchaseWorkflowId);
         }
 
         if (Request.IsHtmx())

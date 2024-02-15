@@ -42,6 +42,18 @@ public class TicketService : ITicketService
         return tickets;
     }
 
+    public async Task<List<Ticket>> GetPurchaseWorkflowTickets(string purchaseWorkflowId)
+    {
+        if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseWorkflowId))
+            throw new InvalidOperationException("Purchase workflow is not running.");
+        
+        var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
+
+        var tickets = await handle.QueryAsync(wf => wf.GetTickets());
+
+        return tickets;
+    }
+
     public async Task MarkAsPaid(string purchaseWorkflowId)
     {
         var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);

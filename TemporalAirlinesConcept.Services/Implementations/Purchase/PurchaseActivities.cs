@@ -216,31 +216,50 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         }
 
         [Activity]
-        public async Task TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation)
+        public async Task<List<Ticket>> TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation, 
+            List<Ticket> tickets)
         {
+            if (purchaseTicketReservation?.SeatReservations is null)
+                return tickets;
+            
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
 
-            if (purchaseTicketReservation?.SeatReservations is null)
-                return;
-
-            foreach (var seat in purchaseTicketReservation?.SeatReservations)
+            var flightDetails = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
+            
+            foreach (var seatReservation in purchaseTicketReservation?.SeatReservations)
             {
-                await flightHandle.SignalAsync(wf => wf.ReserveSeat(seat));
+                var ticket = tickets.FirstOrDefault(t => t.Id == seatReservation.Ticket.Id);
+                
+                if(ticket is null)
+                    continue;
+
+                ticket.Seat = flightDetails.Seats.FirstOrDefault(s => s.Name == seatReservation.Seat);
+                
+                await flightHandle.SignalAsync(wf => wf.ReserveSeat(seatReservation));
             }
+
+            return tickets;
         }
 
         [Activity]
-        public async Task TicketReservationCompensation(PurchaseTicketReservationSignal purchaseTicketReservation)
+        public async Task<List<Ticket>> TicketReservationCompensation(PurchaseTicketReservationSignal purchaseTicketReservation, 
+            List<Ticket> tickets)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
-
+            
             if (purchaseTicketReservation?.SeatReservations is null)
-                return;
+                return tickets;
 
-            foreach (var seat in purchaseTicketReservation?.SeatReservations)
+            foreach (var seatReservation in purchaseTicketReservation?.SeatReservations)
             {
-                await flightHandle.SignalAsync(wf => wf.ReserveSeatCompensation(seat));
+                var ticket = tickets.FirstOrDefault(seatReservation.Ticket);
+
+                ticket.Seat = null;
+                
+                await flightHandle.SignalAsync(wf => wf.ReserveSeatCompensation(seatReservation));
             }
+
+            return tickets;
         }
     }
 }
