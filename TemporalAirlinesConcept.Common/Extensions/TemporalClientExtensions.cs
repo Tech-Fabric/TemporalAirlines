@@ -1,11 +1,11 @@
 ﻿using Temporalio.Client;
 using Temporalio.Exceptions;
 
-namespace TemporalAirlinesConcept.Common.Helpers;
+namespace TemporalAirlinesConcept.Common.Extensions;
 
-public class WorkflowHandleHelper
+public static class TemporalClientExtensions
 {
-    public static async Task<bool> IsWorkflowRunning<T>(ITemporalClient client, string workflowId)
+    public static async Task<bool> IsWorkflowRunning<T>(this ITemporalClient client, string workflowId)
     {
         var handle = client.GetWorkflowHandle<T>(workflowId);
 

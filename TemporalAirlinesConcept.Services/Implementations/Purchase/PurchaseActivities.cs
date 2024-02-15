@@ -49,8 +49,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
 
-            await flightHandle.SignalAsync(wf =>
-                wf.Book(new BookingSignalModel { Ticket = ticket }));
+            await flightHandle.SignalAsync(wf => wf.Book(new BookingSignalModel { Ticket = ticket }));
 
             return true;
         }
@@ -121,9 +120,9 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <returns>A boolean value indicating whether the tickets was generated successfully.</returns>
         [Activity]
-        public async Task<List<TicketBlobModel>> GenerateBlobTickets()
+        public Task<List<TicketBlobModel>> GenerateBlobTickets()
         {
-            return [];
+            return Task.FromResult(new List<TicketBlobModel>());
         }
 
         /// <summary>
@@ -181,9 +180,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var ticketToDelete = await _ticketRepository.GetTicketAsync(ticket.Id);
 
             if (ticketToDelete != null)
-            {
                 await _ticketRepository.DeleteTicketAsync(ticket.Id);
-            }
 
             return true;
         }

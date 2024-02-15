@@ -1,5 +1,5 @@
 ﻿using TemporalAirlinesConcept.Common.Constants;
-using TemporalAirlinesConcept.Common.Helpers;
+using TemporalAirlinesConcept.Common.Extensions;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -77,8 +77,8 @@ public class TicketService : ITicketService
 
     public async Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel)
     {
-        if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, seatReservationInputModel.FlightId)
-            || !await WorkflowHandleHelper.IsWorkflowRunning<PurchaseWorkflow>(_temporalClient, seatReservationInputModel.PurchaseId))
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(seatReservationInputModel.FlightId)
+            || !await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(seatReservationInputModel.PurchaseId))
             return false;
 
         var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(seatReservationInputModel.PurchaseId);
@@ -105,7 +105,7 @@ public class TicketService : ITicketService
 
     public async Task<bool> BoardPassenger(BoardingInputModel boardingInputModel)
     {
-        if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, boardingInputModel.FlightId))
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(boardingInputModel.FlightId))
             return false;
 
         var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(boardingInputModel.FlightId);

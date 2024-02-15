@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Exceptions;
-using TemporalAirlinesConcept.Common.Helpers;
+using TemporalAirlinesConcept.Common.Extensions;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Interfaces.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
@@ -47,7 +47,7 @@ public class FlightService : IFlightService
         if (flight is null)
             throw new EntityNotFoundException("Flight was not found.");
 
-        if (!await WorkflowHandleHelper.IsWorkflowRunning<FlightWorkflow>(_temporalClient, flight.Id))
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flight.Id))
             return flight;
 
         var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id);
@@ -77,5 +77,12 @@ public class FlightService : IFlightService
             throw new EntityNotFoundException("Flight was not found.");
 
         await _flightRepository.DeleteFlightAsync(id);
+
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flight.Id))
+            return;
+
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id);
+
+        await handle.CancelAsync();
     }
 }

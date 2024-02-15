@@ -19,7 +19,9 @@ public class FlightActivities
     [Activity]
     public Task<FlightDetailsModel> MapFlightModel(DAL.Entities.Flight flight)
     {
-        return Task.FromResult(_mapper.Map<FlightDetailsModel>(flight));
+        var flightDetail = _mapper.Map<FlightDetailsModel>(flight);
+
+        return Task.FromResult(flightDetail);
     }
 
     [Activity]
