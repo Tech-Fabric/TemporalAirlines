@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using TemporalAirlinesConcept.Api.Models.Base;
+using TemporalAirlinesConcept.Api.Models.Users;
 using TemporalAirlinesConcept.Services.Interfaces.User;
 using TemporalAirlinesConcept.Services.Interfaces.UserRegistration;
 using TemporalAirlinesConcept.Services.Models.UserRegistration;
@@ -11,38 +14,43 @@ namespace TemporalAirlinesConcept.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IUserRegistrationService _userRegistrationService;
+        private readonly IMapper _mapper;
 
-        public UsersController(IUserService userService, IUserRegistrationService userRegistrationService)
+        public UsersController(IUserService userService, IUserRegistrationService userRegistrationService, IMapper mapper)
         {
             _userService = userService;
             _userRegistrationService = userRegistrationService;
+            _mapper = mapper;
         }
 
         // GET: api/users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DAL.Entities.User>>> GetUsers()
+        public async Task<ActionResult<List<UserResponse>>> GetUsers()
         {
             var users = await _userService.GetUsers();
+            var usersResponse = _mapper.Map<List<UserResponse>>(users);
 
-            return Ok(users);
+            return Ok(usersResponse);
         }
 
         // GET: api/users/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<DAL.Entities.User>> GetUser(string id)
+        public async Task<ActionResult<UserResponse>> GetUser(string id)
         {
             var user = await _userService.GetUser(id);
+            var userResponse = _mapper.Map<UserResponse>(user);
 
-            return Ok(user);
+            return Ok(userResponse);
         }
 
         // GET: api/users/registration/{registrationId}
         [HttpGet("registration/{registrationId}")]
-        public async Task<ActionResult<UserRegistrationStatus>> GetUserRegistrationStatus(string registrationId)
+        public async Task<ActionResult<UserRegistrationStatusResponse>> GetUserRegistrationStatus(string registrationId)
         {
-            var user = await _userRegistrationService.GetUserRegistrationInfo(registrationId);
+            var userRegistrationStatus = await _userRegistrationService.GetUserRegistrationInfo(registrationId);
+            var userRegistrationStatusResponse = _mapper.Map<UserRegistrationStatusResponse>(userRegistrationStatus);
 
-            return Ok(user);
+            return Ok(userRegistrationStatusResponse);
         }
 
         // PUT: api/users/registration/{registrationId}
@@ -56,11 +64,17 @@ namespace TemporalAirlinesConcept.Api.Controllers
 
         // POST: api/users/
         [HttpPost]
-        public async Task<IActionResult> RegisterUser(UserRegistrationModel model)
+        public async Task<ActionResult<IdResponse>> RegisterUser(UserRegistrationRequest userRegistrationRequest)
         {
-            var registrationId = await _userRegistrationService.RegisterUser(model);
+            var userRegistration = _mapper.Map<UserRegistrationModel>(userRegistrationRequest);
+            var registrationId = await _userRegistrationService.RegisterUser(userRegistration);
 
-            return Ok(registrationId);
+            var registrationResponse = new IdResponse
+            {
+                Id = registrationId
+            };
+
+            return Ok(registrationResponse);
         }
 
         // DELETE: api/users/{id}
