@@ -42,6 +42,18 @@ public class TicketService : ITicketService
         return tickets;
     }
 
+    public async Task<List<Ticket>> GetPurchaseWorkflowTickets(string purchaseWorkflowId)
+    {
+        if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseWorkflowId))
+            throw new InvalidOperationException("Purchase workflow is not running.");
+        
+        var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
+
+        var tickets = await handle.QueryAsync(wf => wf.GetTickets());
+
+        return tickets;
+    }
+
     public async Task MarkAsPaid(string purchaseWorkflowId)
     {
         var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
@@ -84,13 +96,8 @@ public class TicketService : ITicketService
         var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(seatReservationInputModel.PurchaseId);
         var tickets = await purchaseHandle.QueryAsync(wf => wf.GetTickets());
 
-        var seatReservations = tickets
-           .Select((ticketItem, number) => new SeatReservationSignalModel
-           {
-               Ticket = ticketItem,
-               Seat = seatReservationInputModel.Seats[number]
-           })
-           .ToList();
+        var seatReservations = tickets.Select((t, i) => 
+            new SeatReservationSignalModel { TicketId = t.Id, Seat = seatReservationInputModel.Seats[i] }).ToList();
 
         var signalModel = new PurchaseTicketReservationSignal
         {

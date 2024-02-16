@@ -1,6 +1,4 @@
-﻿using TemporalAirlinesConcept.DAL.Entities;
-
-namespace TemporalAirlinesConcept.Services.Models.Purchase;
+﻿namespace TemporalAirlinesConcept.Services.Models.Purchase;
 
 public class SeatReservationSignalModel
 {
@@ -9,13 +7,13 @@ public class SeatReservationSignalModel
 
     }
 
-    public SeatReservationSignalModel(Ticket ticket, string seat)
+    public SeatReservationSignalModel(string ticketId, string seat)
     {
-        Ticket = ticket;
+        TicketId = ticketId;
         Seat = seat;
     }
 
-    public Ticket Ticket { get; set; }
+    public string TicketId { get; set; }
 
     public string Seat { get; set; }
 }

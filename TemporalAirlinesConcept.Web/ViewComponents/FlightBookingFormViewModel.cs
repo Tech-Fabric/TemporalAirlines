@@ -34,6 +34,8 @@ public class FlightBookingFormViewModel
 
     public bool PaymentSuccessful { get; set; }
 
+    public List<Ticket> Tickets { get; set; } = [];
+
     public Dictionary<string, bool>? SelectedSeats { get; set; } = new();
 
     public string? PurchaseWorkflowId { get; set; }

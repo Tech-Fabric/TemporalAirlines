@@ -70,6 +70,11 @@ public class PurchaseWorkflow
     {
         if (!_isPaid)
             _isPaid = true;
+        
+        foreach (var ticket in _tickets)
+        {
+            ticket.PaymentStatus = PaymentStatus.Paid;
+        }
 
         return Task.CompletedTask;
     }
@@ -118,12 +123,33 @@ public class PurchaseWorkflow
     [WorkflowSignal]
     public async Task TicketReservation(PurchaseTicketReservationSignal seatReservation)
     {
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.TicketReservation(seatReservation),
+        seatReservation.Tickets = _tickets;
+        
+        _tickets = await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.TicketReservation(seatReservation),
                _activityOptions);
 
         _saga.AddCompensation(async () =>
-            await Workflow.ExecuteActivityAsync(
+            _tickets = await Workflow.ExecuteActivityAsync(
                 (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions));
+    }
+    
+    [WorkflowSignal]
+    public Task SetSeatsSelection(List<string> selectedSeats)
+    {
+        for (var i = 0; i < _tickets.Count; i++)
+        {
+            if (selectedSeats.Count > i)
+            {
+                _tickets[i].Seat.Name = selectedSeats[i];
+            }
+        }
+
+        if (selectedSeats.Count == _tickets.Count)
+        {
+            _seatsSelected = true;
+        }
+
+        return Task.CompletedTask;
     }
 
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
@@ -276,36 +302,5 @@ public class PurchaseWorkflow
                     )
             );
         }
-    }
-
-    /// <summary>
-    /// Sets the paid status to true.
-    /// </summary>
-    [WorkflowSignal]
-    public Task SetPaidStatus()
-    {
-        if (!_isPaid)
-            _isPaid = true;
-
-        return Task.CompletedTask;
-    }
-
-    [WorkflowSignal]
-    public Task SetSeatsSelection(List<string> selectedSeats)
-    {
-        for (var i = 0; i < _tickets.Count; i++)
-        {
-            if (selectedSeats.Count > i)
-            {
-                _tickets[i].Seat.Name = selectedSeats[i];
-            }
-        }
-
-        if (selectedSeats.Count == _tickets.Count)
-        {
-            _seatsSelected = true;
-        }
-
-        return Task.CompletedTask;
     }
 }
