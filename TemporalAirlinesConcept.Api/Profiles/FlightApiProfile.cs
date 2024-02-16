@@ -9,6 +9,5 @@ public class FlightApiProfile : Profile
     public FlightApiProfile()
     {
         CreateMap<Flight, FlightResponse>();
-
     }
 }
