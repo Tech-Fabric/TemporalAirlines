@@ -49,7 +49,7 @@ public class TicketService : ITicketService
         await handle.SignalAsync(x => x.SetAsPaid());
     }
 
-    public async Task<string> RequestTicketPurchase(PurchaseModel purchaseModel)
+    public async Task<string> StartTicketPurchase(PurchaseModel purchaseModel)
     {
         var workflowId = Guid.NewGuid().ToString();
 

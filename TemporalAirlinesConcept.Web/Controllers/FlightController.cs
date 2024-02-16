@@ -70,7 +70,7 @@ public class FlightController : Controller
 
         if (!string.IsNullOrEmpty(model.CreditCardDetails.CardNumber))
         {
-            model.PurchaseWorkflowId = await _ticketService.RequestTicketPurchase(
+            model.PurchaseWorkflowId = await _ticketService.StartTicketPurchase(
                 new PurchaseModel()
                 {
                     FlightId = model.SelectedFlight,
