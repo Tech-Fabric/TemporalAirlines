@@ -203,7 +203,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <summary>
         /// Retrieves the last flight from the given list of flight IDs.
         /// </summary>
-        /// <param name="flightsId">The list of flight IDs.</param>
+        /// <param name="flightId"></param>
         [Activity]
         public async Task<DAL.Entities.Flight> GetFlight(string flightId)
         {
@@ -216,11 +216,10 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         }
 
         [Activity]
-        public async Task<List<Ticket>> TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation, 
-            List<Ticket> tickets)
+        public async Task<List<Ticket>> TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation)
         {
             if (purchaseTicketReservation?.SeatReservations is null)
-                return tickets;
+                return purchaseTicketReservation?.Tickets;
             
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
 
@@ -228,7 +227,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             
             foreach (var seatReservation in purchaseTicketReservation?.SeatReservations)
             {
-                var ticket = tickets.FirstOrDefault(t => t.Id == seatReservation.Ticket.Id);
+                var ticket = purchaseTicketReservation.Tickets.FirstOrDefault(t => t.Id == seatReservation.TicketId);
                 
                 if(ticket is null)
                     continue;
@@ -238,28 +237,28 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
                 await flightHandle.SignalAsync(wf => wf.ReserveSeat(seatReservation));
             }
 
-            return tickets;
+            return purchaseTicketReservation.Tickets;
         }
 
         [Activity]
-        public async Task<List<Ticket>> TicketReservationCompensation(PurchaseTicketReservationSignal purchaseTicketReservation, 
-            List<Ticket> tickets)
+        public async Task<List<Ticket>> TicketReservationCompensation(PurchaseTicketReservationSignal purchaseTicketReservation)
         {
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
             
-            if (purchaseTicketReservation?.SeatReservations is null)
-                return tickets;
+            if (purchaseTicketReservation.SeatReservations is null)
+                return purchaseTicketReservation.Tickets;
 
             foreach (var seatReservation in purchaseTicketReservation?.SeatReservations)
             {
-                var ticket = tickets.FirstOrDefault(seatReservation.Ticket);
+                var ticket = purchaseTicketReservation.Tickets.FirstOrDefault(t => t.Id == seatReservation.TicketId);
 
-                ticket.Seat = null;
-                
+                if (ticket != null) 
+                    ticket.Seat = null;
+
                 await flightHandle.SignalAsync(wf => wf.ReserveSeatCompensation(seatReservation));
             }
 
-            return tickets;
+            return purchaseTicketReservation.Tickets;
         }
     }
 }

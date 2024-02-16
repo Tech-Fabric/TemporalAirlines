@@ -119,9 +119,9 @@ public class FlightWorkflow
         if (seat is null)
             return Task.CompletedTask;
 
-        seat.TicketId = seatReservationSignalModel.Ticket.Id;
+        seat.TicketId = seatReservationSignalModel.TicketId;
 
-        var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
+        var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.TicketId);
 
         ticket.Seat = seat;
 
@@ -135,7 +135,7 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task ReserveSeatCompensation(SeatReservationSignalModel seatReservationSignalModel)
     {
-        var registeredTicket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
+        var registeredTicket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.TicketId);
 
         if (registeredTicket is null)
             return Task.CompletedTask;

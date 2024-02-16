@@ -1,5 +1,4 @@
 using OpenTelemetry.Exporter;
-using OpenTelemetry.Logs;
 using TemporalAirlinesConcept.Api.Configuration;
 using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 

@@ -96,13 +96,8 @@ public class TicketService : ITicketService
         var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(seatReservationInputModel.PurchaseId);
         var tickets = await purchaseHandle.QueryAsync(wf => wf.GetTickets());
 
-        var seatReservations = tickets
-           .Select((ticketItem, number) => new SeatReservationSignalModel
-           {
-               Ticket = ticketItem,
-               Seat = seatReservationInputModel.Seats[number]
-           })
-           .ToList();
+        var seatReservations = tickets.Select((t, i) => 
+            new SeatReservationSignalModel { TicketId = t.Id, Seat = seatReservationInputModel.Seats[i] }).ToList();
 
         var signalModel = new PurchaseTicketReservationSignal
         {

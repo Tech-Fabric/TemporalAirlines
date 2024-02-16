@@ -123,12 +123,33 @@ public class PurchaseWorkflow
     [WorkflowSignal]
     public async Task TicketReservation(PurchaseTicketReservationSignal seatReservation)
     {
-        _tickets = await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.TicketReservation(seatReservation, _tickets),
+        seatReservation.Tickets = _tickets;
+        
+        _tickets = await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.TicketReservation(seatReservation),
                _activityOptions);
 
         _saga.AddCompensation(async () =>
             _tickets = await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation, _tickets), _activityOptions));
+                (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions));
+    }
+    
+    [WorkflowSignal]
+    public Task SetSeatsSelection(List<string> selectedSeats)
+    {
+        for (var i = 0; i < _tickets.Count; i++)
+        {
+            if (selectedSeats.Count > i)
+            {
+                _tickets[i].Seat.Name = selectedSeats[i];
+            }
+        }
+
+        if (selectedSeats.Count == _tickets.Count)
+        {
+            _seatsSelected = true;
+        }
+
+        return Task.CompletedTask;
     }
 
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
@@ -281,24 +302,5 @@ public class PurchaseWorkflow
                     )
             );
         }
-    }
-
-    [WorkflowSignal]
-    public Task SetSeatsSelection(List<string> selectedSeats)
-    {
-        for (var i = 0; i < _tickets.Count; i++)
-        {
-            if (selectedSeats.Count > i)
-            {
-                _tickets[i].Seat.Name = selectedSeats[i];
-            }
-        }
-
-        if (selectedSeats.Count == _tickets.Count)
-        {
-            _seatsSelected = true;
-        }
-
-        return Task.CompletedTask;
     }
 }
