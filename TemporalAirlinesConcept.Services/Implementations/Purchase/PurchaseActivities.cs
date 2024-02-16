@@ -1,7 +1,9 @@
 ﻿using TemporalAirlinesConcept.Common.Constants;
+using TemporalAirlinesConcept.Common.Extensions;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
+using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Activities;
 using Temporalio.Client;
@@ -86,15 +88,13 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <summary>
         /// Marks a ticket as paid.
         /// </summary>
-        /// <param name="ticket">The ticket to mark as paid.</param>
         /// <returns>A boolean value indicating whether the ticket was marked as paid successfully.</returns>
         [Activity]
-        public async Task<bool> MarkTicketAsPaid(Ticket ticket)
+        public async Task<bool> MarkTicketAsPaid(MarkTicketPaidSignalModel markTicketPaidSignalModel)
         {
-            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(markTicketPaidSignalModel.FlightId);
 
-            await flightHandle.SignalAsync(wf =>
-                wf.MarkTicketPaid(new MarkTicketPaidSignalModel { Ticket = ticket }));
+            await flightHandle.SignalAsync(wf => wf.MarkTicketPaid(markTicketPaidSignalModel));
 
             return true;
         }
@@ -102,16 +102,14 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <summary>
         /// Marks a ticket as canceled.
         /// </summary>
-        /// <param name="ticket">The ticket to mark as canceled.</param>
         /// <returns>A boolean value indicating whether the tickets was marked as canceled successfully.</returns>
         [Activity]
-        public async Task<bool> MarkTicketAsPaidCompensation(Ticket ticket)
+        public async Task<bool> MarkTicketAsPaidCompensation(MarkTicketPaidSignalModel markTicketPaidSignalModel)
         {
-            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(markTicketPaidSignalModel.FlightId);
 
-            await flightHandle.SignalAsync(wf =>
-                wf.MarkTicketPaidCompensation(new MarkTicketPaidSignalModel { Ticket = ticket }));
-
+            await flightHandle.SignalAsync(wf => wf.MarkTicketPaidCompensation(markTicketPaidSignalModel));
+            
             return true;
         }
 
@@ -171,7 +169,6 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <summary>
         /// Removes the tickets.
         /// </summary>
-        /// <param name="tickets">The list of tickets to save compensation for.</param>
         /// <param name="ticket"></param>
         /// <returns>The task result is true if the operation is successful; otherwise, false.</returns>
         [Activity]
@@ -203,7 +200,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <summary>
         /// Retrieves the last flight from the given list of flight IDs.
         /// </summary>
-        /// <param name="flightsId">The list of flight IDs.</param>
+        /// <param name="flightId"></param>
         [Activity]
         public async Task<DAL.Entities.Flight> GetFlight(string flightId)
         {
@@ -216,50 +213,42 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         }
 
         [Activity]
-        public async Task<List<Ticket>> TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation, 
-            List<Ticket> tickets)
+        public async Task<FlightDetailsModel> GetFlightDetails(string flightId)
         {
-            if (purchaseTicketReservation?.SeatReservations is null)
-                return tickets;
-            
-            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
+            if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId))
+                throw new ApplicationException("Flight workflow is not running.");
 
-            var flightDetails = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
-            
-            foreach (var seatReservation in purchaseTicketReservation?.SeatReservations)
-            {
-                var ticket = tickets.FirstOrDefault(t => t.Id == seatReservation.Ticket.Id);
-                
-                if(ticket is null)
-                    continue;
+            var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
 
-                ticket.Seat = flightDetails.Seats.FirstOrDefault(s => s.Name == seatReservation.Seat);
-                
-                await flightHandle.SignalAsync(wf => wf.ReserveSeat(seatReservation));
-            }
-
-            return tickets;
+            return await handle.QueryAsync(wf => wf.GetFlightDetails());
         }
 
         [Activity]
-        public async Task<List<Ticket>> TicketReservationCompensation(PurchaseTicketReservationSignal purchaseTicketReservation, 
-            List<Ticket> tickets)
+        public async Task TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation)
         {
+            if (purchaseTicketReservation?.SeatReservations is null)
+                return;
+            
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
             
-            if (purchaseTicketReservation?.SeatReservations is null)
-                return tickets;
+            foreach (var seatReservation in purchaseTicketReservation?.SeatReservations)
+            {
+                await flightHandle.SignalAsync(wf => wf.ReserveSeat(seatReservation));
+            }
+        }
+
+        [Activity]
+        public async Task TicketReservationCompensation(PurchaseTicketReservationSignal purchaseTicketReservation)
+        {
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
+
+            if (purchaseTicketReservation.SeatReservations is null)
+                return;
 
             foreach (var seatReservation in purchaseTicketReservation?.SeatReservations)
             {
-                var ticket = tickets.FirstOrDefault(seatReservation.Ticket);
-
-                ticket.Seat = null;
-                
                 await flightHandle.SignalAsync(wf => wf.ReserveSeatCompensation(seatReservation));
             }
-
-            return tickets;
         }
     }
 }

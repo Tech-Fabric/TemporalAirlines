@@ -83,7 +83,8 @@ public static class ServiceCollectionExtensions
             options.Interceptors = [new TracingInterceptor()];
 
             // Need to check how to get
-            options.LoggerFactory = LoggerFactory.Create(builder => builder.AddTelemetryLogger("Client-T"));
+            options.LoggerFactory = LoggerFactory.Create(builder => 
+                builder.AddTelemetryLogger("Client-T"));
         });
 
         return services;

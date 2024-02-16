@@ -11,7 +11,7 @@ public interface ITicketService
 
     Task<List<Ticket>> GetTickets(string userId, string flightId);
 
-    Task<List<Ticket>> GetPurchaseWorkflowTickets(string purchaseWorkflowId);
+    Task<List<Ticket>> GetPurchaseWorkflowTickets(PurchaseTicketsRequestModel purchaseTicketsRequestModel);
 
     Task<Ticket> GetTicket(string ticketId);
 
@@ -21,5 +21,5 @@ public interface ITicketService
 
     Task<bool> BoardPassenger(BoardingInputModel boardingInputModel);
 
-    public Task SetPassengerDetails(string purchaseWorkflowId, List<string> passengerDetails);
+    //public Task SetPassengerDetails(string purchaseWorkflowId, List<string> passengerDetails);
 }

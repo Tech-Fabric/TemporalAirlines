@@ -115,7 +115,11 @@ public class FlightController : Controller
         
         model.IsConfirmed = HttpContext.Session.GetInt32("IsConfirmed") is 1;
         
-        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseWorkflowId);
+        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
+        {
+            FlightId = selectedFlight,
+            PurchaseId = purchaseWorkflowId
+        });
         
         model.PurchaseWorkflowId = purchaseWorkflowId;
         model.PaymentSuccessful = true;
@@ -145,7 +149,11 @@ public class FlightController : Controller
         model.PurchaseWorkflowId = purchaseWorkflowId;
         model.PaymentSuccessful = true;
 
-        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseWorkflowId);
+        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
+        {
+            FlightId = selectedFlight,
+            PurchaseId = purchaseWorkflowId
+        });
 
         var seatsList = model.SelectedSeats.Where(s => s.Value)
             .Select(s => s.Key).ToList();
@@ -192,7 +200,11 @@ public class FlightController : Controller
             model.IsConfirmed = true;
             
             if(model.PurchaseWorkflowId is not null)
-                model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(model.PurchaseWorkflowId);
+                model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
+                {
+                    FlightId = model.PurchaseWorkflowId,
+                    PurchaseId = workflowId
+                });
         }
 
         if (Request.IsHtmx())
