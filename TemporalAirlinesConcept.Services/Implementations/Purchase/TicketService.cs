@@ -45,8 +45,8 @@ public class TicketService : ITicketService
     public async Task<List<Ticket>> GetPurchaseWorkflowTickets(string purchaseWorkflowId)
     {
         if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseWorkflowId))
-            throw new InvalidOperationException("Purchase workflow is not running.");
-        
+            return [];
+
         var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
 
         var tickets = await handle.QueryAsync(wf => wf.GetTickets());
@@ -96,7 +96,7 @@ public class TicketService : ITicketService
         var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(seatReservationInputModel.PurchaseId);
         var tickets = await purchaseHandle.QueryAsync(wf => wf.GetTickets());
 
-        var seatReservations = tickets.Select((t, i) => 
+        var seatReservations = tickets.Select((t, i) =>
             new SeatReservationSignalModel { TicketId = t.Id, Seat = seatReservationInputModel.Seats[i] }).ToList();
 
         var signalModel = new PurchaseTicketReservationSignal
