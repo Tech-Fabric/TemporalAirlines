@@ -20,7 +20,6 @@ public class PurchaseWorkflow
     private bool _isCancelled;
 
     private bool _seatsSelected;
-    private bool _passengerInfoFilled;
 
     private readonly ActivityOptions _activityOptions = new()
     {
@@ -70,7 +69,7 @@ public class PurchaseWorkflow
     {
         if (!_isPaid)
             _isPaid = true;
-        
+
         foreach (var ticket in _tickets)
         {
             ticket.PaymentStatus = PaymentStatus.Paid;
@@ -102,29 +101,10 @@ public class PurchaseWorkflow
     }
 
     [WorkflowSignal]
-    public Task SetPassengerDetails(List<string> passengerDetails)
-    {
-        for (var i = 0; i < _tickets.Count; i++)
-        {
-            if (passengerDetails.Count > i)
-            {
-                _tickets[i].Passenger = passengerDetails[i];
-            }
-        }
-
-        if (passengerDetails.Count == _tickets.Count)
-        {
-            _passengerInfoFilled = true;
-        }
-
-        return Task.CompletedTask;
-    }
-
-    [WorkflowSignal]
     public async Task TicketReservation(PurchaseTicketReservationSignal seatReservation)
     {
         seatReservation.Tickets = _tickets;
-        
+
         _tickets = await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.TicketReservation(seatReservation),
                _activityOptions);
 
@@ -132,7 +112,7 @@ public class PurchaseWorkflow
             _tickets = await Workflow.ExecuteActivityAsync(
                 (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions));
     }
-    
+
     [WorkflowSignal]
     public Task SetSeatsSelection(List<string> selectedSeats)
     {
@@ -184,10 +164,6 @@ public class PurchaseWorkflow
             (PurchaseActivities act) => act.GetFlight(purchaseModel.FlightId),
             _activityOptions);
 
-        var timeUntilDepart = flight.Depart.Subtract(Workflow.UtcNow);
-
-        var allInfoFilled = await Workflow.WaitConditionAsync(() => _seatsSelected && _passengerInfoFilled, timeUntilDepart);
-
         await GenerateBlobTickets();
 
         await SendTickets();
@@ -196,6 +172,7 @@ public class PurchaseWorkflow
 
         await ConfirmWithdrawal();
 
+        var timeUntilDepart = flight.Depart.Subtract(Workflow.UtcNow);
         var isCancelled = await Workflow.WaitConditionAsync(() => _isCancelled, timeUntilDepart);
 
         if (isCancelled)

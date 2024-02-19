@@ -15,329 +15,325 @@
       _="on htmx:beforeSend set .flight-select-action.disabled to 'disabled'
          on htmx:afterRequest set .flight-select-action.disabled to ''">
 
-<input type="hidden" asp-for="@Model.SelectedFlight" value="@Model.SelectedFlight"></input>
+    <input type="hidden" asp-for="@Model.SelectedFlight" value="@Model.SelectedFlight"></input>
 
-<div class="flights-search-filters d-flex flex-row">
-    <div class="flex-column align-items-start flex-grow-1 me-1 position-relative" role="group">
-        <select class="form-select form-select-lg mb-3 rounded-start-3 rounded-end-0"
-                aria-label="Airport from"
-                asp-for="DepartureAirport">
-            <option selected>From</option>
+    <div class="flights-search-filters d-flex flex-row">
+        <div class="flex-column align-items-start flex-grow-1 me-1 position-relative" role="group">
+            <select class="form-select form-select-lg mb-3 rounded-start-3 rounded-end-0"
+                    aria-label="Airport from"
+                    asp-for="DepartureAirport">
+                <option selected>From</option>
 
-            @foreach (var a in Model.Airports)
-            {
-                <option value="@a.Key">@a.Value</option>
-            }
-        </select>
-    </div>
-
-    <div class="flex-column align-items-start flex-grow-1 me-1 position-relative" role="group">
-        <select class="form-select form-select-lg mb-3 rounded-start-0 rounded-end-0"
-                aria-label="Airport to"
-                asp-for="ArrivalAirport">
-            <option selected>To</option>
-            @foreach (var a in Model.Airports)
-            {
-                <option value="@a.Key">@a.Value</option>
-            }
-        </select>
-    </div>
-
-    <div class="flex-column align-items-start flex-grow-1 me-1" role="group">
-        <input type="date" class="form-control form-control-lg flex-sm-fill rounded-start-0 rounded-end-0"
-               asp-for="@Model.When"
-               placeholder="When"
-               autocomplete="false">
-    </div>
-
-    <div class="flex-column align-items-start flex-grow-1" role="group">
-        @* <label class="form-label flex-sm-fill" asp-for="@Model.To"></label> *@
-        <button id="flight-search-submit"
-                class="btn btn-lg btn-primary w-100 rounded-start-0 rounded-end-3 flight-select-action"
-                hx-post="@Url.Action("Form", "Flight", new { SelectedFlight = "" })"
-                hx-swap="outerHTML"
-                hx-push-url="true"
-                hx-target="#form-flight-booking">
-            Find!
-        </button>
-    </div>
-</div>
-
-<div class="flights flight-listing-page">
-    @if (Model.Flights.Count <= 0)
-    {
-        <div class="flight d-flex flex-row justify-content-between">
-            <strong>No flights available :(</strong>
-        </div>
-    }
-
-    @foreach (var flight in Model.Flights.Take(5))
-    {
-        <div class="flight-block bg-white light-shadow p-24 br-10 mb-16 sal-animate" data-sal="slide-down" data-sal-duration="800" data-sal-delay="100" data-sal-easing="ease-in-out">
-            <div class="flight-area">
-                <div class="airline-name">
-
-                    <div>
-                        <h5 class="lightest-black mb-8">United Dubai Airlines</h5>
-                        <h6 class="dark-gray">Boeing 777-90</h6>
-                    </div>
-                </div>
-                <div class="flight-detail">
-                    <div class="flight-departure">
-                        <h5 class="color-black">@flight.Depart.ToString("t")</h5>
-                        <h5 class="dark-gray text-end">@flight.From</h5>
-                    </div>
-                    <div class="d-inline-flex align-items-center gap-8">
-
-                        <div class="from-to text-center">
-                            <h5 class="dark-gray">@((flight.Arrival - flight.Depart).Humanize())</h5>
-                            <img src="/img/route-plan.png" alt="">
-                            <h6 class="color-black">1 Stop</h6>
-                        </div>
-
-                    </div>
-                    <div class="flight-departure">
-                        <h5 class="color-black">@flight.Arrival.ToString("t")</h5>
-                        <h5 class="dark-gray">@flight.To</h5>
-                    </div>
-                </div>
-                <div class="flight-button">
-                    <div class="amount">
-                        <h5 class="color-black">$240</h5>
-                        <h6 class="dark-gray text-end">Price</h6>
-                    </div>
-
-                    @if (!string.IsNullOrEmpty(Model.SelectedFlight) && Model.SelectedFlight == flight.Id)
-                    {
-                        <button class="btn btn-light btn-lg flight-select-action"
-                                disabled="disabled"
-                                hx-post="/flights/@flight.Id"
-                                hx-swap="outerHTML" hx-push-url="true"
-                                hx-target="#form-flight-booking">
-                            Selected
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-primary btn-lg flight-select-action"
-                                hx-post="/flights/@flight.Id"
-                                hx-swap="outerHTML" hx-push-url="true"
-                                hx-target="#form-flight-booking">
-                            Book Now
-                        </button>
-                    }
-                </div>
-            </div>
-            <hr class="bg-light-gray mt-24 mb-24">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="color-black">@flight.Depart.Date.ToString("m")</h5>
-                @* <div> *@
-                @*     <a href="#" class="accordion-button color-primary h5 collapsed" data-bs-toggle="collapse" data-bs-target="#unitedDubai" aria-expanded="true"> <i class="fal fa-chevron-down color-primary "></i>&nbsp;Flight Detail</a> *@
-                @* </div> *@
-            </div>
-        </div>
-    }
-</div>
-
-@if (!Model.PaymentSuccessful && Model.SelectedFlight != null)
-{
-    <hr class="mb-4">
-
-    <div class="text-start flight-block bg-white light-shadow p-24 br-10 mb-16 sal-animate">
-        <h4 class="mb-3">Payment</h4>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="tickets-number">Number of tickets</label>
-                <input type="number" class="form-control" id="tickets-number" placeholder="" required="" value="1" asp-for="@Model.NumberOfSeats">
-                <small class="text-muted">Number of tickets to buy. You will be able to select seats later.</small>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="cc-name">Name on card</label>
-                <input type="text" class="form-control" id="cc-name" placeholder="" required="" asp-for="CreditCardDetails.NameOnCard">
-                <small class="text-muted">Full name as displayed on card</small>
-                <div class="invalid-feedback">
-                    <span asp-validation-for="@Model.CreditCardDetails.NameOnCard"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 mb-3"></div>
-            <div class="col-md-6 mb-3">
-                <label for="cc-number">Credit card number</label>
-                <input type="text" class="form-control" id="cc-number" placeholder=""
-                       value="4111 1111 1111 1111"
-                       required="" asp-for="CreditCardDetails.CardNumber">
-                <div class="invalid-feedback">
-                    <span asp-validation-for="@Model.CreditCardDetails.CardNumber"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-            </div>
-            <div class="col-md-2 mb-2">
-                <label for="cc-expiration">Expiration Month</label>
-                <input type="text" class="form-control" id="cc-expiration-month" placeholder="" required="" asp-for="CreditCardDetails.ExpiresMonth">
-                <div class="invalid-feedback">
-                    <span asp-validation-for="@Model.CreditCardDetails.ExpiresMonth"></span>
-                </div>
-            </div>
-            <div class="col-md-2 mb-2">
-                <label for="cc-expiration">Expiration Year</label>
-                <input type="text" class="form-control" id="cc-expiration-year" placeholder="" required="" asp-for="CreditCardDetails.ExpiresYear">
-                <div class="invalid-feedback">
-                    <span asp-validation-for="@Model.CreditCardDetails.ExpiresYear"></span>
-                </div>
-            </div>
-            <div class="col-md-2 mb-2">
-                <label for="cc-expiration">CVV</label>
-                <input type="text" class="form-control" id="cc-cvv" placeholder="" required="" asp-for="CreditCardDetails.CVV">
-                <div class="invalid-feedback">
-                    <span asp-validation-for="@Model.CreditCardDetails.CVV"></span>
-                </div>
-            </div>
+                @foreach (var a in Model.Airports)
+                {
+                    <option value="@a.Key">@a.Value</option>
+                }
+            </select>
         </div>
 
-        <hr class="mb-4" />
+        <div class="flex-column align-items-start flex-grow-1 me-1 position-relative" role="group">
+            <select class="form-select form-select-lg mb-3 rounded-start-0 rounded-end-0"
+                    aria-label="Airport to"
+                    asp-for="ArrivalAirport">
+                <option selected>To</option>
+                @foreach (var a in Model.Airports)
+                {
+                    <option value="@a.Key">@a.Value</option>
+                }
+            </select>
+        </div>
 
-        <div class="text-end">
-            <button class="btn btn-success btn-lg flight-select-action"
-                    hx-post="/flights/@Model.SelectedFlight/purchase"
+        <div class="flex-column align-items-start flex-grow-1 me-1" role="group">
+            <input type="date" class="form-control form-control-lg flex-sm-fill rounded-start-0 rounded-end-0"
+                   asp-for="@Model.When"
+                   placeholder="When"
+                   autocomplete="false">
+        </div>
+
+        <div class="flex-column align-items-start flex-grow-1" role="group">
+            <button id="flight-search-submit"
+                    class="btn btn-lg btn-primary w-100 rounded-start-0 rounded-end-3 flight-select-action"
+                    hx-post="@Url.Action("Form", "Flight", new { SelectedFlight = "" })"
                     hx-swap="outerHTML"
                     hx-push-url="true"
                     hx-target="#form-flight-booking">
-                Checkout
+                Find!
             </button>
         </div>
     </div>
-}
 
-@if (Model.PaymentSuccessful)
-{
-    <div class="alert alert-success">Payment was successful!</div>
+    <div class="flights flight-listing-page">
+        @if (Model.Flights.Count <= 0)
+        {
+            <div class="flight d-flex flex-row justify-content-between">
+                <strong>No flights available :(</strong>
+            </div>
+        }
 
-    <div class="seats text-start">
-        <hr class="mb-4">
-        <h4 class="mb-5">Please select seats:</h4>
+        @foreach (var flight in Model.Flights.Take(5))
+        {
+            <div class="flight-block bg-white light-shadow p-24 br-10 mb-16 sal-animate" data-sal="slide-down" data-sal-duration="800" data-sal-delay="100" data-sal-easing="ease-in-out">
+                <div class="flight-area">
+                    <div class="airline-name">
 
-        @{
-            var flight = Model.Flights.First(f => f.Id == Model.SelectedFlight);
+                        <div>
+                            <h5 class="lightest-black mb-8">United Dubai Airlines</h5>
+                            <h6 class="dark-gray">Boeing 777-90</h6>
+                        </div>
+                    </div>
+                    <div class="flight-detail">
+                        <div class="flight-departure">
+                            <h5 class="color-black">@flight.Depart.ToString("t")</h5>
+                            <h5 class="dark-gray text-end">@flight.From</h5>
+                        </div>
+                        <div class="d-inline-flex align-items-center gap-8">
 
-            <div class="seat-select">
-                @for (var i = 0; i < 20; i++)
-                {
-                    <div class="seat-row d-flex flex-row justify-content-around">
-                        @for (var j = 0; j < 6; j++)
-                        {
-                            <div class="seat">
-
-                                @{
-                                    var seat = flight.Seats.ElementAt(i * 6 + j);
-
-                                    if (!Model.SelectedSeats.ContainsKey(seat.Name))
-                                    {
-                                        Model.SelectedSeats.Add(seat.Name, false);
-                                    }
-
-                                    if (string.IsNullOrEmpty(seat.TicketId))
-                                    {
-                                        <input type="checkbox" class="" asp-for="@Model.SelectedSeats[seat.Name]"></input>
-                                        <div class="seat-indicator btn btn-primary">@seat.Name</div>
-                                    }
-                                    else
-                                    {
-                                        <div class="seat-indicator btn btn-warning" disabled>@seat.Name</div>
-                                    }
-                                }
+                            <div class="from-to text-center">
+                                <h5 class="dark-gray">@((flight.Arrival - flight.Depart).Humanize())</h5>
+                                <img src="/img/route-plan.png" alt="">
+                                <h6 class="color-black">1 Stop</h6>
                             </div>
+
+                        </div>
+                        <div class="flight-departure">
+                            <h5 class="color-black">@flight.Arrival.ToString("t")</h5>
+                            <h5 class="dark-gray">@flight.To</h5>
+                        </div>
+                    </div>
+                    <div class="flight-button">
+                        <div class="amount">
+                            <h5 class="color-black">$240</h5>
+                            <h6 class="dark-gray text-end">Price</h6>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.SelectedFlight) && Model.SelectedFlight == flight.Id)
+                        {
+                            <button class="btn btn-light btn-lg flight-select-action"
+                                    disabled="disabled"
+                                    hx-post="/flights/@flight.Id"
+                                    hx-swap="outerHTML" hx-push-url="true"
+                                    hx-target="#form-flight-booking">
+                                Selected
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary btn-lg flight-select-action"
+                                    hx-post="/flights/@flight.Id"
+                                    hx-swap="outerHTML" hx-push-url="true"
+                                    hx-target="#form-flight-booking">
+                                Book Now
+                            </button>
                         }
                     </div>
-                }
-            </div>
-        }
-
-        @if (ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid &&
-             ViewContext.ViewData.ModelState[nameof(Model.NumberOfSeats)].Errors.Count > 0)
-        {
-            <div class="alert alert-danger mt-5">
-                <span asp-validation-for="@Model.NumberOfSeats"></span>
-            </div>
-        }
-
-        <div class="text-end">
-            @if (Model.IsConfirmed)
-            {
-                <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                        hx-post="/flights/@Model.PurchaseWorkflowId/payment"
-                        hx-swap="outerHTML"
-                        hx-push-url="true"
-                        hx-target="#form-flight-booking">
-                    Emulate payment
-                </button>
-            }
-            else
-            {
-                <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                        hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
-                        hx-swap="outerHTML"
-                        hx-push-url="true"
-                        hx-target="#form-flight-booking">
-                    Confirm seat selection
-                </button>
-            }
-        </div>
-
-        <hr class="mb-4 mt-4">
-
-        @if (Model.Tickets.Any())
-        {
-            <div class="d-flex justify-content-between align-items-center">
-                <h4>Tickets details:</h4>
-
-                <button class="btn btn-success btn-lg flight-select-action"
-                        hx-get="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
-                        hx-swap="outerHTML"
-                        hx-push-url="false"
-                        hx-target="#form-flight-booking">
-                    Update tickets
-                </button>
-            </div>
-            
-            @foreach (var ticket in Model.Tickets)
-            {
-                <p>Ticket ID: @ticket.Id</p>
-
-                <p>Status: @ticket.PaymentStatus.ToString()</p>
-
-                @if (ticket.Seat != null)
-                {
-                    <p>Seat: @ticket.Seat.Name</p>
-                }
-                else
-                {
-                    <p>No seat selected</p>
-                }
-
-                <hr class="mt-2">
-            }
-        }
-        else
-        {
-            <div class="text-end">
-                <button class="btn btn-success btn-lg flight-select-action"
-                        hx-get="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
-                        hx-swap="outerHTML"
-                        hx-push-url="false"
-                        hx-target="#form-flight-booking">
-                    Load tickets
-                </button>
+                </div>
+                <hr class="bg-light-gray mt-24 mb-24">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="color-black">@flight.Depart.Date.ToString("m")</h5>
+                </div>
             </div>
         }
     </div>
-}
 
-@await Html.PartialAsync("Forms/__FormProblemDetailsSummary")
+    @if (!Model.PaymentSuccessful && Model.SelectedFlight != null)
+    {
+        <hr class="mb-4">
 
-@Html.AntiForgeryToken()
+        <div class="text-start flight-block bg-white light-shadow p-24 br-10 mb-16 sal-animate">
+            <h4 class="mb-3">Payment</h4>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="tickets-number">Number of tickets</label>
+                    <input type="number" class="form-control" id="tickets-number" placeholder="" required="" value="1" asp-for="@Model.NumberOfSeats">
+                    <small class="text-muted">Number of tickets to buy. You will be able to select seats later.</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="cc-name">Name on card</label>
+                    <input type="text" class="form-control" id="cc-name" placeholder="" required="" asp-for="CreditCardDetails.NameOnCard">
+                    <small class="text-muted">Full name as displayed on card</small>
+                    <div class="invalid-feedback">
+                        <span asp-validation-for="@Model.CreditCardDetails.NameOnCard"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3"></div>
+                <div class="col-md-6 mb-3">
+                    <label for="cc-number">Credit card number</label>
+                    <input type="text" class="form-control" id="cc-number" placeholder=""
+                           value="4111 1111 1111 1111"
+                           required="" asp-for="CreditCardDetails.CardNumber">
+                    <div class="invalid-feedback">
+                        <span asp-validation-for="@Model.CreditCardDetails.CardNumber"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label for="cc-expiration">Expiration Month</label>
+                    <input type="text" class="form-control" id="cc-expiration-month" placeholder="" required="" asp-for="CreditCardDetails.ExpiresMonth">
+                    <div class="invalid-feedback">
+                        <span asp-validation-for="@Model.CreditCardDetails.ExpiresMonth"></span>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label for="cc-expiration">Expiration Year</label>
+                    <input type="text" class="form-control" id="cc-expiration-year" placeholder="" required="" asp-for="CreditCardDetails.ExpiresYear">
+                    <div class="invalid-feedback">
+                        <span asp-validation-for="@Model.CreditCardDetails.ExpiresYear"></span>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label for="cc-expiration">CVV</label>
+                    <input type="text" class="form-control" id="cc-cvv" placeholder="" required="" asp-for="CreditCardDetails.CVV">
+                    <div class="invalid-feedback">
+                        <span asp-validation-for="@Model.CreditCardDetails.CVV"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="mb-4" />
+
+            <div class="text-end">
+                <button class="btn btn-success btn-lg flight-select-action"
+                        hx-post="/flights/@Model.SelectedFlight/purchase"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        hx-target="#form-flight-booking">
+                    Checkout
+                </button>
+            </div>
+        </div>
+    }
+
+    @if (Model.PaymentSuccessful)
+    {
+        <div class="alert alert-success">Payment was successful!</div>
+
+        <div class="seats text-start">
+            <hr class="mb-4">
+            <h4 class="mb-5">Please select seats:</h4>
+
+            @{
+                var flight = Model.Flights.First(f => f.Id == Model.SelectedFlight);
+
+                <div class="seat-select">
+                    @for (var i = 0; i < 20; i++)
+                    {
+                        <div class="seat-row d-flex flex-row justify-content-around">
+                            @for (var j = 0; j < 6; j++)
+                            {
+                                <div class="seat">
+
+                                    @{
+                                        var seat = flight.Seats.ElementAt(i * 6 + j);
+
+                                        if (!Model.SelectedSeats.ContainsKey(seat.Name))
+                                        {
+                                            Model.SelectedSeats.Add(seat.Name, false);
+                                        }
+
+                                        if (string.IsNullOrEmpty(seat.TicketId))
+                                        {
+                                            <input type="checkbox" class="" asp-for="@Model.SelectedSeats[seat.Name]"></input>
+                                            <div class="seat-indicator btn btn-primary">@seat.Name</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="seat-indicator btn btn-warning" disabled>@seat.Name</div>
+                                        }
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid &&
+           ViewContext.ViewData.ModelState[nameof(Model.NumberOfSeats)].Errors.Count > 0)
+            {
+                <div class="alert alert-danger mt-5">
+                    <span asp-validation-for="@Model.NumberOfSeats"></span>
+                </div>
+            }
+
+            <div class="text-end">
+                @if (Model.IsConfirmed)
+                {
+                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                            hx-post="/flights/@Model.PurchaseWorkflowId/payment"
+                            hx-swap="outerHTML"
+                            hx-push-url="true"
+                            hx-target="#form-flight-booking">
+                        Emulate payment
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                            hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
+                            hx-swap="outerHTML"
+                            hx-push-url="true"
+                            hx-target="#form-flight-booking">
+                        Confirm seat selection
+                    </button>
+                }
+            </div>
+
+            <hr class="mb-4 mt-4">
+
+            @if (Model.Tickets.Any())
+            {
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4>Tickets details:</h4>
+
+                    <button class="btn btn-success btn-lg flight-select-action"
+                            hx-get="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
+                            hx-swap="outerHTML"
+                            hx-push-url="false"
+                            hx-target="#form-flight-booking">
+                        Update tickets
+                    </button>
+                </div>
+
+                @foreach (var ticket in Model.Tickets)
+                {
+                    <p>Ticket ID: @ticket.Id</p>
+
+                    <p>Status: @ticket.PaymentStatus.ToString()</p>
+
+                    @if (ticket.Seat != null)
+                    {
+                        <p>Seat: @ticket.Seat.Name</p>
+                    }
+                    else
+                    {
+                        <p>No seat selected</p>
+                    }
+
+                    <hr class="mt-2">
+                }
+            }
+            else
+            {
+                <div class="text-end">
+                    <button class="btn btn-success btn-lg flight-select-action"
+                            hx-get="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
+                            hx-swap="outerHTML"
+                            hx-push-url="false"
+                            hx-target="#form-flight-booking">
+                        Load tickets
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
+    @await Html.PartialAsync("Forms/__FormProblemDetailsSummary")
+
+    @Html.AntiForgeryToken()
 </form>
