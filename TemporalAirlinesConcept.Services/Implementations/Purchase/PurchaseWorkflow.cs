@@ -19,8 +19,7 @@ public class PurchaseWorkflow
 
     private bool _isCancelled;
 
-    //private bool _seatsSelected;
-    //private bool _passengerInfoFilled;
+    private bool _seatsSelected;
 
     private readonly ActivityOptions _activityOptions = new()
     {
@@ -88,25 +87,6 @@ public class PurchaseWorkflow
         return Task.CompletedTask;
     }
 
-    // [WorkflowSignal]
-    // public Task SetPassengerDetails(List<string> passengerDetails)
-    // {
-    //     for (var i = 0; i < _tickets.Count; i++)
-    //     {
-    //         if (passengerDetails.Count > i)
-    //         {
-    //             _tickets[i].Passenger = passengerDetails[i];
-    //         }
-    //     }
-    //
-    //     if (passengerDetails.Count == _tickets.Count)
-    //     {
-    //         _passengerInfoFilled = true;
-    //     }
-    //
-    //     return Task.CompletedTask;
-    // }
-
     [WorkflowSignal]
     public async Task TicketReservation(PurchaseTicketReservationSignal seatReservation)
     {
@@ -116,25 +96,6 @@ public class PurchaseWorkflow
         _saga.AddCompensation(async () => await Workflow.ExecuteActivityAsync(
             (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions));
     }
-
-    // [WorkflowSignal]
-    // public Task SetSeatsSelection(List<string> selectedSeats)
-    // {
-    //     for (var i = 0; i < _tickets.Count; i++)
-    //     {
-    //         if (selectedSeats.Count > i)
-    //         {
-    //             _tickets[i].Seat.Name = selectedSeats[i];
-    //         }
-    //     }
-    //
-    //     if (selectedSeats.Count == _tickets.Count)
-    //     {
-    //         _seatsSelected = true;
-    //     }
-    //
-    //     return Task.CompletedTask;
-    // }
 
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
     {
@@ -164,16 +125,13 @@ public class PurchaseWorkflow
         var flight = await Workflow.ExecuteActivityAsync((PurchaseActivities act) => 
             act.GetFlight(purchaseModel.FlightId), _activityOptions);
 
-        var timeUntilDepart = flight.Depart.Subtract(Workflow.UtcNow);
-
-        //var allInfoFilled = await Workflow.WaitConditionAsync(() => _seatsSelected && _passengerInfoFilled, timeUntilDepart);
-
         await GenerateBlobTickets();
 
         await SendTickets();
 
         await ConfirmWithdrawal();
 
+        var timeUntilDepart = flight.Depart.Subtract(Workflow.UtcNow);
         var isCancelled = await Workflow.WaitConditionAsync(() => _isCancelled, timeUntilDepart);
 
         if (isCancelled)

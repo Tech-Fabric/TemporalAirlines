@@ -58,6 +58,7 @@ public static class ServiceCollectionExtensions
         services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
 
         services.AddAutoMapper(typeof(UserProfile));
+        services.AddAutoMapper(typeof(TicketProfile));
         services.AddAutoMapper(typeof(FlightProfile));
 
         services.AddScoped<IFlightService, FlightService>();

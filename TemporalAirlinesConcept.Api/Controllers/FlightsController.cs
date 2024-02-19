@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using TemporalAirlinesConcept.Api.Models.Flights;
 using TemporalAirlinesConcept.Services.Interfaces.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
 
@@ -9,37 +11,42 @@ namespace TemporalAirlinesConcept.Api.Controllers
     public class FlightsController : ControllerBase
     {
         private readonly IFlightService _flightService;
+        private readonly IMapper _mapper;
 
-        public FlightsController(IFlightService flightService)
+        public FlightsController(IFlightService flightService, IMapper mapper)
         {
             _flightService = flightService;
+            _mapper = mapper;
         }
 
         // GET: api/flights
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DAL.Entities.Flight>>> GetFlights()
+        public async Task<ActionResult<List<FlightResponse>>> GetFlights()
         {
             var flights = await _flightService.GetFlights();
+            var flightsResponse = _mapper.Map<List<FlightResponse>>(flights);
 
-            return Ok(flights);
+            return Ok(flightsResponse);
         }
 
         // GET: api/flights/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<DAL.Entities.Flight>> GetFlight(string id)
+        public async Task<ActionResult<FlightResponse>> GetFlight(string id)
         {
             var flight = await _flightService.GetFlight(id);
+            var flightResponse = _mapper.Map<FlightResponse>(flight);
 
-            return Ok(flight);
+            return Ok(flightResponse);
         }
 
         // POST: api/flights/{id}
         [HttpPost]
-        public async Task<ActionResult<DAL.Entities.Flight>> CreateFlight(FlightInputModel model)
+        public async Task<ActionResult<FlightResponse>> CreateFlight(FlightInputModel model)
         {
             var createdFlight = await _flightService.CreateFlight(model);
+            var createdFlightResponse = _mapper.Map<FlightResponse>(createdFlight);
 
-            return CreatedAtAction(nameof(GetFlight), new { id = createdFlight.Id }, createdFlight);
+            return CreatedAtAction(nameof(GetFlight), new { id = createdFlight.Id }, createdFlightResponse);
         }
 
         // DELETE: api/flights/{id}

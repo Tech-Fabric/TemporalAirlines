@@ -222,7 +222,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 
             return await handle.QueryAsync(wf => wf.GetFlightDetails());
         }
-
+        
         [Activity]
         public async Task TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation)
         {

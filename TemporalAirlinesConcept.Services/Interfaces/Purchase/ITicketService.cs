@@ -5,7 +5,7 @@ namespace TemporalAirlinesConcept.Services.Interfaces.Purchase;
 
 public interface ITicketService
 {
-    Task<string> RequestTicketPurchase(PurchaseModel purchaseModel);
+    Task<string> StartTicketPurchase(PurchaseModel purchaseModel);
 
     Task<List<Ticket>> GetTickets(string userId);
 
@@ -20,6 +20,4 @@ public interface ITicketService
     Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel);
 
     Task<bool> BoardPassenger(BoardingInputModel boardingInputModel);
-
-    //public Task SetPassengerDetails(string purchaseWorkflowId, List<string> passengerDetails);
 }
