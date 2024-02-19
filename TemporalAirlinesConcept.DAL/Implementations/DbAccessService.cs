@@ -53,6 +53,7 @@ public class DbAccessService<T> where T : class
     public async Task AddItemAsync(T item, string id)
     {
         var container = await GetContainer();
+
         await container.CreateItemAsync<T>(item, new PartitionKey(id));
     }
 

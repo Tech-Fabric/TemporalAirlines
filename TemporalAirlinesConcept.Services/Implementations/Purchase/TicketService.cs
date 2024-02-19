@@ -81,12 +81,6 @@ public class TicketService : ITicketService
         return workflowId;
     }
 
-    public Task SetPassengerDetails(string purchaseWorkflowId, List<string> passengerDetails)
-    {
-        var wh = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
-        return wh.SignalAsync(wf => wf.SetPassengerDetails(passengerDetails));
-    }
-
     public async Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel)
     {
         if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(seatReservationInputModel.FlightId)

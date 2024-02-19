@@ -20,7 +20,6 @@ public class PurchaseWorkflow
     private bool _isCancelled;
 
     private bool _seatsSelected;
-    private bool _passengerInfoFilled;
 
     private readonly ActivityOptions _activityOptions = new()
     {
@@ -99,25 +98,6 @@ public class PurchaseWorkflow
     public List<Ticket> GetTickets()
     {
         return _tickets;
-    }
-
-    [WorkflowSignal]
-    public Task SetPassengerDetails(List<string> passengerDetails)
-    {
-        for (var i = 0; i < _tickets.Count; i++)
-        {
-            if (passengerDetails.Count > i)
-            {
-                _tickets[i].Passenger = passengerDetails[i];
-            }
-        }
-
-        if (passengerDetails.Count == _tickets.Count)
-        {
-            _passengerInfoFilled = true;
-        }
-
-        return Task.CompletedTask;
     }
 
     [WorkflowSignal]
