@@ -1,4 +1,5 @@
-﻿using TemporalAirlinesConcept.DAL.Enums;
+﻿using TemporalAirlinesConcept.DAL.Entities;
+using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Exceptions;
@@ -178,5 +179,11 @@ public class FlightWorkflow
     public FlightDetailsModel GetFlightDetails()
     {
         return _flight;
+    }
+    
+    [WorkflowQuery]
+    public List<Ticket> GetRegisteredTickets()
+    {
+        return _flight.Registered;
     }
 }
