@@ -1,5 +1,7 @@
-﻿using TemporalAirlinesConcept.DAL.Entities;
+﻿using TemporalAirlinesConcept.Common.Helpers;
+using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
+using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Exceptions;
@@ -53,6 +55,48 @@ public class FlightWorkflow
     }
 
     /// <summary>
+    /// Save purchase tickets
+    /// </summary>
+    /// <param name="savePurchaseTickets">Model with Purchase id</param>
+    [WorkflowSignal]
+    public async Task SaveTickets(SavePurchaseTicketsSignalModel savePurchaseTickets)
+    {
+        var tickets = _flight.Registered
+            .Where(x => x.PurchaseId == savePurchaseTickets.PurchaseId)
+            .ToList();
+
+        var saveTickets = new SaveTicketsModel
+        {
+            Tickets = tickets
+        };
+
+        await Workflow.ExecuteActivityAsync(
+           (FlightActivities act) => act.SavePurchaseTickets(saveTickets),
+           _activityOptions);
+    }
+
+    /// <summary>
+    /// Compensate purchase tickets
+    /// </summary>
+    /// <param name="savePurchaseTickets">Model with Purchase id</param>
+    [WorkflowSignal]
+    public async Task SaveTicketsCompensation(SavePurchaseTicketsSignalModel savePurchaseTickets)
+    {
+        var tickets = _flight.Registered
+          .Where(x => x.PurchaseId == savePurchaseTickets.PurchaseId)
+          .ToList();
+
+        var saveTickets = new SaveTicketsModel
+        {
+            Tickets = tickets
+        };
+
+        await Workflow.ExecuteActivityAsync(
+          (FlightActivities act) => act.SavePurchaseTicketsCompensation(saveTickets),
+          _activityOptions);
+    }
+
+    /// <summary>
     /// Registers a ticket for booking.
     /// </summary>
     /// <param name="bookingSignalModel">The booking request model.</param>
@@ -86,7 +130,7 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task MarkTicketPaid(MarkTicketPaidSignalModel markTicketPaidSignalModel)
     {
-        foreach (var ticket in _flight.Registered.Where(ticket => 
+        foreach (var ticket in _flight.Registered.Where(ticket =>
                      ticket.PurchaseId == markTicketPaidSignalModel.PurchaseId))
         {
             ticket.PaymentStatus = PaymentStatus.Paid;
@@ -102,7 +146,7 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task MarkTicketPaidCompensation(MarkTicketPaidSignalModel markTicketPaidSignalModel)
     {
-        foreach (var ticket in _flight.Registered.Where(ticket => 
+        foreach (var ticket in _flight.Registered.Where(ticket =>
                      ticket.PurchaseId == markTicketPaidSignalModel.PurchaseId))
         {
             ticket.PaymentStatus = PaymentStatus.Cancelled;
@@ -180,7 +224,7 @@ public class FlightWorkflow
     {
         return _flight;
     }
-    
+
     [WorkflowQuery]
     public List<Ticket> GetRegisteredTickets()
     {
