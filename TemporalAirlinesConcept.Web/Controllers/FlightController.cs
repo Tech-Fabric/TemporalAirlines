@@ -200,12 +200,11 @@ public class FlightController : Controller
             model.IsConfirmed = true;
             model.IsPaymentEmulated = true;
 
-            if (model.PurchaseWorkflowId is not null)
-                model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
-                {
-                    FlightId = model.PurchaseWorkflowId,
-                    PurchaseId = workflowId
-                });
+            model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
+            {
+                FlightId = model.SelectedFlight,
+                PurchaseId = model.PurchaseWorkflowId
+            });
         }
 
         if (Request.IsHtmx())
