@@ -17,6 +17,8 @@ public class Ticket
 
     public string UserId { get; set; }
 
+    public string PurchaseId { get; set; }
+    
     public string Passenger { get; set; }
 
     public PaymentStatus PaymentStatus { get; set; }
