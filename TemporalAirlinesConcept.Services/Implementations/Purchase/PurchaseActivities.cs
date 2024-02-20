@@ -14,13 +14,11 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
     {
         private readonly ITemporalClient _temporalClient;
         private readonly IFlightRepository _flightRepository;
-        private readonly ITicketRepository _ticketRepository;
 
         public PurchaseActivities(ITemporalClient temporalClient, IUnitOfWork unitOfWork)
         {
             _temporalClient = temporalClient;
             _flightRepository = unitOfWork.GetFlightRepository();
-            _ticketRepository = unitOfWork.GetTicketRepository();
         }
 
         /// <summary>
@@ -109,7 +107,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(markTicketPaidSignalModel.FlightId);
 
             await flightHandle.SignalAsync(wf => wf.MarkTicketPaidCompensation(markTicketPaidSignalModel));
-            
+
             return true;
         }
 
@@ -159,9 +157,16 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="ticket"></param>
         /// <returns>A boolean indicating whether the tickets were saved successfully.</returns>
         [Activity]
-        public async Task<bool> SaveTicket(Ticket ticket)
+        public async Task<bool> SaveTickets(SaveTicketsSignalModel saveTicketsSignal)
         {
-            await _ticketRepository.AddTicketAsync(ticket);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(saveTicketsSignal.FlightId);
+
+            var saveSignal = new SavePurchaseTicketsSignalModel
+            {
+                PurchaseId = saveTicketsSignal.PurchaseId
+            };
+
+            await flightHandle.SignalAsync(wf => wf.SaveTickets(saveSignal));
 
             return true;
         }
@@ -172,12 +177,16 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <param name="ticket"></param>
         /// <returns>The task result is true if the operation is successful; otherwise, false.</returns>
         [Activity]
-        public async Task<bool> SaveTicketCompensation(Ticket ticket)
+        public async Task<bool> SaveTicketsCompensation(SaveTicketsSignalModel saveTicketsSignal)
         {
-            var ticketToDelete = await _ticketRepository.GetTicketAsync(ticket.Id);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(saveTicketsSignal.FlightId);
 
-            if (ticketToDelete != null)
-                await _ticketRepository.DeleteTicketAsync(ticket.Id);
+            var saveSignal = new SavePurchaseTicketsSignalModel
+            {
+                PurchaseId = saveTicketsSignal.PurchaseId
+            };
+
+            await flightHandle.SignalAsync(wf => wf.SaveTicketsCompensation(saveSignal));
 
             return true;
         }
@@ -222,15 +231,15 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
 
             return await handle.QueryAsync(wf => wf.GetFlightDetails());
         }
-        
+
         [Activity]
         public async Task TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation)
         {
             if (purchaseTicketReservation?.SeatReservations is null)
                 return;
-            
+
             var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketReservation.FlightId);
-            
+
             foreach (var seatReservation in purchaseTicketReservation?.SeatReservations)
             {
                 await flightHandle.SignalAsync(wf => wf.ReserveSeat(seatReservation));

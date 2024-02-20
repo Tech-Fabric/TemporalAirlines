@@ -122,12 +122,14 @@ public class PurchaseWorkflow
 
         await MarkTicketsAsPaid();
 
-        var flight = await Workflow.ExecuteActivityAsync((PurchaseActivities act) => 
+        var flight = await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
             act.GetFlight(purchaseModel.FlightId), _activityOptions);
 
         await GenerateBlobTickets();
 
         await SendTickets();
+
+        await SaveTickets();
 
         await ConfirmWithdrawal();
 
@@ -194,12 +196,12 @@ public class PurchaseWorkflow
 
     private async Task MarkTicketsAsPaid()
     {
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) => 
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
             act.MarkTicketAsPaid(new MarkTicketPaidSignalModel
-        {
-            FlightId = _flightId,
-            PurchaseId = Workflow.Info.WorkflowId
-        }), _activityOptions);
+            {
+                FlightId = _flightId,
+                PurchaseId = Workflow.Info.WorkflowId
+            }), _activityOptions);
 
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync(
@@ -227,5 +229,21 @@ public class PurchaseWorkflow
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync(
                 (PurchaseActivities act) => act.SendTicketsCompensation(), _activityOptions));
+    }
+
+    private async Task SaveTickets()
+    {
+        var saveSignal = new SaveTicketsSignalModel
+        {
+            FlightId = _flightId,
+            PurchaseId = Workflow.Info.WorkflowId
+        };
+
+        await Workflow.ExecuteActivityAsync(
+            (PurchaseActivities act) => act.SaveTickets(saveSignal),
+            _activityOptions);
+
+        _saga.AddCompensation(async () =>
+            await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SaveTicketsCompensation(saveSignal), _activityOptions));
     }
 }

@@ -7,13 +7,15 @@ namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 
 public class FlightActivities
 {
-    private readonly IFlightRepository _flightRepository;
     private readonly IMapper _mapper;
+    private readonly IFlightRepository _flightRepository;
+    private readonly ITicketRepository _ticketRepository;
 
     public FlightActivities(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _flightRepository = unitOfWork.GetFlightRepository();
         _mapper = mapper;
+        _flightRepository = unitOfWork.GetFlightRepository();
+        _ticketRepository = unitOfWork.GetTicketRepository();
     }
 
     [Activity]
@@ -48,6 +50,31 @@ public class FlightActivities
         var flight = _mapper.Map<DAL.Entities.Flight>(flightDetailsModel);
 
         await _flightRepository.UpdateFlightAsync(flight);
+
+        return true;
+    }
+
+    [Activity]
+    public async Task<bool> SavePurchaseTickets(SaveTicketsModel saveTicketsModel)
+    {
+        foreach (var ticket in saveTicketsModel.Tickets)
+        {
+            await _ticketRepository.AddTicketAsync(ticket);
+        }
+
+        return true;
+    }
+
+    [Activity]
+    public async Task<bool> SavePurchaseTicketsCompensation(SaveTicketsModel saveTicketsModel)
+    {
+        foreach (var ticket in saveTicketsModel.Tickets)
+        {
+            var ticketToDelete = await _ticketRepository.GetTicketAsync(ticket.Id);
+
+            if (ticketToDelete != null)
+                await _ticketRepository.DeleteTicketAsync(ticket.Id);
+        }
 
         return true;
     }
