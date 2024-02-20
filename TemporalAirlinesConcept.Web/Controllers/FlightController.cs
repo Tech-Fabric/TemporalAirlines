@@ -66,7 +66,7 @@ public class FlightController : Controller
             model.SelectedFlight = selectedFlight;
         }
 
-        if (!string.IsNullOrEmpty(model.CreditCardDetails.CardNumber))
+        if (!string.IsNullOrEmpty(model.CreditCardDetails?.CardNumber))
         {
             model.PurchaseWorkflowId = await _ticketService.StartTicketPurchase(
                 new PurchaseModel()
@@ -77,7 +77,6 @@ public class FlightController : Controller
             );
 
             HttpContext.Session.SetInt32("NumberOfSeats", model.NumberOfSeats);
-
             HttpContext.Session.SetInt32("IsConfirmed", 0);
 
             model.PaymentSuccessful = true;
@@ -155,10 +154,10 @@ public class FlightController : Controller
             PurchaseId = purchaseWorkflowId
         });
 
-        var seatsList = model.SelectedSeats.Where(s => s.Value)
+        var seatsList = model.SelectedSeats?.Where(s => s.Value)
             .Select(s => s.Key).ToList();
 
-        if (seatsList.Count > model.NumberOfSeats)
+        if (seatsList is not null && seatsList.Count > model.NumberOfSeats)
         {
             ModelState.AddModelError(nameof(model.NumberOfSeats), "Too many seats selected");
         }
@@ -195,6 +194,7 @@ public class FlightController : Controller
         if (!string.IsNullOrEmpty(workflowId))
         {
             await _ticketService.MarkAsPaid(workflowId);
+
             model.PurchaseWorkflowId = workflowId;
             model.PaymentSuccessful = true;
             model.IsConfirmed = true;
