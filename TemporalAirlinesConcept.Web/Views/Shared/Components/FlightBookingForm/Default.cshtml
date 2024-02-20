@@ -262,25 +262,28 @@
             }
 
             <div class="text-end">
-                @if (Model.IsConfirmed)
+                @if (!Model.IsPaymentEmulated)
                 {
-                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                            hx-post="/flights/@Model.PurchaseWorkflowId/payment"
-                            hx-swap="outerHTML"
-                            hx-push-url="true"
-                            hx-target="#form-flight-booking">
-                        Emulate payment
-                    </button>
-                }
-                else
-                {
-                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                            hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
-                            hx-swap="outerHTML"
-                            hx-push-url="true"
-                            hx-target="#form-flight-booking">
-                        Confirm seat selection
-                    </button>
+                    @if (Model.IsConfirmed)
+                    {
+                        <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                                hx-post="/flights/@Model.PurchaseWorkflowId/payment"
+                                hx-swap="outerHTML"
+                                hx-push-url="true"
+                                hx-target="#form-flight-booking">
+                            Emulate payment
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                                hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
+                                hx-swap="outerHTML"
+                                hx-push-url="true"
+                                hx-target="#form-flight-booking">
+                            Confirm seat selection
+                        </button>
+                    }
                 }
             </div>
 

@@ -24,6 +24,7 @@ public class FlightBookingFormViewModel
     public DateTime? When { get; set; }
 
     public List<Flight>? Flights { get; set; }
+
     public Dictionary<string, string>? Airports { get; set; }
 
     public int NumberOfSeats { get; set; }
@@ -41,4 +42,6 @@ public class FlightBookingFormViewModel
     public string? PurchaseWorkflowId { get; set; }
 
     public bool IsConfirmed { get; set; }
+
+    public bool IsPaymentEmulated { get; set; }
 }

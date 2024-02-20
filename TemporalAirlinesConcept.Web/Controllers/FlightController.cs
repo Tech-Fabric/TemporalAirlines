@@ -77,9 +77,9 @@ public class FlightController : Controller
             );
 
             HttpContext.Session.SetInt32("NumberOfSeats", model.NumberOfSeats);
-            
+
             HttpContext.Session.SetInt32("IsConfirmed", 0);
-            
+
             model.PaymentSuccessful = true;
         }
 
@@ -112,11 +112,11 @@ public class FlightController : Controller
         {
             model.SelectedFlight = selectedFlight;
         }
-        
+
         model.IsConfirmed = HttpContext.Session.GetInt32("IsConfirmed") is 1;
-        
+
         model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseWorkflowId);
-        
+
         model.PurchaseWorkflowId = purchaseWorkflowId;
         model.PaymentSuccessful = true;
 
@@ -165,7 +165,7 @@ public class FlightController : Controller
             });
 
             model.IsConfirmed = true;
-            
+
             HttpContext.Session.SetInt32("IsConfirmed", 1);
         }
 
@@ -190,8 +190,9 @@ public class FlightController : Controller
             model.PurchaseWorkflowId = workflowId;
             model.PaymentSuccessful = true;
             model.IsConfirmed = true;
-            
-            if(model.PurchaseWorkflowId is not null)
+            model.IsPaymentEmulated = true;
+
+            if (model.PurchaseWorkflowId is not null)
                 model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(model.PurchaseWorkflowId);
         }
 
