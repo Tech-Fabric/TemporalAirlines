@@ -305,20 +305,25 @@
 
                 @foreach (var ticket in Model.Tickets)
                 {
-                    <p>Ticket ID: @ticket.Id</p>
+                    <div>
+                        <p>Ticket ID: @ticket.Id</p>
 
-                    <p>Status: @ticket.PaymentStatus.ToString()</p>
+                        <p>Status: @ticket.PaymentStatus.ToString()</p>
 
-                    @if (ticket.Seat != null)
-                    {
-                        <p>Seat: @ticket.Seat.Name</p>
-                    }
-                    else
-                    {
-                        <p>No seat selected</p>
-                    }
+                        @if (ticket.Seat != null)
+                        {
+                            <p>Seat: @ticket.Seat.Name</p>
+                        }
+                        else
+                        {
+                            <p>No seat selected</p>
+                        }
 
-                    <hr class="mt-2">
+                        <img src="data:image/png;base64,@ticket.Code" style="height: 275px;" alt="Ticket Code">
+
+                        <hr class="mt-2">
+
+                    </div>
                 }
             }
             else

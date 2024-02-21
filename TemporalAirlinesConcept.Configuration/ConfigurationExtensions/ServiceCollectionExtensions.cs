@@ -84,7 +84,7 @@ public static class ServiceCollectionExtensions
             options.Interceptors = [new TracingInterceptor()];
 
             // Need to check how to get
-            options.LoggerFactory = LoggerFactory.Create(builder => 
+            options.LoggerFactory = LoggerFactory.Create(builder =>
                 builder.AddTelemetryLogger("Client-T"));
         });
 
@@ -105,6 +105,7 @@ public static class ServiceCollectionExtensions
             })
             .AddScopedActivities<FlightActivities>()
             .AddWorkflow<FlightWorkflow>()
+            //.AddScopedActivities<QRCodeGeneratorService>()
             .AddScopedActivities<PurchaseActivities>()
             .AddWorkflow<PurchaseWorkflow>()
             .AddScopedActivities<UserRegistrationActivities>()

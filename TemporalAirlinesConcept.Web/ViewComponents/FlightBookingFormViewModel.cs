@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using TemporalAirlinesConcept.DAL.Entities;
+using TemporalAirlinesConcept.Services.Models.Purchase;
 
 namespace TemporalAirlinesConcept.Web.ViewComponents;
 
@@ -35,7 +36,7 @@ public class FlightBookingFormViewModel
 
     public bool PaymentSuccessful { get; set; }
 
-    public List<Ticket> Tickets { get; set; } = [];
+    public List<TicketWithCode> Tickets { get; set; } = [];
 
     public Dictionary<string, bool>? SelectedSeats { get; set; } = new();
 
