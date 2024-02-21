@@ -7,7 +7,7 @@ namespace TemporalAirlinesConcept.Web.ViewComponents;
 
 public class FlightBookingFormViewComponent : ViewComponent
 {
-    private readonly Dictionary<string, string> _airports = new Dictionary<string, string>()
+    private readonly Dictionary<string, string> _airports = new()
     {
         { "LAX", "Los Angeles International Airport" },
         { "JFK", "John F. Kennedy International Airport" },
@@ -46,10 +46,10 @@ public class FlightBookingFormViewComponent : ViewComponent
 
         for (var i = 0; i < 10; i++)
         {
-            var departureFrom = new Random().Next(0, _airports.Count);
-            var arrivalTo = new Random().Next(0, _airports.Count);
+            var departureFrom = _airports.ElementAt(i).Key;
+            var arrivalTo = GetRandomValueExcluding(departureFrom);
 
-            var departureTime = DateTime.UtcNow.AddDays(new Random().Next(0, 30));
+            var departureTime = DateTime.UtcNow.AddDays(new Random().Next(90, 180));
             var arrivalTime = departureTime.AddHours(new Random().Next(0, 3)).AddMinutes(minutesFlightTime[new Random().Next(0, 2)]);
 
             var seatRowsCount = 20;
@@ -57,14 +57,11 @@ public class FlightBookingFormViewComponent : ViewComponent
 
             var flightToCreate = new FlightInputModel()
             {
-                From = _airports.ElementAt(departureFrom).Key,
-                To = _airports.ElementAt(arrivalTo).Key,
+                From = departureFrom,
+                To = arrivalTo,
                 Depart = departureTime,
                 Arrival = arrivalTime,
-                Seats = new List<DAL.Models.Seat.SeatInputModel>
-                {
-
-                }
+                Seats = []
             };
 
             for (var x = 0; x < seatRowsCount; x++)
@@ -115,5 +112,17 @@ public class FlightBookingFormViewComponent : ViewComponent
         }
 
         return View(model);
+    }
+
+    public string GetRandomValueExcluding(string excludedValue)
+    {
+        var filteredValues = _airports.Keys
+            .Where(key => key != excludedValue)
+            .ToList();
+
+        int randomIndex = new Random().Next(filteredValues.Count);
+        string randomValue = filteredValues[randomIndex];
+
+        return randomValue;
     }
 }
