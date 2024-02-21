@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Models.Purchase;
-using TemporalAirlinesConcept.Web.ViewComponents;
+using TemporalAirlinesConcept.Web.ViewComponents.FlightBookingForm;
 
 namespace TemporalAirlinesConcept.Web.Controllers;
 
@@ -116,11 +116,7 @@ public class FlightController : Controller
         model.IsConfirmed = HttpContext.Session.GetInt32("IsConfirmed") is 1;
         model.IsPaymentEmulated = HttpContext.Session.GetInt32("IsPaymentEmulated") is 1;
 
-        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
-        {
-            FlightId = selectedFlight,
-            PurchaseId = purchaseWorkflowId
-        });
+        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseWorkflowId);
 
         model.PurchaseWorkflowId = purchaseWorkflowId;
         model.PaymentSuccessful = true;
@@ -150,11 +146,7 @@ public class FlightController : Controller
         model.PurchaseWorkflowId = purchaseWorkflowId;
         model.PaymentSuccessful = true;
 
-        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
-        {
-            FlightId = selectedFlight,
-            PurchaseId = purchaseWorkflowId
-        });
+        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseWorkflowId);
 
         var seatsList = model.SelectedSeats?.Where(s => s.Value)
             .Select(s => s.Key).ToList();
@@ -204,11 +196,7 @@ public class FlightController : Controller
             
             HttpContext.Session.SetInt32("IsPaymentEmulated", 1);
 
-            model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
-            {
-                FlightId = model.SelectedFlight,
-                PurchaseId = model.PurchaseWorkflowId
-            });
+            model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(model.PurchaseWorkflowId);
         }
 
         if (Request.IsHtmx())

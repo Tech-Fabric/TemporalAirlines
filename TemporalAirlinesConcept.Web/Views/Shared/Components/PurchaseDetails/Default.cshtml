@@ -1,0 +1,29 @@
+
+@model TemporalAirlinesConcept.Web.ViewComponents.PurchaseDetails.PurchaseDetailsViewModel
+
+<div class="form-flight-booking rounded-3">
+    @if (Model.Tickets.Any())
+    {
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>Tickets details:</h4>
+        </div>
+
+        @foreach (var ticket in Model.Tickets)
+        {
+            <p>Ticket ID: @ticket.Id</p>
+
+            <p>Status: @ticket.PaymentStatus.ToString()</p>
+
+            @if (ticket.Seat != null)
+            {
+                <p>Seat: @ticket.Seat.Name</p>
+            }
+            else
+            {
+                <p>No seat selected</p>
+            }
+
+            <hr class="mt-2">
+        }
+    }
+</div>

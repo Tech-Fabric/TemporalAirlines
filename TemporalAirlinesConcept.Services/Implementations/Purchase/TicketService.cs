@@ -42,16 +42,23 @@ public class TicketService : ITicketService
         return tickets;
     }
 
-    public async Task<List<Ticket>> GetPurchaseWorkflowTickets(PurchaseTicketsRequestModel purchaseTicketsRequestModel)
+    public async Task<List<Ticket>> GetPurchaseWorkflowTickets(string purchaseId)
     {
-        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(purchaseTicketsRequestModel.FlightId))
+        if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
             return [];
 
-        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketsRequestModel.FlightId);
+        var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
+
+        var flightId = await purchaseHandle.QueryAsync(wf => wf.GetFlightId());
+
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId))
+            return [];
+
+        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
         
-        var tickets = await handle.QueryAsync(wf => wf.GetRegisteredTickets());
+        var tickets = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
         
-        return tickets.Where(t => t.PurchaseId == purchaseTicketsRequestModel.PurchaseId).ToList();
+        return tickets.Where(t => t.PurchaseId.Equals(purchaseId)).ToList();
     }
 
     public async Task MarkAsPaid(string purchaseWorkflowId)

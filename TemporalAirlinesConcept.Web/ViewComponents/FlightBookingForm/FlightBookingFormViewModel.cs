@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using TemporalAirlinesConcept.DAL.Entities;
 
-namespace TemporalAirlinesConcept.Web.ViewComponents;
+namespace TemporalAirlinesConcept.Web.ViewComponents.FlightBookingForm;
 
 public class CreditCardDetails
 {

@@ -1,6 +1,7 @@
 ﻿using TemporalAirlinesConcept.Common.Helpers;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
+using TemporalAirlinesConcept.DAL.Models.Seat;
 using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
@@ -167,6 +168,9 @@ public class FlightWorkflow
         if (seat is null)
             throw new ApplicationFailureException($"Seat {seatReservationSignalModel.Seat} was not found.");
 
+        if (seat.TicketId is not null)
+            return Task.CompletedTask;
+
         seat.TicketId = seatReservationSignalModel.TicketId;
 
         var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.TicketId);
@@ -229,5 +233,11 @@ public class FlightWorkflow
     public List<Ticket> GetRegisteredTickets()
     {
         return _flight.Registered;
+    }
+
+    [WorkflowQuery]
+    public List<Seat> GetSeats()
+    {
+        return _flight.Seats;
     }
 }

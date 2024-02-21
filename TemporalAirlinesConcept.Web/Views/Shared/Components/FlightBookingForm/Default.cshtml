@@ -1,11 +1,9 @@
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Humanizer
-@using TemporalAirlinesConcept.DAL.Entities
 @using Htmx.TagHelpers
-@using System.Text.Json
 
-@model TemporalAirlinesConcept.Web.ViewComponents.FlightBookingFormViewModel
+@model TemporalAirlinesConcept.Web.ViewComponents.FlightBookingForm.FlightBookingFormViewModel
 
 <form hx-post="@Url.Action("Form", "Flight")"
       id="form-flight-booking"
@@ -15,7 +13,7 @@
       _="on htmx:beforeSend set .flight-select-action.disabled to 'disabled'
          on htmx:afterRequest set .flight-select-action.disabled to ''">
 
-    <input type="hidden" asp-for="@Model.SelectedFlight" value="@Model.SelectedFlight"></input>
+    <input type="hidden" asp-for="@Model.SelectedFlight" value="@Model.SelectedFlight">
 
     <div class="flights-search-filters d-flex flex-row">
         <div class="flex-column align-items-start flex-grow-1 me-1 position-relative" role="group">
