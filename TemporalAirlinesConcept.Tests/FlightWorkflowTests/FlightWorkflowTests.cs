@@ -114,9 +114,15 @@ public class FlightWorkflowTests
 
         var ticket = TestTicketFabric.GetTestTicket(flight.Id);
 
+        ticket.PurchaseId = new Guid().ToString();
+
         var bookingRequestModel = new BookingSignalModel(ticket);
 
-        var markTicketPaidRequestModel = new MarkTicketPaidSignalModel(ticket);
+        var markTicketPaidRequestModel = new MarkTicketPaidSignalModel
+        {
+            FlightId = flight.Id,
+            PurchaseId = ticket.PurchaseId
+        };
 
         using var worker = await WorkerHelper.ConfigureWorkerAsync(env, _mapper);
 
@@ -169,8 +175,10 @@ public class FlightWorkflowTests
         var bookingRequestModel = new BookingSignalModel(ticket);
 
         var seat = flight.Seats.First();
+
+        seat.TicketId = ticket.Id;
         
-        var seatReservationRequestModel = new SeatReservationSignalModel(ticket, seat.Name);
+        var seatReservationRequestModel = new SeatReservationSignalModel(ticket.Id, seat.Name);
             
         using var worker = await WorkerHelper.ConfigureWorkerAsync(env, _mapper);
 
@@ -206,7 +214,7 @@ public class FlightWorkflowTests
             s => s.Name == seat.Name && s.TicketId == ticket.Id);
 
         flightDetailsModelWithReservedSeat.Registered.Should().Contain(
-            t => t.Id == ticket.Id && t.Seat == seat);
+            t => t.Id == ticket.Id && t.Seat.Equals(seat));
         
         // Assert cancellation
         flightDetailsModelWithEmptySeat.Seats.Should().Contain(

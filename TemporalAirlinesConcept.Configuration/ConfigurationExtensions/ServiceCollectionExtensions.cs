@@ -59,6 +59,7 @@ public static class ServiceCollectionExtensions
         services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
 
         services.AddAutoMapper(typeof(UserProfile));
+        services.AddAutoMapper(typeof(TicketProfile));
         services.AddAutoMapper(typeof(FlightProfile));
 
         services.AddScoped<IFlightService, FlightService>();
@@ -84,7 +85,8 @@ public static class ServiceCollectionExtensions
             options.Interceptors = [new TracingInterceptor()];
 
             // Need to check how to get
-            options.LoggerFactory = LoggerFactory.Create(builder => builder.AddTelemetryLogger("Client-T"));
+            options.LoggerFactory = LoggerFactory.Create(builder =>
+                builder.AddTelemetryLogger("Client-T"));
             
             options.DataConverter = DataConverter.Default with { PayloadCodec = new EncryptionCodec() };
         });
@@ -103,6 +105,7 @@ public static class ServiceCollectionExtensions
             {
                 options.Interceptors = [new TracingInterceptor()];
                 options.LoggerFactory = LoggerFactory.Create(builder => builder.AddTelemetryLogger("Worker"));
+                
                 if (options.ClientOptions != null)
                     options.ClientOptions.DataConverter = DataConverter.Default with { PayloadCodec = new EncryptionCodec() };
             })

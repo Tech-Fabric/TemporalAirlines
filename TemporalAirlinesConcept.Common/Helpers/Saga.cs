@@ -41,7 +41,7 @@ public class Saga
             {
                 _log.Add($"Attempting compensation {i}...");
                 await c.Invoke();
-                _log.Add($"Compensation {i} successfull!");
+                _log.Add($"Compensation {i} successful!");
             }
             catch
             {

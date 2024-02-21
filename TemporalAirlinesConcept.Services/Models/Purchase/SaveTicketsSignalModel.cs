@@ -1,8 +1,8 @@
 ﻿namespace TemporalAirlinesConcept.Services.Models.Purchase;
 
-public class MarkTicketPaidSignalModel
+public class SaveTicketsSignalModel
 {
     public string FlightId { get; set; }
-    
+
     public string PurchaseId { get; set; }
 }

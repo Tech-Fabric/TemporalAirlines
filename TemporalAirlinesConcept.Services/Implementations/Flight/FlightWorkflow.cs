@@ -1,6 +1,10 @@
-﻿using TemporalAirlinesConcept.DAL.Enums;
+﻿using TemporalAirlinesConcept.Common.Helpers;
+using TemporalAirlinesConcept.DAL.Entities;
+using TemporalAirlinesConcept.DAL.Enums;
+using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
+using Temporalio.Exceptions;
 using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -51,6 +55,48 @@ public class FlightWorkflow
     }
 
     /// <summary>
+    /// Save purchase tickets
+    /// </summary>
+    /// <param name="savePurchaseTickets">Model with Purchase id</param>
+    [WorkflowSignal]
+    public async Task SaveTickets(SavePurchaseTicketsSignalModel savePurchaseTickets)
+    {
+        var tickets = _flight.Registered
+            .Where(x => x.PurchaseId == savePurchaseTickets.PurchaseId)
+            .ToList();
+
+        var saveTickets = new SaveTicketsModel
+        {
+            Tickets = tickets
+        };
+
+        await Workflow.ExecuteActivityAsync(
+           (FlightActivities act) => act.SavePurchaseTickets(saveTickets),
+           _activityOptions);
+    }
+
+    /// <summary>
+    /// Compensate purchase tickets
+    /// </summary>
+    /// <param name="savePurchaseTickets">Model with Purchase id</param>
+    [WorkflowSignal]
+    public async Task SaveTicketsCompensation(SavePurchaseTicketsSignalModel savePurchaseTickets)
+    {
+        var tickets = _flight.Registered
+          .Where(x => x.PurchaseId == savePurchaseTickets.PurchaseId)
+          .ToList();
+
+        var saveTickets = new SaveTicketsModel
+        {
+            Tickets = tickets
+        };
+
+        await Workflow.ExecuteActivityAsync(
+          (FlightActivities act) => act.SavePurchaseTicketsCompensation(saveTickets),
+          _activityOptions);
+    }
+
+    /// <summary>
     /// Registers a ticket for booking.
     /// </summary>
     /// <param name="bookingSignalModel">The booking request model.</param>
@@ -84,10 +130,11 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task MarkTicketPaid(MarkTicketPaidSignalModel markTicketPaidSignalModel)
     {
-        var ticket = _flight.Registered.FirstOrDefault(s => s.Id == markTicketPaidSignalModel.Ticket.Id);
-
-        if (ticket is not null)
+        foreach (var ticket in _flight.Registered.Where(ticket =>
+                     ticket.PurchaseId == markTicketPaidSignalModel.PurchaseId))
+        {
             ticket.PaymentStatus = PaymentStatus.Paid;
+        }
 
         return Task.CompletedTask;
     }
@@ -99,10 +146,11 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task MarkTicketPaidCompensation(MarkTicketPaidSignalModel markTicketPaidSignalModel)
     {
-        var ticket = _flight.Registered.FirstOrDefault(s => s.Id == markTicketPaidSignalModel.Ticket.Id);
-
-        if (ticket is not null)
+        foreach (var ticket in _flight.Registered.Where(ticket =>
+                     ticket.PurchaseId == markTicketPaidSignalModel.PurchaseId))
+        {
             ticket.PaymentStatus = PaymentStatus.Cancelled;
+        }
 
         return Task.CompletedTask;
     }
@@ -117,11 +165,14 @@ public class FlightWorkflow
         var seat = _flight.Seats.FirstOrDefault(f => f.Name == seatReservationSignalModel.Seat);
 
         if (seat is null)
-            return Task.CompletedTask;
+            throw new ApplicationFailureException($"Seat {seatReservationSignalModel.Seat} was not found.");
 
-        seat.TicketId = seatReservationSignalModel.Ticket.Id;
+        seat.TicketId = seatReservationSignalModel.TicketId;
 
-        var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
+        var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.TicketId);
+
+        if (ticket is null)
+            throw new ApplicationFailureException($"Ticket {seatReservationSignalModel.TicketId} was not found.");
 
         ticket.Seat = seat;
 
@@ -135,7 +186,7 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task ReserveSeatCompensation(SeatReservationSignalModel seatReservationSignalModel)
     {
-        var registeredTicket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.Ticket.Id);
+        var registeredTicket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.TicketId);
 
         if (registeredTicket is null)
             return Task.CompletedTask;
@@ -172,5 +223,11 @@ public class FlightWorkflow
     public FlightDetailsModel GetFlightDetails()
     {
         return _flight;
+    }
+
+    [WorkflowQuery]
+    public List<Ticket> GetRegisteredTickets()
+    {
+        return _flight.Registered;
     }
 }

@@ -1,6 +1,6 @@
 using OpenTelemetry.Exporter;
-using OpenTelemetry.Logs;
 using TemporalAirlinesConcept.Api.Configuration;
+using TemporalAirlinesConcept.Api.Profiles;
 using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +16,10 @@ builder.Logging.AddTelemetryLogger("DI API");
 
 builder.Services.ConfigureServices(builder.Configuration, ConsoleExporterOutputTargets.Debug);
 builder.Services.ConfigureTemporalClient();
+
+builder.Services.AddAutoMapper(typeof(UserApiProfile));
+builder.Services.AddAutoMapper(typeof(TicketApiProfile));
+builder.Services.AddAutoMapper(typeof(FlightApiProfile));
 
 // Worker for testing
 builder.Services.ConfigureTemporalWorker();

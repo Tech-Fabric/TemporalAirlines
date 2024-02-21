@@ -2,10 +2,10 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Humanizer
 @using TemporalAirlinesConcept.DAL.Entities
-@using Temporalio.Api.Update.V1
+@using Htmx.TagHelpers
+@using System.Text.Json
 
 @model TemporalAirlinesConcept.Web.ViewComponents.FlightBookingFormViewModel
-
 
 <form hx-post="@Url.Action("Form", "Flight")"
       id="form-flight-booking"
@@ -51,7 +51,6 @@
         </div>
 
         <div class="flex-column align-items-start flex-grow-1" role="group">
-            @* <label class="form-label flex-sm-fill" asp-for="@Model.To"></label> *@
             <button id="flight-search-submit"
                     class="btn btn-lg btn-primary w-100 rounded-start-0 rounded-end-3 flight-select-action"
                     hx-post="@Url.Action("Form", "Flight", new { SelectedFlight = "" })"
@@ -131,9 +130,6 @@
                 <hr class="bg-light-gray mt-24 mb-24">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="color-black">@flight.Depart.Date.ToString("m")</h5>
-                    @* <div> *@
-                    @*     <a href="#" class="accordion-button color-primary h5 collapsed" data-bs-toggle="collapse" data-bs-target="#unitedDubai" aria-expanded="true"> <i class="fal fa-chevron-down color-primary "></i>&nbsp;Flight Detail</a> *@
-                    @* </div> *@
                 </div>
             </div>
         }
@@ -266,30 +262,77 @@
             }
 
             <div class="text-end">
-                @if (Model.IsConfirmed)
+                @if (!Model.IsPaymentEmulated)
                 {
-                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                            hx-post="/flights/@Model.PurchaseWorkflowId/payment"
-                            hx-swap="outerHTML"
-                            hx-push-url="true"
-                            hx-target="#form-flight-booking">
-                        Emulate payment
-                    </button>
-                }
-                else
-                {
-                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                            hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
-                            hx-swap="outerHTML"
-                            hx-push-url="true"
-                            hx-target="#form-flight-booking">
-                        Confirm seat selection
-                    </button>
+                    @if (Model.IsConfirmed)
+                    {
+                        <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                                hx-post="/flights/@Model.PurchaseWorkflowId/payment"
+                                hx-swap="outerHTML"
+                                hx-push-url="true"
+                                hx-target="#form-flight-booking">
+                            Emulate payment
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                                hx-post="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
+                                hx-swap="outerHTML"
+                                hx-push-url="true"
+                                hx-target="#form-flight-booking">
+                            Confirm seat selection
+                        </button>
+                    }
                 }
             </div>
 
-            <hr class="mb-4">
-            <h4 class="mb-5">Ticket details:</h4>
+            <hr class="mb-4 mt-4">
+
+            @if (Model.Tickets.Any())
+            {
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4>Tickets details:</h4>
+
+                    <button class="btn btn-success btn-lg flight-select-action"
+                            hx-get="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
+                            hx-swap="outerHTML"
+                            hx-push-url="false"
+                            hx-target="#form-flight-booking">
+                        Update tickets
+                    </button>
+                </div>
+
+                @foreach (var ticket in Model.Tickets)
+                {
+                    <p>Ticket ID: @ticket.Id</p>
+
+                    <p>Status: @ticket.PaymentStatus.ToString()</p>
+
+                    @if (ticket.Seat != null)
+                    {
+                        <p>Seat: @ticket.Seat.Name</p>
+                    }
+                    else
+                    {
+                        <p>No seat selected</p>
+                    }
+
+                    <hr class="mt-2">
+                }
+            }
+            else
+            {
+                <div class="text-end">
+                    <button class="btn btn-success btn-lg flight-select-action"
+                            hx-get="/flights/@Model.SelectedFlight/ticket/@Model.PurchaseWorkflowId"
+                            hx-swap="outerHTML"
+                            hx-push-url="false"
+                            hx-target="#form-flight-booking">
+                        Load tickets
+                    </button>
+                </div>
+            }
         </div>
     }
 

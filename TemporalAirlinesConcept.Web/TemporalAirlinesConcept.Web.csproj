@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 		<_ContentIncludedByDefault Remove="wwwroot\js\airports-dropdown.js" />
+		<_ContentIncludedByDefault Remove="Pages\Purchase\Purchase.cshtml" />
 	</ItemGroup>
 
 	<ItemGroup>
