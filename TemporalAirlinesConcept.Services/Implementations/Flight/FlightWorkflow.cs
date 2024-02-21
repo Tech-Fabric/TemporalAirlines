@@ -1,7 +1,5 @@
-﻿using TemporalAirlinesConcept.Common.Helpers;
-using TemporalAirlinesConcept.DAL.Entities;
+﻿using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Exceptions;
