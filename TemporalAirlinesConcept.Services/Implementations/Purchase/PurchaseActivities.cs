@@ -24,16 +24,16 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// <summary>
         /// Checks whether the flight specified by the flight IDs is available for booking.
         /// </summary>
-        /// <param name="flightsId">Flight ID to check for availability.</param>
+        /// <param name="flightAvailabilityModel"></param>
         /// <returns>Returns true if flight is available; otherwise, false.</returns>
         [Activity]
-        public async Task<bool> IsFlightAvailable(string flightId)
+        public async Task<bool> IsFlightAvailable(FlightAvailabilityModel flightAvailabilityModel)
         {
-            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightAvailabilityModel.FlightId);
 
             var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
 
-            var isAnySeatsLeft = (flight.Seats.Count - flight.Registered.Count) > 0;
+            var isAnySeatsLeft = (flight.Seats.Count - flight.Registered.Count) >= flightAvailabilityModel.NumberOfTickets;
 
             return isAnySeatsLeft;
         }
