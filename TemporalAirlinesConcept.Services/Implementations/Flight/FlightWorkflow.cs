@@ -168,9 +168,6 @@ public class FlightWorkflow
         if (seat is null)
             throw new ApplicationFailureException($"Seat {seatReservationSignalModel.Seat} was not found.");
 
-        if (seat.TicketId is not null)
-            return Task.CompletedTask;
-
         seat.TicketId = seatReservationSignalModel.TicketId;
 
         var ticket = _flight.Registered.FirstOrDefault(t => t.Id == seatReservationSignalModel.TicketId);

@@ -3,8 +3,10 @@ using TemporalAirlinesConcept.Common.Extensions;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
+using TemporalAirlinesConcept.Services.Implementations.QRCodeGeneration;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Models.Purchase;
+using TemporalAirlinesConcept.Services.Models.QRCodeGeneration;
 using Temporalio.Client;
 using Temporalio.Common;
 
@@ -42,7 +44,7 @@ public class TicketService : ITicketService
         return tickets;
     }
 
-    public async Task<List<Ticket>> GetPurchaseWorkflowTickets(string purchaseId)
+    public async Task<List<TicketWithCode>> GetPurchaseWorkflowTickets(string purchaseId)
     {
         if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
             return [];
@@ -58,7 +60,21 @@ public class TicketService : ITicketService
         
         var tickets = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
         
-        return tickets.Where(t => t.PurchaseId.Equals(purchaseId)).ToList();
+        var ticketWithCode = tickets
+            .Where(t => t.PurchaseId == purchaseId)
+            .Select(x => new TicketWithCode
+            {
+                Id = x.Id,
+                PaymentStatus = x.PaymentStatus,
+                Seat = x.Seat,
+                Code = QRCodeGeneratorService.Generate(new QRDataModel
+                {
+                    Data = $"http://localhost:5222/{tickets}/{x.Id}"
+                })
+            })
+            .ToList();
+        
+        return ticketWithCode;
     }
 
     public async Task MarkAsPaid(string purchaseWorkflowId)
@@ -96,13 +112,13 @@ public class TicketService : ITicketService
 
         var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(seatReservationInputModel.FlightId);
         var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(seatReservationInputModel.PurchaseId);
-        
+
         var registered = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
 
-        var tickets = registered.Where(t => 
+        var tickets = registered.Where(t =>
             t.PurchaseId == seatReservationInputModel.PurchaseId).ToList();
-        
-        var seatReservations = tickets.Select((t, i) => 
+
+        var seatReservations = tickets.Select((t, i) =>
             new SeatReservationSignalModel { TicketId = t.Id, Seat = seatReservationInputModel.Seats[i] }).ToList();
 
         var signalModel = new PurchaseTicketReservationSignal
