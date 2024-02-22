@@ -21,7 +21,7 @@ public class TicketController : Controller
         [FromRoute] string? ticketId
     )
     {
-        model.Ticket = await _ticketService.GetTicket(ticketId);
+        model.Ticket = await _ticketService.GetTicketWithCode(ticketId);
         
         if (Request.IsHtmx())
         {

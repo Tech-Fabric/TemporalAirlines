@@ -1,8 +1,8 @@
-﻿using TemporalAirlinesConcept.DAL.Entities;
+﻿using TemporalAirlinesConcept.Services.Models.Purchase;
 
 namespace TemporalAirlinesConcept.Web.ViewComponents.TicketDetails;
 
 public class TicketDetailsViewModel
 {
-    public Ticket? Ticket { get; set; }
+    public TicketWithCode? Ticket { get; set; }
 }

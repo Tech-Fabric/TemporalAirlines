@@ -6,6 +6,10 @@ namespace TemporalAirlinesConcept.Services.Models.Purchase;
 public class TicketWithCode
 {
     public string Id { get; set; }
+    
+    public string PurchaseId { get; set; }
+    
+    public string Passenger { get; set; }
 
     public PaymentStatus PaymentStatus { get; set; }
 

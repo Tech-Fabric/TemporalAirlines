@@ -15,6 +15,8 @@ public interface ITicketService
     
     Task<Ticket> GetTicket(string ticketId);
 
+    Task<TicketWithCode> GetTicketWithCode(string ticketId);
+
     Task MarkAsPaid(string purchaseWorkflowId);
 
     Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel);

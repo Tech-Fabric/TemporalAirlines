@@ -20,8 +20,6 @@ public class PurchaseWorkflow
 
     private bool _isCancelled;
 
-    //private bool _seatsSelected;
-
     private readonly ActivityOptions _activityOptions = new()
     {
         StartToCloseTimeout = TimeSpan.FromSeconds(60),
@@ -44,14 +42,14 @@ public class PurchaseWorkflow
         }
         catch (Exception)
         {
-            _saga.OnCompensationError((log) =>
+            _saga.OnCompensationError(log =>
             {
                 log.Add("Compensation error. Manual intervention required!");
 
                 return Task.CompletedTask;
             });
 
-            _saga.OnCompensationComplete((log) =>
+            _saga.OnCompensationComplete(log =>
             {
                 log.Add("Compensation completed successfully");
 
@@ -75,7 +73,7 @@ public class PurchaseWorkflow
             _activityOptions);
 
         if (!isFlightsAvailable)
-            return false;
+            throw new ApplicationFailureException("Flight is not available for booking.");
 
         await BookTicketsForFlight(purchaseModel);
 

@@ -22,7 +22,18 @@
             {
                 <p>No seat selected</p>
             }
+            
+            @if (ticket.Passenger != null)
+            {
+                <p>Seat: @ticket.Passenger</p>
+            }
+            else
+            {
+                <p>No passenger assigned</p>
+            }
 
+            <img src="data:image/png;base64,@ticket.Code" style="height: 275px;" alt="Ticket Code">
+            
             <hr class="mt-2">
         }
     }

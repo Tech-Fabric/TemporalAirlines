@@ -25,9 +25,28 @@ public class TicketService : ITicketService
 
     public async Task<Ticket> GetTicket(string ticketId)
     {
+        return await _ticketRepository.GetTicketAsync(ticketId);
+    }
+
+    public async Task<TicketWithCode> GetTicketWithCode(string ticketId)
+    {
         var ticket = await _ticketRepository.GetTicketAsync(ticketId);
 
-        return ticket;
+        if (ticket == null)
+            return null;
+        
+        return new TicketWithCode
+        {
+            Id = ticket.Id,
+            PurchaseId = ticket.PurchaseId,
+            PaymentStatus = ticket.PaymentStatus,
+            Seat = ticket.Seat,
+            Passenger = ticket.Passenger,
+            Code = QRCodeGeneratorService.Generate(new QRDataModel
+            {
+                Data = $"http://localhost:5222/tickets/{ticket.Id}"
+            })
+        };
     }
 
     public async Task<List<Ticket>> GetTickets(string userId)
@@ -65,8 +84,10 @@ public class TicketService : ITicketService
             .Select(x => new TicketWithCode
             {
                 Id = x.Id,
+                PurchaseId = x.PurchaseId,
                 PaymentStatus = x.PaymentStatus,
                 Seat = x.Seat,
+                Passenger = x.Passenger,
                 Code = QRCodeGeneratorService.Generate(new QRDataModel
                 {
                     Data = $"http://localhost:5222/{tickets}/{x.Id}"
