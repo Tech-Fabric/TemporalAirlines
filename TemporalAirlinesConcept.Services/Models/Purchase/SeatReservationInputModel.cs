@@ -1,6 +1,4 @@
-﻿using TemporalAirlinesConcept.DAL.Models.Seat;
-
-namespace TemporalAirlinesConcept.Services.Models.Purchase;
+﻿namespace TemporalAirlinesConcept.Services.Models.Purchase;
 
 public class SeatReservationInputModel
 {

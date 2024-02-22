@@ -1,9 +1,8 @@
-﻿namespace TemporalAirlinesConcept.Services.Models.Purchase
-{
-    public class PurchaseTicketReservationSignal
-    {
-        public List<SeatReservationSignalModel> SeatReservations { get; set; }
+﻿namespace TemporalAirlinesConcept.Services.Models.Purchase;
 
-        public string FlightId { get; set; }
-    }
+public class PurchaseTicketReservationSignal
+{
+    public List<SeatReservationSignalModel> SeatReservations { get; set; }
+
+    public string FlightId { get; set; }
 }
