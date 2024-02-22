@@ -56,6 +56,7 @@ public static class ServiceCollectionExtensions
         }));
 
         services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
+        services.Configure<UrlSettings>(configuration.GetSection("UrlSettings"));
 
         services.AddAutoMapper(typeof(UserProfile));
         services.AddAutoMapper(typeof(TicketProfile));
@@ -105,7 +106,6 @@ public static class ServiceCollectionExtensions
             })
             .AddScopedActivities<FlightActivities>()
             .AddWorkflow<FlightWorkflow>()
-            //.AddScopedActivities<QRCodeGeneratorService>()
             .AddScopedActivities<PurchaseActivities>()
             .AddWorkflow<PurchaseWorkflow>()
             .AddScopedActivities<UserRegistrationActivities>()
