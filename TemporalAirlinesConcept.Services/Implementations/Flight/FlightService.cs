@@ -13,18 +13,20 @@ public class FlightService : IFlightService
 {
     private readonly IMapper _mapper;
     private readonly ITemporalClient _temporalClient;
-    private readonly IFlightRepository _flightRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public FlightService(IMapper mapper, ITemporalClient temporalClient, IFlightRepository flightRepository)
+    public FlightService(IMapper mapper, ITemporalClient temporalClient, IUnitOfWork unitOfWork)
     {
         _mapper = mapper;
         _temporalClient = temporalClient;
-        _flightRepository = flightRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<List<DAL.Entities.Flight>> GetFlights()
     {
-        var flights = await _flightRepository.GetFlightsAsync();
+        var flights = (await _unitOfWork.Repository<DAL.Entities.Flight>()
+            .GetAll())
+            .ToList();
 
         var flightDetails = await Task.WhenAll(flights.Select(FetchFlightDetailFromWorkflow));
 
@@ -33,9 +35,10 @@ public class FlightService : IFlightService
         return flights;
     }
 
-    public async Task<DAL.Entities.Flight> GetFlight(string id)
+    public async Task<DAL.Entities.Flight> GetFlight(Guid id)
     {
-        var flight = await _flightRepository.GetFlightAsync(id);
+        var flight = await _unitOfWork.Repository<DAL.Entities.Flight>()
+            .FindAsync(x => x.Id == id);
 
         var fetchedFlight = await FetchFlightDetailFromWorkflow(flight);
 
@@ -47,10 +50,10 @@ public class FlightService : IFlightService
         if (flight is null)
             throw new EntityNotFoundException("Flight was not found.");
 
-        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flight.Id))
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flight.Id.ToString()))
             return flight;
 
-        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id);
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id.ToString());
 
         var flightDetails = await handle.QueryAsync(wf => wf.GetFlightDetails());
 
@@ -61,27 +64,30 @@ public class FlightService : IFlightService
     {
         var flight = _mapper.Map<DAL.Entities.Flight>(model);
 
-        await _flightRepository.AddFlightAsync(flight);
+        _unitOfWork.Repository<DAL.Entities.Flight>().Insert(flight);
+
+        await _unitOfWork.SaveChangesAsync();
 
         await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
-            new WorkflowOptions(flight.Id, Temporal.DefaultQueue));
+            new WorkflowOptions(flight.Id.ToString(), Temporal.DefaultQueue));
 
         return flight;
     }
 
-    public async Task RemoveFlight(string id)
+    public async Task RemoveFlight(Guid id)
     {
-        var flight = await _flightRepository.GetFlightAsync(id);
+        var flight = await _unitOfWork.Repository<DAL.Entities.Flight>()
+            .FindAsync(x => x.Id == id);
 
         if (flight is null)
-            throw new EntityNotFoundException("Flight was not found.");
+            throw new EntityNotFoundException("Flight is not found.");
 
-        await _flightRepository.DeleteFlightAsync(id);
+        _unitOfWork.Repository<DAL.Entities.Flight>().Remove(flight);
 
-        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flight.Id))
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flight.Id.ToString()))
             return;
 
-        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id);
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flight.Id.ToString());
 
         await handle.CancelAsync();
     }

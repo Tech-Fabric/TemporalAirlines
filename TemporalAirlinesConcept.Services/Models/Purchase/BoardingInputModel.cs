@@ -2,7 +2,7 @@
 
 public class BoardingInputModel
 {
-    public string FlightId { get; set; }
-    
-    public string TicketId { get; set; }
+    public Guid FlightId { get; set; }
+
+    public Guid TicketId { get; set; }
 }

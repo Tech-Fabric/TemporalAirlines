@@ -161,7 +161,7 @@ public class PurchaseWorkflow
     {
         return Task.FromResult(new Ticket
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid(),
             FlightId = purchaseModel.FlightId,
             UserId = purchaseModel.UserId,
             PurchaseId = Workflow.Info.WorkflowId,

@@ -13,12 +13,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
     public class PurchaseActivities
     {
         private readonly ITemporalClient _temporalClient;
-        private readonly IFlightRepository _flightRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public PurchaseActivities(ITemporalClient temporalClient, IUnitOfWork unitOfWork)
         {
             _temporalClient = temporalClient;
-            _flightRepository = unitOfWork.GetFlightRepository();
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         [Activity]
         public async Task<bool> IsFlightAvailable(FlightAvailabilityModel flightAvailabilityModel)
         {
-            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightAvailabilityModel.FlightId);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightAvailabilityModel.FlightId.ToString());
 
             var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
 
@@ -47,7 +47,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         [Activity]
         public async Task<bool> BookTicket(Ticket ticket)
         {
-            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId.ToString());
 
             await flightHandle.SignalAsync(wf => wf.Book(new BookingSignalModel { Ticket = ticket }));
 
@@ -63,7 +63,7 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         [Activity]
         public async Task<bool> BookTicketCompensation(Ticket ticket)
         {
-            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId);
+            var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(ticket.FlightId.ToString());
 
             await flightHandle.SignalAsync(wf =>
                 wf.BookCompensation(new BookingSignalModel { Ticket = ticket }));
@@ -211,9 +211,10 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         /// </summary>
         /// <param name="flightId"></param>
         [Activity]
-        public async Task<DAL.Entities.Flight> GetFlight(string flightId)
+        public async Task<DAL.Entities.Flight> GetFlight(Guid flightId)
         {
-            var flight = await _flightRepository.GetFlightAsync(flightId);
+            var flight = await _unitOfWork.Repository<DAL.Entities.Flight>()
+                .FindAsync(x => x.Id == flightId);
 
             if (string.Equals(flight?.From, Airports.ErrorCode) || string.Equals(flight?.To, Airports.ErrorCode))
                 throw new Exception("Artificial error exception");
@@ -222,12 +223,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase
         }
 
         [Activity]
-        public async Task<FlightDetailsModel> GetFlightDetails(string flightId)
+        public async Task<FlightDetailsModel> GetFlightDetails(Guid flightId)
         {
-            if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId))
+            if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId.ToString()))
                 throw new ApplicationException("Flight workflow is not running.");
 
-            var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
+            var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId.ToString());
 
             return await handle.QueryAsync(wf => wf.GetFlightDetails());
         }

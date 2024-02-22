@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using Temporalio.Activities;
@@ -8,14 +9,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 public class FlightActivities
 {
     private readonly IMapper _mapper;
-    private readonly IFlightRepository _flightRepository;
-    private readonly ITicketRepository _ticketRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public FlightActivities(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _mapper = mapper;
-        _flightRepository = unitOfWork.GetFlightRepository();
-        _ticketRepository = unitOfWork.GetTicketRepository();
+        _unitOfWork = unitOfWork;
     }
 
     [Activity]
@@ -49,7 +48,9 @@ public class FlightActivities
     {
         var flight = _mapper.Map<DAL.Entities.Flight>(flightDetailsModel);
 
-        await _flightRepository.UpdateFlightAsync(flight);
+        _unitOfWork.Repository<DAL.Entities.Flight>().Update(flight);
+
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -59,8 +60,10 @@ public class FlightActivities
     {
         foreach (var ticket in saveTicketsModel.Tickets)
         {
-            await _ticketRepository.AddTicketAsync(ticket);
+            _unitOfWork.Repository<Ticket>().Insert(ticket);
         }
+
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -70,11 +73,14 @@ public class FlightActivities
     {
         foreach (var ticket in saveTicketsModel.Tickets)
         {
-            var ticketToDelete = await _ticketRepository.GetTicketAsync(ticket.Id);
+            var ticketToDelete = await _unitOfWork.Repository<Ticket>()
+                .FindAsync(x => x.Id == ticket.Id);
 
             if (ticketToDelete != null)
-                await _ticketRepository.DeleteTicketAsync(ticket.Id);
+                _unitOfWork.Repository<Ticket>().Remove(ticket);
         }
+
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }

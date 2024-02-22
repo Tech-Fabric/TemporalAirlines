@@ -6,11 +6,11 @@ public interface IFlightService
 {
     public Task<List<DAL.Entities.Flight>> GetFlights();
 
-    public Task<DAL.Entities.Flight> GetFlight(string id);
+    public Task<DAL.Entities.Flight> GetFlight(Guid id);
 
     public Task<DAL.Entities.Flight> FetchFlightDetailFromWorkflow(DAL.Entities.Flight flight);
 
     public Task<DAL.Entities.Flight> CreateFlight(FlightInputModel model);
 
-    public Task RemoveFlight(string id);
+    public Task RemoveFlight(Guid id);
 }

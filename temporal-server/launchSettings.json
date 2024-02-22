@@ -8,7 +8,7 @@
       "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
       "serviceActions": {
         "temporalairlinesconcept.api": "StartDebugging",
-        "cosmosdb-emulator": "StartWithoutDebugging",
+        "temporalairlinesconcept.web": "StartDebugging",
         "elasticsearch": "StartWithoutDebugging",
         "postgresql": "StartWithoutDebugging",
         "temporal": "StartWithoutDebugging",

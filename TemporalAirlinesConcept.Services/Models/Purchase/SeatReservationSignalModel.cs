@@ -7,13 +7,13 @@ public class SeatReservationSignalModel
 
     }
 
-    public SeatReservationSignalModel(string ticketId, string seat)
+    public SeatReservationSignalModel(Guid ticketId, string seat)
     {
         TicketId = ticketId;
         Seat = seat;
     }
 
-    public string TicketId { get; set; }
+    public Guid TicketId { get; set; }
 
     public string Seat { get; set; }
 }
