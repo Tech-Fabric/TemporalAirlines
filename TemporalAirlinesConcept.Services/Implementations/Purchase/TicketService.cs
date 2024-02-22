@@ -1,5 +1,7 @@
-﻿using TemporalAirlinesConcept.Common.Constants;
+﻿using Microsoft.Extensions.Options;
+using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Extensions;
+using TemporalAirlinesConcept.Common.Settings;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -16,11 +18,13 @@ public class TicketService : ITicketService
 {
     private readonly ITemporalClient _temporalClient;
     private readonly ITicketRepository _ticketRepository;
+    private readonly UrlSettings _urlSettings;
 
-    public TicketService(ITemporalClient temporalClient, ITicketRepository ticketRepository)
+    public TicketService(ITemporalClient temporalClient, ITicketRepository ticketRepository, IOptions<UrlSettings> urlSettings)
     {
         _temporalClient = temporalClient;
         _ticketRepository = ticketRepository;
+        _urlSettings = urlSettings.Value;
     }
 
     public async Task<Ticket> GetTicket(string ticketId)
@@ -62,7 +66,7 @@ public class TicketService : ITicketService
                 Seat = x.Seat,
                 Code = QRCodeGeneratorService.Generate(new QRDataModel
                 {
-                    Data = $"http://localhost:5222/{tickets}/{x.Id}"
+                    Data = $"{_urlSettings.TicketPage}/{x.Id}"
                 })
             })
             .ToList();
