@@ -12,12 +12,16 @@ public interface ITicketService
     Task<List<Ticket>> GetTickets(string userId, string flightId);
 
     Task<List<TicketWithCode>> GetPurchaseWorkflowTickets(string purchaseId);
+
+    Task<bool> IsPurchasePaid(string purchaseId);
+
+    Task<bool> IsSeatsReserved(string purchaseId);
     
     Task<Ticket> GetTicket(string ticketId);
 
     Task<TicketWithCode> GetTicketWithCode(string ticketId);
 
-    Task MarkAsPaid(string purchaseWorkflowId);
+    Task MarkAsPaid(string purchaseId);
 
     Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel);
 

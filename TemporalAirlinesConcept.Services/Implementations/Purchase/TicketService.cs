@@ -98,9 +98,29 @@ public class TicketService : ITicketService
         return ticketWithCode;
     }
 
-    public async Task MarkAsPaid(string purchaseWorkflowId)
+    public async Task<bool> IsPurchasePaid(string purchaseId)
     {
-        var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseWorkflowId);
+        if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
+            throw new InvalidOperationException("Purchase workflow is not running.");
+
+        var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
+
+        return await handle.QueryAsync(wf => wf.IsPaid());
+    }
+
+    public async Task<bool> IsSeatsReserved(string purchaseId)
+    {
+        if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
+            throw new InvalidOperationException("Purchase workflow is not running.");
+
+        var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
+
+        return await handle.QueryAsync(wf => wf.IsSeatsReserved());
+    }
+    
+    public async Task MarkAsPaid(string purchaseId)
+    {
+        var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
 
         await handle.SignalAsync(x => x.SetAsPaid());
     }

@@ -40,7 +40,7 @@ public class FlightBookingFormViewModel
 
     public Dictionary<string, bool>? SelectedSeats { get; set; } = new();
 
-    public string? PurchaseWorkflowId { get; set; }
+    public string? PurchaseId { get; set; }
 
     public bool IsConfirmed { get; set; }
 

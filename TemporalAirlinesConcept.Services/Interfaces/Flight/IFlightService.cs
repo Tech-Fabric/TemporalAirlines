@@ -8,6 +8,8 @@ public interface IFlightService
 
     public Task<DAL.Entities.Flight> GetFlight(string id);
 
+    Task<DAL.Entities.Flight> GetFlightDetailsByPurchaseId(string purchaseId);
+
     public Task<DAL.Entities.Flight> FetchFlightDetailFromWorkflow(DAL.Entities.Flight flight);
 
     public Task<DAL.Entities.Flight> CreateFlight(FlightInputModel model);

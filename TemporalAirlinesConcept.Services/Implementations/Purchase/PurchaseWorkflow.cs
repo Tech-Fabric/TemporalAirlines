@@ -16,6 +16,8 @@ public class PurchaseWorkflow
 
     private string _flightId;
 
+    private bool _isSeatsReserved;
+    
     private bool _isPaid;
 
     private bool _isCancelled;
@@ -246,13 +248,32 @@ public class PurchaseWorkflow
         await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
             act.TicketReservation(seatReservation), _activityOptions);
 
-        _saga.AddCompensation(async () => await Workflow.ExecuteActivityAsync(
-            (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions));
+        _isSeatsReserved = true;
+
+        _saga.AddCompensation(async () =>
+        {
+            await Workflow.ExecuteActivityAsync(
+                (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions);
+
+            _isSeatsReserved = false;
+        });
     }
 
     [WorkflowQuery]
     public string GetFlightId()
     {
         return _flightId;
+    }
+
+    [WorkflowQuery]
+    public bool IsPaid()
+    {
+        return _isPaid;
+    }
+
+    [WorkflowQuery]
+    public bool IsSeatsReserved()
+    {
+        return _isSeatsReserved;
     }
 }
