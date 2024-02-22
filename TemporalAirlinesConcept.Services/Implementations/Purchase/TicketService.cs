@@ -38,19 +38,8 @@ public class TicketService : ITicketService
 
         if (ticket == null)
             return null;
-        
-        return new TicketWithCode
-        {
-            Id = ticket.Id,
-            PurchaseId = ticket.PurchaseId,
-            PaymentStatus = ticket.PaymentStatus,
-            Seat = ticket.Seat,
-            Passenger = ticket.Passenger,
-            Code = QRCodeGeneratorService.Generate(new QRDataModel
-            {
-                Data = $"http://localhost:5222/tickets/{ticket.Id}"
-            })
-        };
+
+        return await FormTicketWithCode(ticket);
     }
 
     public async Task<List<Ticket>> GetTickets(string userId)
@@ -82,24 +71,14 @@ public class TicketService : ITicketService
         var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
         
         var tickets = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
-        
-        var ticketWithCode = tickets
+
+        var tasks = tickets
             .Where(t => t.PurchaseId == purchaseId)
-            .Select(x => new TicketWithCode
-            {
-                Id = x.Id,
-                PurchaseId = x.PurchaseId,
-                PaymentStatus = x.PaymentStatus,
-                Seat = x.Seat,
-                Passenger = x.Passenger,
-                Code = QRCodeGeneratorService.Generate(new QRDataModel
-                {
-                    Data = $"{_urlSettings.TicketPage}/{x.Id}"
-                })
-            })
-            .ToList();
+            .Select(FormTicketWithCode);
+
+        var ticketsWithCode = await Task.WhenAll(tasks);
         
-        return ticketWithCode;
+        return ticketsWithCode.ToList();
     }
 
     public async Task<bool> IsPurchasePaid(string purchaseId)
@@ -197,5 +176,21 @@ public class TicketService : ITicketService
         }));
 
         return true;
+    }
+
+    private Task<TicketWithCode> FormTicketWithCode(Ticket ticket)
+    {
+        return Task.FromResult(new TicketWithCode
+        {
+            Id = ticket.Id,
+            PurchaseId = ticket.PurchaseId,
+            PaymentStatus = ticket.PaymentStatus,
+            Seat = ticket.Seat,
+            Passenger = ticket.Passenger,
+            Code = QRCodeGeneratorService.Generate(new QRDataModel
+            {
+                Data = $"{_urlSettings.TicketPage}/{ticket.Id}"
+            })
+        });
     }
 }
