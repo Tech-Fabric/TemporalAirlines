@@ -32,7 +32,66 @@ public class PurchaseWorkflow
             MaximumAttempts = 2
         }
     };
+    
+    /// <summary>
+    /// Sets the paid status to true.
+    /// </summary>
+    [WorkflowSignal]
+    public Task SetAsPaid()
+    {
+        if (!_isPaid)
+            _isPaid = true;
 
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Cancels the current workflow.
+    /// </summary>
+    [WorkflowSignal]
+    public Task Cancel()
+    {
+        if (!_isCancelled)
+            _isCancelled = true;
+
+        return Task.CompletedTask;
+    }
+
+    [WorkflowSignal]
+    public async Task TicketReservation(PurchaseTicketReservationSignal seatReservation)
+    {
+        await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
+            act.TicketReservation(seatReservation), _activityOptions);
+
+        _isSeatsReserved = true;
+
+        _saga.AddCompensation(async () =>
+        {
+            await Workflow.ExecuteActivityAsync(
+                (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions);
+
+            _isSeatsReserved = false;
+        });
+    }
+
+    [WorkflowQuery]
+    public string GetFlightId()
+    {
+        return _flightId;
+    }
+
+    [WorkflowQuery]
+    public bool IsPaid()
+    {
+        return _isPaid;
+    }
+
+    [WorkflowQuery]
+    public bool IsSeatsReserved()
+    {
+        return _isSeatsReserved;
+    }
+    
     [WorkflowRun]
     public async Task<bool> Run(PurchaseModel purchaseModel)
     {
@@ -63,7 +122,7 @@ public class PurchaseWorkflow
             throw;
         }
     }
-
+    
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
@@ -216,64 +275,5 @@ public class PurchaseWorkflow
 
         _saga.AddCompensation(async () =>
             await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SaveTicketsCompensation(saveSignal), _activityOptions));
-    }
-    
-    /// <summary>
-    /// Sets the paid status to true.
-    /// </summary>
-    [WorkflowSignal]
-    public Task SetAsPaid()
-    {
-        if (!_isPaid)
-            _isPaid = true;
-
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Cancels the current workflow.
-    /// </summary>
-    [WorkflowSignal]
-    public Task Cancel()
-    {
-        if (!_isCancelled)
-            _isCancelled = true;
-
-        return Task.CompletedTask;
-    }
-
-    [WorkflowSignal]
-    public async Task TicketReservation(PurchaseTicketReservationSignal seatReservation)
-    {
-        await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
-            act.TicketReservation(seatReservation), _activityOptions);
-
-        _isSeatsReserved = true;
-
-        _saga.AddCompensation(async () =>
-        {
-            await Workflow.ExecuteActivityAsync(
-                (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions);
-
-            _isSeatsReserved = false;
-        });
-    }
-
-    [WorkflowQuery]
-    public string GetFlightId()
-    {
-        return _flightId;
-    }
-
-    [WorkflowQuery]
-    public bool IsPaid()
-    {
-        return _isPaid;
-    }
-
-    [WorkflowQuery]
-    public bool IsSeatsReserved()
-    {
-        return _isSeatsReserved;
     }
 }

@@ -36,10 +36,7 @@ public class TicketService : ITicketService
     {
         var ticket = await _ticketRepository.GetTicketAsync(ticketId);
 
-        if (ticket == null)
-            return null;
-
-        return await FormTicketWithCode(ticket);
+        return ticket == null ? null : GetTicketWithCode(ticket);
     }
 
     public async Task<List<Ticket>> GetTickets(string userId)
@@ -72,13 +69,11 @@ public class TicketService : ITicketService
         
         var tickets = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
 
-        var tasks = tickets
+        var ticketsWithCode = tickets
             .Where(t => t.PurchaseId == purchaseId)
-            .Select(FormTicketWithCode);
+            .Select(GetTicketWithCode).ToList();
 
-        var ticketsWithCode = await Task.WhenAll(tasks);
-        
-        return ticketsWithCode.ToList();
+        return ticketsWithCode;
     }
 
     public async Task<bool> IsPurchasePaid(string purchaseId)
@@ -178,9 +173,9 @@ public class TicketService : ITicketService
         return true;
     }
 
-    private Task<TicketWithCode> FormTicketWithCode(Ticket ticket)
+    private TicketWithCode GetTicketWithCode(Ticket ticket)
     {
-        return Task.FromResult(new TicketWithCode
+        return new TicketWithCode
         {
             Id = ticket.Id,
             PurchaseId = ticket.PurchaseId,
@@ -191,6 +186,6 @@ public class TicketService : ITicketService
             {
                 Data = $"{_urlSettings.TicketPage}/{ticket.Id}"
             })
-        });
+        };
     }
 }

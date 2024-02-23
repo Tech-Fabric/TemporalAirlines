@@ -13,7 +13,6 @@ builder.Services.AddSwaggerGen();
 builder.Logging.AddTelemetryLogger("DI API");
 
 builder.Services.ConfigureServices(builder.Configuration, OpenTelemetry.Exporter.ConsoleExporterOutputTargets.Debug);
-builder.Services.ConfigureSession();
 builder.Services.ConfigureTemporalClient();
 
 // Worker for testing
@@ -30,8 +29,6 @@ if (app.Environment.IsDevelopment())
     await app.CheckCosmosDb();
     await app.InitializeDb();
 }
-
-app.UseSession();
 
 app.UseHttpsRedirection();
 

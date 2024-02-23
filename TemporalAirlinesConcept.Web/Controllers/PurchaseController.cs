@@ -38,8 +38,6 @@ public class PurchaseController : Controller
     {
         model.PurchaseId = purchaseId;
         
-        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
-
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
 
         model.IsPaymentEmulated = await _ticketService.IsPurchasePaid(purchaseId);
@@ -52,27 +50,31 @@ public class PurchaseController : Controller
     }
     
     [HttpPost("{PurchaseId}/confirm")]
-    public async Task<IActionResult> Details(
+    public async Task<IActionResult> Confirm(
         [FromForm] PurchaseFormViewModel model,
         [FromRoute] string? purchaseId
     )
     {
         model.PurchaseId = purchaseId;
-
-        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
         
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
+        
+        var tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
 
+        model.NumberOfTickets = tickets.Count;
+        
         var seatsList = model.SelectedSeats?.Where(s => s.Value)
             .Select(s => s.Key).ToList();
 
-        if (seatsList is not null && seatsList.Count > model.Tickets.Count)
+        if (seatsList is not null && seatsList.Count > tickets.Count)
         {
-            ModelState.AddModelError(nameof(model.Tickets.Count), "Too many seats selected");
+            ModelState.AddModelError(nameof(model.NumberOfTickets), "Too many seats selected");
         }
         
         if (ModelState.IsValid)
         {
+            model.Tickets = tickets;
+            
             await _ticketService.RequestSeatReservation(new SeatReservationInputModel
             {
                 FlightId = model.Flight.Id,
@@ -109,5 +111,25 @@ public class PurchaseController : Controller
             return View("~/Views/Purchase/Index.cshtml", model);
 
         return ViewComponent(typeof(PurchaseFormViewComponent), model);
+    }
+
+    [HttpGet("{PurchaseId}/tickets")]
+    public async Task<IActionResult> GetTickets(
+        [FromRoute] PurchaseFormViewModel model,
+        [FromRoute] string? purchaseId)
+    {
+        model.PurchaseId = purchaseId;
+        
+        model.IsPaymentEmulated = await _ticketService.IsPurchasePaid(purchaseId);
+        model.IsConfirmed = await _ticketService.IsSeatsReserved(purchaseId);
+        
+        model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
+        
+        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
+        
+        if (Request.IsHtmx())
+            return ViewComponent(typeof(PurchaseFormViewComponent), model);
+
+        return View("~/Views/Purchase/Index.cshtml", model);
     }
 }

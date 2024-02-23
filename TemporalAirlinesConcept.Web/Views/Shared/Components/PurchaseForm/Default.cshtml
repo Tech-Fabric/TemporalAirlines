@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Htmx.TagHelpers
 @using Humanizer
+@using Microsoft.AspNetCore.Mvc.ModelBinding
 @model TemporalAirlinesConcept.Web.ViewComponents.PurchaseForm.PurchaseFormViewModel
 
 <form hx-post="@Url.Action("Form", "Purchase")"
@@ -9,11 +10,10 @@
       hx-swap="outerHTML"
       class="form-flight-booking rounded-3">
 
-    <div class="flights flight-listing-page">
+    <div class="flights flight-listing-page" style="margin-top: 0">
         <div class="flight-block bg-white light-shadow p-24 br-10 mb-16 sal-animate" data-sal="slide-down" data-sal-duration="800" data-sal-delay="100" data-sal-easing="ease-in-out">
             <div class="flight-area">
                 <div class="airline-name">
-
                     <div>
                         <h5 class="lightest-black mb-8">United Dubai Airlines</h5>
                         <h6 class="dark-gray">Boeing 777-90</h6>
@@ -31,7 +31,6 @@
                             <img src="/img/route-plan.png" alt="">
                             <h6 class="color-black">1 Stop</h6>
                         </div>
-
                     </div>
                     <div class="flight-departure">
                         <h5 class="color-black">@Model.Flight.Arrival.ToString("t")</h5>
@@ -53,10 +52,11 @@
     </div>
 
     <div class="seats text-start">
-        <hr class="mb-4">
-        <h4 class="mb-5">Please select seats:</h4>
-
-        @{
+        @if (!Model.IsPaymentEmulated)
+        {
+            <hr class="mb-4">
+            <h4 class="mb-5">Please select seats:</h4>
+            
             var flight = Model.Flight;
 
             <div class="seat-select">
@@ -89,15 +89,16 @@
                         }
                     </div>
                 }
-            </div>}
+            </div>
 
-        @* @if (ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid && *@
-        @*      ViewContext.ViewData.ModelState[nameof(Model.NumberOfSeats)].Errors.Count > 0) *@
-        @* { *@
-        @*     <div class="alert alert-danger mt-5"> *@
-        @*         <span asp-validation-for="@Model.NumberOfSeats"></span> *@
-        @*     </div> *@
-        @* } *@
+            if(ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid &&
+                ViewContext.ViewData.ModelState[nameof(Model.NumberOfTickets)].Errors.Count > 0)
+            {
+                <div class="alert alert-danger mt-5">
+                    <span asp-validation-for="@Model.NumberOfTickets"></span>
+                </div>
+            }
+        }
 
         <div class="text-end">
             @if (!Model.IsPaymentEmulated)
@@ -133,7 +134,7 @@
                 <h4>Tickets details:</h4>
 
                 <button class="btn btn-success btn-lg flight-select-action"
-                        hx-get="/purchase/@Model.PurchaseId"
+                        hx-get="/purchase/@Model.PurchaseId/tickets"
                         hx-swap="outerHTML"
                         hx-push-url="false"
                         hx-target="#form-purchase">
@@ -176,7 +177,7 @@
         {
             <div class="text-end">
                 <button class="btn btn-success btn-lg flight-select-action"
-                        hx-get="/purchase/@Model.PurchaseId"
+                        hx-get="/purchase/@Model.PurchaseId/tickets"
                         hx-swap="outerHTML"
                         hx-push-url="false"
                         hx-target="#form-purchase">

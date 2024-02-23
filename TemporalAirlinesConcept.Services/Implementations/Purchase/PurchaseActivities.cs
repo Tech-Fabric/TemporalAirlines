@@ -220,17 +220,6 @@ public class PurchaseActivities
         return flight;
     }
 
-    // [Activity]
-    // public async Task<FlightDetailsModel> GetFlightDetails(string flightId)
-    // {
-    //     if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId))
-    //         throw new ApplicationException("Flight workflow is not running.");
-    //
-    //     var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
-    //
-    //     return await handle.QueryAsync(wf => wf.GetFlightDetails());
-    // }
-
     [Activity]
     public async Task TicketReservation(PurchaseTicketReservationSignal purchaseTicketReservation)
     {

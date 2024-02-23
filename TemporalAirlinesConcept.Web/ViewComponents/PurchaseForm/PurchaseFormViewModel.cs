@@ -16,4 +16,6 @@ public class PurchaseFormViewModel
     public bool IsPaymentEmulated { get; set; }
     
     public bool IsConfirmed { get; set; }
+    
+    public int NumberOfTickets { get; set; }
 }
