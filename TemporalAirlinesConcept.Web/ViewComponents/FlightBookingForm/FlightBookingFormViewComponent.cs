@@ -3,7 +3,7 @@ using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Services.Interfaces.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
 
-namespace TemporalAirlinesConcept.Web.ViewComponents;
+namespace TemporalAirlinesConcept.Web.ViewComponents.FlightBookingForm;
 
 public class FlightBookingFormViewComponent : ViewComponent
 {

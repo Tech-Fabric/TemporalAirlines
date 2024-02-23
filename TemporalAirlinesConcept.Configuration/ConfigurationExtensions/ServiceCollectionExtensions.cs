@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Exporter;
-using OpenTelemetry.Logs;
 using OpenTelemetry.Trace;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Settings;
@@ -110,17 +109,6 @@ public static class ServiceCollectionExtensions
             .AddWorkflow<PurchaseWorkflow>()
             .AddScopedActivities<UserRegistrationActivities>()
             .AddWorkflow<UserRegistrationWorkflow>();
-
-        return services;
-    }
-
-    public static IServiceCollection ConfigureSession(this IServiceCollection services)
-    {
-        services.AddSession(options =>
-        {
-            options.Cookie.Name = ".BookingSession";
-            options.IdleTimeout = TimeSpan.FromMinutes(15);
-        });
 
         return services;
     }

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 
-namespace TemporalAirlinesConcept.Web.ViewComponents;
+namespace TemporalAirlinesConcept.Web.ViewComponents.FlightBookingForm;
 
 public class CreditCardDetails
 {
@@ -40,7 +40,7 @@ public class FlightBookingFormViewModel
 
     public Dictionary<string, bool>? SelectedSeats { get; set; } = new();
 
-    public string? PurchaseWorkflowId { get; set; }
+    public string? PurchaseId { get; set; }
 
     public bool IsConfirmed { get; set; }
 
