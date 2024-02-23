@@ -1,10 +1,8 @@
-﻿using TemporalAirlinesConcept.DAL.Models.Seat;
-
-namespace TemporalAirlinesConcept.Services.Models.Purchase;
+﻿namespace TemporalAirlinesConcept.Services.Models.Purchase;
 
 public class SeatReservationInputModel
 {
-    public string FlightId { get; set; }
+    public Guid FlightId { get; set; }
     
     public string PurchaseId { get; set; }
     

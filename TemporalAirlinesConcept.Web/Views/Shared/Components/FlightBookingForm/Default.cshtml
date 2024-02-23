@@ -106,7 +106,7 @@
                             <h6 class="dark-gray text-end">Price</h6>
                         </div>
 
-                        @if (!string.IsNullOrEmpty(Model.SelectedFlight) && Model.SelectedFlight == flight.Id)
+                        @if (Model.SelectedFlight is not null && Model.SelectedFlight == flight.Id)
                         {
                             <button class="btn btn-light btn-lg flight-select-action"
                                     disabled="disabled"
@@ -236,7 +236,7 @@
                                             Model.SelectedSeats.Add(seat.Name, false);
                                         }
 
-                                        if (string.IsNullOrEmpty(seat.TicketId))
+                                        if (seat.TicketId is null)
                                         {
                                             <input type="checkbox" class="" asp-for="@Model.SelectedSeats[seat.Name]"></input>
                                             <div class="seat-indicator btn btn-primary">@seat.Name</div>

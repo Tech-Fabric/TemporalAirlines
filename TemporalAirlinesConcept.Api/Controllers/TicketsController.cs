@@ -35,7 +35,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpGet("by-user/{userId}")]
-    public async Task<ActionResult<List<TicketResponse>>> GetTickets([FromRoute] string userId)
+    public async Task<ActionResult<List<TicketResponse>>> GetTickets([FromRoute] Guid userId)
     {
         var tickets = await _ticketService.GetTickets(userId);
         var ticketsResponse = _mapper.Map<List<TicketResponse>>(tickets);
@@ -44,7 +44,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpGet("{userId}/{flightId}")]
-    public async Task<ActionResult<List<TicketResponse>>> GetTicket([FromRoute] string userId, [FromRoute] string flightId)
+    public async Task<ActionResult<List<TicketResponse>>> GetTicket([FromRoute] Guid userId, [FromRoute] Guid flightId)
     {
         var tickets = await _ticketService.GetTickets(userId, flightId);
         var ticketsResponse = _mapper.Map<List<TicketResponse>>(tickets);
@@ -53,7 +53,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpGet("{ticketId}")]
-    public async Task<ActionResult<TicketResponse>> GetTicket([FromRoute] string ticketId)
+    public async Task<ActionResult<TicketResponse>> GetTicket([FromRoute] Guid ticketId)
     {
         var ticket = await _ticketService.GetTicket(ticketId);
         var ticketResponse = _mapper.Map<List<TicketResponse>>(ticket);

@@ -1,5 +1,5 @@
-﻿using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.DAL.Models.Seat;
+﻿using TemporalAirlinesConcept.Api.Models.Flights;
+using TemporalAirlinesConcept.DAL.Enums;
 
 namespace TemporalAirlinesConcept.Api.Models.Tickets
 {
@@ -15,6 +15,6 @@ namespace TemporalAirlinesConcept.Api.Models.Tickets
 
         public PaymentStatus PaymentStatus { get; set; }
 
-        public Seat Seat { get; set; }
+        public SeatResponse Seat { get; set; }
     }
 }

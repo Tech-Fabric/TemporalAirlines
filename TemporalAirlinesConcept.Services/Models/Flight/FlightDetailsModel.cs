@@ -1,6 +1,5 @@
 ﻿using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.DAL.Models.Seat;
 
 namespace TemporalAirlinesConcept.Services.Models.Flight;
 

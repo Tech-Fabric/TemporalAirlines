@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Services.Interfaces.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
+using TemporalAirlinesConcept.Services.Models.Purchase;
 
 namespace TemporalAirlinesConcept.Web.ViewComponents;
 
@@ -68,7 +69,7 @@ public class FlightBookingFormViewComponent : ViewComponent
             {
                 for (var y = 0; y < seatColumnsCount; y++)
                 {
-                    flightToCreate.Seats.Add(new DAL.Models.Seat.SeatInputModel
+                    flightToCreate.Seats.Add(new SeatInputModel
                     {
                         Name = $"{columnIdentifiers[y]}{x + 1}"
                     });

@@ -1,6 +1,5 @@
 ﻿using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.DAL.Models.Seat;
 
 namespace TemporalAirlinesConcept.Tests.Factories;
 
@@ -19,7 +18,7 @@ public class TestFlightFabric
         
         return new Flight
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid(),
             Status = FlightStatus.Pending,
             Depart = (DateTime)depart,
             Arrival = (DateTime)arrival,

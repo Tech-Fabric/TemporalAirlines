@@ -56,10 +56,10 @@ public class TicketService : ITicketService
 
     public async Task<List<TicketWithCode>> GetPurchaseWorkflowTickets(PurchaseTicketsRequestModel purchaseTicketsRequestModel)
     {
-        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(purchaseTicketsRequestModel.FlightId))
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(purchaseTicketsRequestModel.FlightId.ToString()))
             return [];
 
-        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketsRequestModel.FlightId);
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(purchaseTicketsRequestModel.FlightId.ToString());
 
         var tickets = await handle.QueryAsync(wf => wf.GetRegisteredTickets());
 
@@ -109,29 +109,34 @@ public class TicketService : ITicketService
 
     public async Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel)
     {
-        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(seatReservationInputModel.FlightId)
-            || !await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(seatReservationInputModel.PurchaseId))
+        var purchaseId = seatReservationInputModel.PurchaseId;
+        var flightId = seatReservationInputModel.FlightId.ToString();
+
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId)
+            || !await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
             return false;
 
-        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(seatReservationInputModel.FlightId);
-        var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(seatReservationInputModel.PurchaseId);
+        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
+        var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
 
         var registered = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
 
-        var tickets = registered.Where(t =>
-            t.PurchaseId == seatReservationInputModel.PurchaseId).ToList();
+        var tickets = registered
+            .Where(t => t.PurchaseId == seatReservationInputModel.PurchaseId)
+            .ToList();
 
         var seatReservations = tickets.Select((t, i) =>
             new SeatReservationSignalModel
             {
                 TicketId = t.Id,
                 Seat = seatReservationInputModel.Seats[i]
-            }).ToList();
+            })
+            .ToList();
 
         var signalModel = new PurchaseTicketReservationSignal
         {
             SeatReservations = seatReservations,
-            FlightId = seatReservationInputModel.FlightId
+            FlightId = seatReservationInputModel.FlightId.ToString()
         };
 
         await purchaseHandle.SignalAsync(x => x.TicketReservation(signalModel));

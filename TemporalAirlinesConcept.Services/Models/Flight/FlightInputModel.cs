@@ -1,4 +1,4 @@
-﻿using TemporalAirlinesConcept.DAL.Models.Seat;
+﻿using TemporalAirlinesConcept.Services.Models.Purchase;
 
 namespace TemporalAirlinesConcept.Services.Models.Flight;
 
@@ -13,5 +13,6 @@ public class FlightInputModel
     public DateTime Arrival { get; set; }
 
     public decimal Price { get; set; }
+
     public List<SeatInputModel> Seats { get; set; }
 }

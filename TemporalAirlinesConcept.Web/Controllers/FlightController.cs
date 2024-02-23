@@ -30,7 +30,7 @@ public class FlightController : Controller
     }
 
     [HttpGet("{SelectedFlight}")]
-    public async Task<IActionResult> Flight([FromRoute] string? selectedFlight)
+    public async Task<IActionResult> Flight([FromRoute] Guid? selectedFlight)
     {
         FlightBookingFormViewModel model = new FlightBookingFormViewModel();
 
@@ -38,9 +38,9 @@ public class FlightController : Controller
     }
 
     [HttpPost("{SelectedFlight}")]
-    public async Task<IActionResult> Flight([FromForm] FlightBookingFormViewModel model, [FromRoute] string? selectedFlight)
+    public async Task<IActionResult> Flight([FromForm] FlightBookingFormViewModel model, [FromRoute] Guid? selectedFlight)
     {
-        if (!string.IsNullOrEmpty(selectedFlight))
+        if (selectedFlight is not null)
         {
             model.SelectedFlight = selectedFlight;
         }
@@ -58,10 +58,10 @@ public class FlightController : Controller
     [HttpPost("{SelectedFlight}/purchase")]
     public async Task<IActionResult> Purchase(
         [FromForm] FlightBookingFormViewModel model,
-        [FromRoute] string? selectedFlight
+        [FromRoute] Guid? selectedFlight
     )
     {
-        if (!string.IsNullOrEmpty(selectedFlight))
+        if (selectedFlight is null)
         {
             model.SelectedFlight = selectedFlight;
         }
@@ -71,7 +71,7 @@ public class FlightController : Controller
             model.PurchaseWorkflowId = await _ticketService.StartTicketPurchase(
                 new PurchaseModel()
                 {
-                    FlightId = model.SelectedFlight,
+                    FlightId = model.SelectedFlight.Value,
                     NumberOfTickets = model.NumberOfSeats
                 }
             );
@@ -104,11 +104,11 @@ public class FlightController : Controller
     [HttpGet("{SelectedFlight}/ticket/{PurchaseWorkflowId}")]
     public async Task<IActionResult> GetDetails(
         [FromForm] FlightBookingFormViewModel model,
-        [FromRoute] string? selectedFlight,
+        [FromRoute] Guid? selectedFlight,
         [FromRoute] string? purchaseWorkflowId
     )
     {
-        if (!string.IsNullOrEmpty(selectedFlight))
+        if (selectedFlight is not null)
         {
             model.SelectedFlight = selectedFlight;
         }
@@ -118,7 +118,7 @@ public class FlightController : Controller
 
         model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
         {
-            FlightId = selectedFlight,
+            FlightId = selectedFlight.Value,
             PurchaseId = purchaseWorkflowId
         });
 
@@ -136,11 +136,11 @@ public class FlightController : Controller
     [HttpPost("{SelectedFlight}/ticket/{PurchaseWorkflowId}")]
     public async Task<IActionResult> Details(
         [FromForm] FlightBookingFormViewModel model,
-        [FromRoute] string? selectedFlight,
+        [FromRoute] Guid? selectedFlight,
         [FromRoute] string? purchaseWorkflowId
     )
     {
-        if (!string.IsNullOrEmpty(selectedFlight))
+        if (selectedFlight is not null)
         {
             model.SelectedFlight = selectedFlight;
         }
@@ -152,7 +152,7 @@ public class FlightController : Controller
 
         model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
         {
-            FlightId = selectedFlight,
+            FlightId = selectedFlight.Value,
             PurchaseId = purchaseWorkflowId
         });
 
@@ -168,7 +168,7 @@ public class FlightController : Controller
         {
             await _ticketService.RequestSeatReservation(new SeatReservationInputModel
             {
-                FlightId = model.SelectedFlight,
+                FlightId = model.SelectedFlight.Value,
                 PurchaseId = model.PurchaseWorkflowId,
                 Seats = seatsList
             });
@@ -201,12 +201,12 @@ public class FlightController : Controller
             model.PaymentSuccessful = true;
             model.IsConfirmed = true;
             model.IsPaymentEmulated = true;
-            
+
             HttpContext.Session.SetInt32("IsPaymentEmulated", 1);
 
             model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(new PurchaseTicketsRequestModel
             {
-                FlightId = model.SelectedFlight,
+                FlightId = model.SelectedFlight.Value,
                 PurchaseId = model.PurchaseWorkflowId
             });
         }

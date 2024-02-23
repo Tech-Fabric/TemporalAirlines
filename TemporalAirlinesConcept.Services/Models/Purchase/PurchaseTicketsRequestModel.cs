@@ -2,7 +2,7 @@
 
 public class PurchaseTicketsRequestModel
 {
-    public string FlightId { get; set; }
+    public Guid FlightId { get; set; }
     
     public string PurchaseId { get; set; }
 }

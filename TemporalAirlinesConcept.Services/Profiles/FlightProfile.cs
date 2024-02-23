@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using TemporalAirlinesConcept.DAL.Entities;
-using TemporalAirlinesConcept.DAL.Models.Seat;
 using TemporalAirlinesConcept.Services.Models.Flight;
+using TemporalAirlinesConcept.Services.Models.Purchase;
 
 namespace TemporalAirlinesConcept.Services.Profiles;
 
@@ -15,13 +15,6 @@ public class FlightProfile : Profile
 
         CreateMap<Flight, FlightDetailsModel>();
 
-        CreateMap<FlightDetailsModel, Flight>()
-            .ForMember(dest => dest.Registered,
-                opt =>
-                    opt.MapFrom(src => src.Registered.Select(s => s.Id)))
-            .ForMember(dest => dest.Boarded, 
-                opt =>
-                opt.MapFrom(src => src.Boarded.Select(s => s.Id)));
-
+        CreateMap<FlightDetailsModel, Flight>();
     }
 }

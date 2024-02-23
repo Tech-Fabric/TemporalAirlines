@@ -27,8 +27,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    await app.CheckCosmosDb();
-    await app.InitializeDb();
+    //await app.CheckCosmosDb();
+    //await app.InitializeDb();
 }
 
 app.UseSession();

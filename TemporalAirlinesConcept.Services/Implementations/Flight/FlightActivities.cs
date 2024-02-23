@@ -20,7 +20,16 @@ public class FlightActivities
     [Activity]
     public Task<FlightDetailsModel> MapFlightModel(DAL.Entities.Flight flight)
     {
-        var flightDetail = _mapper.Map<FlightDetailsModel>(flight);
+        var flightDetail = _mapper.Map<DAL.Entities.Flight, FlightDetailsModel>(flight, opt => opt.AfterMap((src, dest) =>
+        {
+            dest.Registered = src.Tickets
+                .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Registered)
+                .ToList();
+
+            dest.Boarded = src.Tickets
+                .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Boarded)
+                .ToList();
+        }));
 
         return Task.FromResult(flightDetail);
     }
