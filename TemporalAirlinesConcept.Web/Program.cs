@@ -1,4 +1,3 @@
-using TemporalAirlinesConcept.Api.Configuration;
 using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +43,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
 
-app.UseStaticFiles();
+app.UseStaticFiles(); 
 
 app.Run();

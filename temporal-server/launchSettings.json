@@ -13,7 +13,8 @@
         "postgresql": "StartWithoutDebugging",
         "temporal": "StartWithoutDebugging",
         "temporal-admin-tools": "StartWithoutDebugging",
-        "temporal-ui": "StartWithoutDebugging"
+        "temporal-ui": "StartWithoutDebugging",
+        "pgadmin": "StartWithoutDebugging"
       }
     }
   }

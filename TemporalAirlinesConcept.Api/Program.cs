@@ -1,12 +1,18 @@
 using OpenTelemetry.Exporter;
-using TemporalAirlinesConcept.Api.Configuration;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using TemporalAirlinesConcept.Api.Profiles;
 using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(x => new JsonSerializerOptions
+    {
+        ReferenceHandler = ReferenceHandler.Preserve
+    });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -25,6 +31,8 @@ builder.Services.AddAutoMapper(typeof(FlightApiProfile));
 builder.Services.ConfigureTemporalWorker();
 
 var app = builder.Build();
+
+app.MigrateDatabase();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
