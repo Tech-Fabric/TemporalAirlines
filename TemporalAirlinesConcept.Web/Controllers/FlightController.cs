@@ -80,14 +80,7 @@ public class FlightController : Controller
             return View("~/Views/Flight/Index.cshtml", model);
         }
 
-    [HttpGet("{SelectedFlight}/ticket/{PurchaseWorkflowId}")]
-    public async Task<IActionResult> GetDetails(
-        [FromForm] FlightBookingFormViewModel model,
-        [FromRoute] Guid? selectedFlight,
-        [FromRoute] string? purchaseWorkflowId
-    )
-    {
-        if (selectedFlight is not null)
+        if (!string.IsNullOrEmpty(model.PurchaseId))
         {
             return Redirect($"/purchase/{model.PurchaseId}");
         }

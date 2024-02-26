@@ -26,7 +26,7 @@
                     </div>
                     <div class="d-inline-flex align-items-center gap-8">
 
-                        <div class="from-to text-center">
+                        <div class="from-to text-center">`
                             <h5 class="dark-gray">@((Model.Flight.Arrival - Model.Flight.Depart).Humanize())</h5>
                             <img src="/img/route-plan.png" alt="">
                             <h6 class="color-black">1 Stop</h6>
@@ -75,7 +75,7 @@
                                         Model.SelectedSeats.Add(seat.Name, false);
                                     }
 
-                                    if (string.IsNullOrEmpty(seat.TicketId))
+                                    if (seat.TicketId is null)
                                     {
                                         <input type="checkbox" class="" asp-for="@Model.SelectedSeats[seat.Name]">
                                         <div class="seat-indicator btn btn-primary">@seat.Name</div>
@@ -151,7 +151,7 @@
 
                     @if (ticket.Seat != null)
                     {
-                        <p>Seat: @ticket.Seat.Name</p>
+                        <p>Seat: @ticket.Seat</p>
                     }
                     else
                     {

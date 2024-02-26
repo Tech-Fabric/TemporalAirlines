@@ -94,7 +94,7 @@ public class PurchaseWorkflow
     [WorkflowRun]
     public async Task<bool> Run(PurchaseModel purchaseModel)
     {
-        _flightId = purchaseModel.FlightId;
+        _flightId = purchaseModel.FlightId.ToString();
 
         try
         {

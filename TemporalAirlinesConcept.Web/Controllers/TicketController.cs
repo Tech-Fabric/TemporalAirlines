@@ -18,11 +18,11 @@ public class TicketController : Controller
     [HttpGet("{TicketId}")]
     public async Task<IActionResult> GetTicketDetails(
         [FromForm] TicketDetailsViewModel model,
-        [FromRoute] string? ticketId
+        [FromRoute] Guid? ticketId
     )
     {
-        model.Ticket = await _ticketService.GetTicketWithCode(ticketId);
-        
+        model.Ticket = await _ticketService.GetTicketWithCode(ticketId.Value);
+
         if (Request.IsHtmx())
         {
             return ViewComponent(typeof(TicketDetailsViewComponent), model);

@@ -14,13 +14,12 @@ public interface ITicketService
     Task<List<TicketWithCode>> GetPurchaseWorkflowTickets(string purchaseId);
 
     Task<Ticket> GetTicket(Guid ticketId);
+
     Task<bool> IsPurchasePaid(string purchaseId);
 
     Task<bool> IsSeatsReserved(string purchaseId);
-    
-    Task<Ticket> GetTicket(string ticketId);
 
-    Task<TicketWithCode> GetTicketWithCode(string ticketId);
+    Task<TicketWithCode> GetTicketWithCode(Guid ticketId);
 
     Task MarkAsPaid(string purchaseId);
 
