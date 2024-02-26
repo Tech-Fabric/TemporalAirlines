@@ -12,8 +12,6 @@ public class Ticket : IEntity<Guid>
     [Key]
     public Guid Id { get; set; }
 
-    public Guid? SeatId { get; set; }
-
     public Guid? FlightId { get; set; }
 
     public Guid? UserId { get; set; }
@@ -29,8 +27,8 @@ public class Ticket : IEntity<Guid>
     #endregion
 
     #region Navigation Properties
-
-    [ForeignKey("SeatId")]
+    
+    [InverseProperty("Ticket")]
     public Seat Seat { get; set; }
 
     [ForeignKey("FlightId")]

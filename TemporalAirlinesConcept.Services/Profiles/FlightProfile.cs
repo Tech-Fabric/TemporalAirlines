@@ -9,12 +9,16 @@ public class FlightProfile : Profile
 {
     public FlightProfile()
     {
-        CreateMap<SeatInputModel, Seat>();
-        
-        CreateMap<FlightInputModel, Flight>();
+        CreateMap<SeatInputModel, Seat>()
+            .ForMember(x => x.Flight, x => x.Ignore());
 
-        CreateMap<Flight, FlightDetailsModel>();
+        CreateMap<FlightInputModel, Flight>()
+            .ForMember(x => x.Seats, x => x.MapFrom(y => y.Seats));
 
-        CreateMap<FlightDetailsModel, Flight>();
+        CreateMap<Flight, FlightDetailsModel>()
+            .ForMember(x => x.Seats, x => x.MapFrom(y => y.Seats));
+
+        CreateMap<FlightDetailsModel, Flight>()
+            .ForMember(x => x.Seats, x => x.MapFrom(y => y.Seats));
     }
 }

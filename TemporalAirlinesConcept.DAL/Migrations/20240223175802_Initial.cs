@@ -43,6 +43,33 @@ namespace TemporalAirlinesConcept.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Tickets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FlightId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    PurchaseId = table.Column<string>(type: "text", nullable: true),
+                    Passenger = table.Column<string>(type: "text", nullable: true),
+                    PaymentStatus = table.Column<int>(type: "integer", nullable: false),
+                    BoardingStatus = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tickets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tickets_Flights_FlightId",
+                        column: x => x.FlightId,
+                        principalTable: "Flights",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tickets_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Seats",
                 columns: table => new
                 {
@@ -61,38 +88,10 @@ namespace TemporalAirlinesConcept.DAL.Migrations
                         principalTable: "Flights",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Tickets",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SeatId = table.Column<Guid>(type: "uuid", nullable: true),
-                    FlightId = table.Column<Guid>(type: "uuid", nullable: true),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
-                    PurchaseId = table.Column<string>(type: "text", nullable: true),
-                    Passenger = table.Column<string>(type: "text", nullable: true),
-                    PaymentStatus = table.Column<int>(type: "integer", nullable: false),
-                    BoardingStatus = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tickets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tickets_Flights_FlightId",
-                        column: x => x.FlightId,
-                        principalTable: "Flights",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tickets_Seats_SeatId",
-                        column: x => x.SeatId,
-                        principalTable: "Seats",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tickets_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
+                        name: "FK_Seats_Tickets_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "Tickets",
                         principalColumn: "Id");
                 });
 
@@ -104,7 +103,8 @@ namespace TemporalAirlinesConcept.DAL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Seats_TicketId",
                 table: "Seats",
-                column: "TicketId");
+                column: "TicketId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_FlightId",
@@ -112,46 +112,22 @@ namespace TemporalAirlinesConcept.DAL.Migrations
                 column: "FlightId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tickets_SeatId",
-                table: "Tickets",
-                column: "SeatId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Tickets_UserId",
                 table: "Tickets",
                 column: "UserId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Seats_Tickets_TicketId",
-                table: "Seats",
-                column: "TicketId",
-                principalTable: "Tickets",
-                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Seats_Flights_FlightId",
-                table: "Seats");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Tickets_Flights_FlightId",
-                table: "Tickets");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Seats_Tickets_TicketId",
-                table: "Seats");
-
             migrationBuilder.DropTable(
-                name: "Flights");
+                name: "Seats");
 
             migrationBuilder.DropTable(
                 name: "Tickets");
 
             migrationBuilder.DropTable(
-                name: "Seats");
+                name: "Flights");
 
             migrationBuilder.DropTable(
                 name: "Users");

@@ -9,7 +9,7 @@ public class TicketWithCode
 
     public PaymentStatus PaymentStatus { get; set; }
 
-    public Seat Seat { get; set; }
+    public string Seat { get; set; }
 
     public string Code { get; set; }
 }

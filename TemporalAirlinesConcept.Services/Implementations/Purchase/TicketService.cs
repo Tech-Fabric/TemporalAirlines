@@ -69,7 +69,8 @@ public class TicketService : ITicketService
             {
                 Id = x.Id,
                 PaymentStatus = x.PaymentStatus,
-                Seat = x.Seat,
+                Seat = x.Seat
+                ,
                 Code = QRCodeGeneratorService.Generate(new QRDataModel
                 {
                     Data = $"{_urlSettings.TicketPage}/{x.Id}"

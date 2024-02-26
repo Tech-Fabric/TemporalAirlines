@@ -2,10 +2,12 @@
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Exceptions;
 using TemporalAirlinesConcept.Common.Extensions;
+using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Interfaces.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using Temporalio.Client;
+using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 
@@ -65,10 +67,20 @@ public class FlightService : IFlightService
         var flight = _mapper.Map<DAL.Entities.Flight>(model);
 
         _unitOfWork.Repository<DAL.Entities.Flight>().Insert(flight);
-
         await _unitOfWork.SaveChangesAsync();
 
-        await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
+        var flightDetail = _mapper.Map<DAL.Entities.Flight, FlightDetailsModel>(flight, opt => opt.AfterMap((src, dest) =>
+        {
+            //dest.Registered = src.Tickets
+            //    .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Registered)
+            //    .ToList();
+
+            //dest.Boarded = src.Tickets
+            //    .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Boarded)
+            //    .ToList();
+        }));
+
+        await _temporalClient.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flightDetail),
             new WorkflowOptions(flight.Id.ToString(), Temporal.DefaultQueue));
 
         return flight;

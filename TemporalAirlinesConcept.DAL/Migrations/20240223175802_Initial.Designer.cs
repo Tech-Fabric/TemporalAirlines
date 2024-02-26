@@ -12,7 +12,7 @@ using TemporalAirlinesConcept.DAL.Contexts;
 namespace TemporalAirlinesConcept.DAL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240223120056_Initial")]
+    [Migration("20240223175802_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -76,7 +76,8 @@ namespace TemporalAirlinesConcept.DAL.Migrations
 
                     b.HasIndex("FlightId");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex("TicketId")
+                        .IsUnique();
 
                     b.ToTable("Seats");
                 });
@@ -102,17 +103,12 @@ namespace TemporalAirlinesConcept.DAL.Migrations
                     b.Property<string>("PurchaseId")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("SeatId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FlightId");
-
-                    b.HasIndex("SeatId");
 
                     b.HasIndex("UserId");
 
@@ -148,8 +144,8 @@ namespace TemporalAirlinesConcept.DAL.Migrations
                         .IsRequired();
 
                     b.HasOne("TemporalAirlinesConcept.DAL.Entities.Ticket", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketId");
+                        .WithOne("Seat")
+                        .HasForeignKey("TemporalAirlinesConcept.DAL.Entities.Seat", "TicketId");
 
                     b.Navigation("Flight");
 
@@ -162,17 +158,11 @@ namespace TemporalAirlinesConcept.DAL.Migrations
                         .WithMany("Tickets")
                         .HasForeignKey("FlightId");
 
-                    b.HasOne("TemporalAirlinesConcept.DAL.Entities.Seat", "Seat")
-                        .WithMany()
-                        .HasForeignKey("SeatId");
-
                     b.HasOne("TemporalAirlinesConcept.DAL.Entities.User", "User")
                         .WithMany("Tickets")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Flight");
-
-                    b.Navigation("Seat");
 
                     b.Navigation("User");
                 });
@@ -182,6 +172,11 @@ namespace TemporalAirlinesConcept.DAL.Migrations
                     b.Navigation("Seats");
 
                     b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("TemporalAirlinesConcept.DAL.Entities.Ticket", b =>
+                {
+                    b.Navigation("Seat");
                 });
 
             modelBuilder.Entity("TemporalAirlinesConcept.DAL.Entities.User", b =>

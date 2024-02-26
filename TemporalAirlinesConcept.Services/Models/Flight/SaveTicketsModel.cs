@@ -4,5 +4,5 @@ namespace TemporalAirlinesConcept.Services.Models.Flight;
 
 public class SaveTicketsModel
 {
-    public List<Ticket> Tickets { get; set; } = [];
+    public List<TicketDetailsModel> Tickets { get; set; } = [];
 }

@@ -18,10 +18,9 @@ public class FlightWorkflow
     private FlightDetailsModel _flight;
 
     [WorkflowRun]
-    public async Task Run(DAL.Entities.Flight flight)
+    public async Task Run(FlightDetailsModel flight)
     {
-        _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) => act.MapFlightModel(flight),
-            _activityOptions);
+        _flight = flight;
 
         await ChangeStatusAtTime(FlightStatus.CheckIn, _flight.Depart.Value.Subtract(TimeSpan.FromDays(1)));
 
@@ -172,7 +171,7 @@ public class FlightWorkflow
         if (ticket is null)
             throw new ApplicationFailureException($"Ticket {seatReservationSignalModel.TicketId} was not found.");
 
-        ticket.Seat = seat;
+        ticket.Seat = seat.Name;
 
         return Task.CompletedTask;
     }
@@ -224,7 +223,7 @@ public class FlightWorkflow
     }
 
     [WorkflowQuery]
-    public List<Ticket> GetRegisteredTickets()
+    public List<TicketDetailsModel> GetRegisteredTickets()
     {
         return _flight.Registered;
     }

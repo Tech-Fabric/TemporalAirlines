@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using TemporalAirlinesConcept.DAL.Entities;
+using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Models.Flight;
+using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Activities;
+using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 
@@ -22,13 +25,13 @@ public class FlightActivities
     {
         var flightDetail = _mapper.Map<DAL.Entities.Flight, FlightDetailsModel>(flight, opt => opt.AfterMap((src, dest) =>
         {
-            dest.Registered = src.Tickets
-                .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Registered)
-                .ToList();
+            //dest.Registered = src.Tickets
+            //    .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Registered)
+            //    .ToList();
 
-            dest.Boarded = src.Tickets
-                .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Boarded)
-                .ToList();
+            //dest.Boarded = src.Tickets
+            //    .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Boarded)
+            //    .ToList();
         }));
 
         return Task.FromResult(flightDetail);
@@ -44,7 +47,7 @@ public class FlightActivities
 
             var seat = flight.Seats.FirstOrDefault(s => s.TicketId is null);
 
-            ticket.Seat = seat;
+            ticket.Seat = seat.Name;
 
             seat.TicketId = ticket.Id;
         }
@@ -69,7 +72,17 @@ public class FlightActivities
     {
         foreach (var ticket in saveTicketsModel.Tickets)
         {
-            _unitOfWork.Repository<Ticket>().Insert(ticket);
+            var ticketToCreate = new Ticket
+            {
+                Id = Guid.NewGuid(),
+                FlightId = ticket.FlightId,
+                UserId = ticket.UserId,
+                PurchaseId = Workflow.Info.WorkflowId,
+                Seat = null,
+                PaymentStatus = PaymentStatus.Pending
+            };
+
+            _unitOfWork.Repository<Ticket>().Insert(ticketToCreate);
         }
 
         await _unitOfWork.SaveChangesAsync();
@@ -86,7 +99,7 @@ public class FlightActivities
                 .FindAsync(x => x.Id == ticket.Id);
 
             if (ticketToDelete != null)
-                _unitOfWork.Repository<Ticket>().Remove(ticket);
+                _unitOfWork.Repository<Ticket>().Remove(ticketToDelete);
         }
 
         await _unitOfWork.SaveChangesAsync();
