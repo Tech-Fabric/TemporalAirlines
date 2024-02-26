@@ -29,10 +29,10 @@ public class Flight : IEntity<Guid>
     #region Navigation Properties
 
     [InverseProperty("Flight")]
-    public virtual ICollection<Seat> Seats { get; set; }
+    public virtual ICollection<Seat> Seats { get; set; } = [];
 
     [InverseProperty("Flight")]
-    public virtual ICollection<Ticket> Tickets { get; set; }
+    public virtual ICollection<Ticket> Tickets { get; set; } = [];
 
     #endregion
 }

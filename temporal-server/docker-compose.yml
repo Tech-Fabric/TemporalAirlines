@@ -28,7 +28,7 @@ services:
     ports:
       - 5455:5432
     volumes:
-      - ./data/postgresql/:/var/lib/postgresql/data
+       - ./data/postgresql/:/var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
     ports:
@@ -100,9 +100,9 @@ services:
       - ASPNETCORE_URLS=http://+:5050
     depends_on:
       - temporal
+      - postgresql
     networks:
       - temporal-network
-
   temporalairlinesconcept.web:
     container_name: temporalairlinesconcept.web
     build:
@@ -115,6 +115,7 @@ services:
       - ASPNETCORE_URLS=http://+:5050
     depends_on:
       - temporal
+      - postgresql
     networks:
       - temporal-network
 

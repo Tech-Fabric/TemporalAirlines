@@ -5,8 +5,6 @@ using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-await Task.Delay(TimeSpan.FromSeconds(15));
-
 // Add services to the container.
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(x => new JsonSerializerOptions
@@ -33,7 +31,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    //await app.CheckCosmosDb();
     await app.InitializeDb();
 }
 

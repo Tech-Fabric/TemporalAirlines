@@ -8,7 +8,7 @@ public static class DatabaseInitializer
 {
     public static async Task InitializeDb(this WebApplication webApp)
     {
-         using var scope = webApp.Services.CreateScope();
+        using var scope = webApp.Services.CreateScope();
 
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var userRepository = unitOfWork.Repository<User>();
