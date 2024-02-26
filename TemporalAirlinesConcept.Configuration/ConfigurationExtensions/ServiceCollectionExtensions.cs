@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
         services.AddAutoMapper(typeof(UserProfile));
         services.AddAutoMapper(typeof(TicketProfile));
         services.AddAutoMapper(typeof(FlightProfile));
+        services.AddAutoMapper(typeof(SeatProfile));
 
         services.AddScoped<IFlightService, FlightService>();
         services.AddScoped<ITicketService, TicketService>();

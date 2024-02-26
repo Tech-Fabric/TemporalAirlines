@@ -9,9 +9,6 @@ public class FlightProfile : Profile
 {
     public FlightProfile()
     {
-        CreateMap<SeatInputModel, Seat>()
-            .ForMember(x => x.Flight, x => x.Ignore());
-
         CreateMap<FlightInputModel, Flight>()
             .ForMember(x => x.Seats, x => x.MapFrom(y => y.Seats));
 

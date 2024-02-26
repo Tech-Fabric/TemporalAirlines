@@ -5,12 +5,13 @@ using TemporalAirlinesConcept.Services.Models.Purchase;
 
 namespace TemporalAirlinesConcept.Services.Profiles;
 
-public class TicketProfile : Profile
+public class SeatProfile : Profile
 {
-    public TicketProfile()
+    public SeatProfile()
     {
-        CreateMap<TicketBlobModel, Ticket>();
+        CreateMap<SeatInputModel, Seat>()
+            .ForMember(x => x.Flight, x => x.Ignore());
 
-        CreateMap<SeatDetailsModel, Seat>();
+        CreateMap<Seat, SeatDetailsModel>();
     }
 }

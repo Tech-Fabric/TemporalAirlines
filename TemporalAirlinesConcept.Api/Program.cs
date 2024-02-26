@@ -25,6 +25,7 @@ builder.Services.ConfigureServices(builder.Configuration, ConsoleExporterOutputT
 builder.Services.ConfigureTemporalClient();
 
 builder.Services.AddAutoMapper(typeof(UserApiProfile));
+builder.Services.AddAutoMapper(typeof(SeatApiProfilee));
 builder.Services.AddAutoMapper(typeof(TicketApiProfile));
 builder.Services.AddAutoMapper(typeof(FlightApiProfile));
 
