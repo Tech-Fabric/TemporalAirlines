@@ -4,6 +4,7 @@ using TemporalAirlinesConcept.Common.Exceptions;
 using TemporalAirlinesConcept.Common.Extensions;
 using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.DAL.Interfaces;
+using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Interfaces.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using Temporalio.Client;
@@ -44,6 +45,25 @@ public class FlightService : IFlightService
         var fetchedFlight = await FetchFlightDetailFromWorkflow(flight);
 
         return fetchedFlight;
+    }
+
+    public async Task<DAL.Entities.Flight> GetFlightDetailsByPurchaseId(string purchaseId)
+    {
+        if(!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
+            throw new EntityNotFoundException("Purchase workflow is not running.");
+
+        var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
+
+        var flightId = await purchaseHandle.QueryAsync(wf => wf.GetFlightId());
+
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId))
+            throw new EntityNotFoundException("Flight workflow is not running.");
+
+        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
+
+        var flightDetails = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
+
+        return _mapper.Map<DAL.Entities.Flight>(flightDetails);
     }
 
     public async Task<DAL.Entities.Flight> FetchFlightDetailFromWorkflow(DAL.Entities.Flight flight)

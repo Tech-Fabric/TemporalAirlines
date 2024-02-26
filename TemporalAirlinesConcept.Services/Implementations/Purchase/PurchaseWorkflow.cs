@@ -15,11 +15,11 @@ public class PurchaseWorkflow
 
     private string _flightId;
 
+    private bool _isSeatsReserved;
+    
     private bool _isPaid;
 
     private bool _isCancelled;
-
-    private bool _seatsSelected;
 
     private readonly ActivityOptions _activityOptions = new()
     {
@@ -31,38 +31,7 @@ public class PurchaseWorkflow
             MaximumAttempts = 2
         }
     };
-
-    [WorkflowRun]
-    public async Task<bool> Run(PurchaseModel purchaseModel)
-    {
-        _flightId = purchaseModel.FlightId.ToString();
-
-        try
-        {
-            return await ProcessPurchase(purchaseModel);
-        }
-        catch (Exception)
-        {
-            _saga.OnCompensationError((log) =>
-            {
-                log.Add("Compensation error. Manual intervention required!");
-
-                return Task.CompletedTask;
-            });
-
-            _saga.OnCompensationComplete((log) =>
-            {
-                log.Add("Compensation completed successfully");
-
-                return Task.CompletedTask;
-            });
-
-            await _saga.Compensate();
-
-            throw;
-        }
-    }
-
+    
     /// <summary>
     /// Sets the paid status to true.
     /// </summary>
@@ -93,10 +62,66 @@ public class PurchaseWorkflow
         await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
             act.TicketReservation(seatReservation), _activityOptions);
 
-        _saga.AddCompensation(async () => await Workflow.ExecuteActivityAsync(
-            (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions));
+        _isSeatsReserved = true;
+
+        _saga.AddCompensation(async () =>
+        {
+            await Workflow.ExecuteActivityAsync(
+                (PurchaseActivities act) => act.TicketReservationCompensation(seatReservation), _activityOptions);
+
+            _isSeatsReserved = false;
+        });
     }
 
+    [WorkflowQuery]
+    public string GetFlightId()
+    {
+        return _flightId;
+    }
+
+    [WorkflowQuery]
+    public bool IsPaid()
+    {
+        return _isPaid;
+    }
+
+    [WorkflowQuery]
+    public bool IsSeatsReserved()
+    {
+        return _isSeatsReserved;
+    }
+    
+    [WorkflowRun]
+    public async Task<bool> Run(PurchaseModel purchaseModel)
+    {
+        _flightId = purchaseModel.FlightId;
+
+        try
+        {
+            return await ProcessPurchase(purchaseModel);
+        }
+        catch (Exception)
+        {
+            _saga.OnCompensationError(log =>
+            {
+                log.Add("Compensation error. Manual intervention required!");
+
+                return Task.CompletedTask;
+            });
+
+            _saga.OnCompensationComplete(log =>
+            {
+                log.Add("Compensation completed successfully");
+
+                return Task.CompletedTask;
+            });
+
+            await _saga.Compensate();
+
+            throw;
+        }
+    }
+    
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
@@ -108,7 +133,7 @@ public class PurchaseWorkflow
             _activityOptions);
 
         if (!isFlightsAvailable)
-            return false;
+            throw new ApplicationFailureException("Flight is not available for booking.");
 
         await BookTicketsForFlight(purchaseModel);
 

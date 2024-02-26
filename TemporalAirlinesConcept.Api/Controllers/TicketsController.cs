@@ -61,10 +61,10 @@ public class TicketsController : ControllerBase
         return Ok(ticketResponse);
     }
 
-    [HttpPatch("{purchaseWorkflowId}")]
-    public async Task<IActionResult> MarkAsPaid([FromRoute] string purchaseWorkflowId)
+    [HttpPatch("{purchaseId}")]
+    public async Task<IActionResult> MarkAsPaid([FromRoute] string purchaseId)
     {
-        await _ticketService.MarkAsPaid(purchaseWorkflowId);
+        await _ticketService.MarkAsPaid(purchaseId);
 
         return Ok();
     }
