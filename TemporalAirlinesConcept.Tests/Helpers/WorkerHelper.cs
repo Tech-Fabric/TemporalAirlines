@@ -20,7 +20,7 @@ public static class WorkerHelper
         flightMockRepository ??= new Mock<IRepository<Flight>>();
         ticketMockRepository ??= new Mock<IRepository<Ticket>>();
 
-        var mockUnitOfWork = new Mock<UnitOfWork>();
+        var mockUnitOfWork = new Mock<IUnitOfWork>();
 
         mockUnitOfWork
             .Setup(x => x.Repository<Flight>())

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TemporalAirlinesConcept.Api.Configuration;
 using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +35,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
     //await app.CheckCosmosDb();
-    //await app.InitializeDb();
+    await app.InitializeDb();
 }
 
 app.UseSession();

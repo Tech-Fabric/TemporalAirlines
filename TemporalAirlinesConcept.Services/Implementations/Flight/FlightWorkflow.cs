@@ -100,6 +100,11 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task Book(BookingSignalModel bookingSignalModel)
     {
+        if (bookingSignalModel?.Ticket?.BoardingStatus is null)
+            return Task.CompletedTask;
+
+        bookingSignalModel.Ticket.BoardingStatus = BoardingStatus.Registered;
+
         _flight.Registered.Add(bookingSignalModel.Ticket);
 
         return Task.CompletedTask;
@@ -207,6 +212,11 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task BoardPassenger(BoardingSignalModel boardingSignalModel)
     {
+        if (boardingSignalModel?.Ticket?.BoardingStatus is null)
+            return Task.CompletedTask;
+
+        boardingSignalModel.Ticket.BoardingStatus = BoardingStatus.Boarded;
+
         _flight.Boarded.Add(boardingSignalModel.Ticket);
 
         return Task.CompletedTask;

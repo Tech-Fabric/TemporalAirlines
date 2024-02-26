@@ -1,6 +1,7 @@
 using OpenTelemetry.Exporter;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TemporalAirlinesConcept.Api.Configuration;
 using TemporalAirlinesConcept.Api.Profiles;
 using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
@@ -41,7 +42,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
     //await app.CheckCosmosDb();
-    //await app.InitializeDb();
+    await app.InitializeDb();
 }
 
 app.UseHttpsRedirection();

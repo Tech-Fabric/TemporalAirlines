@@ -4,6 +4,7 @@ using Moq;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
+using TemporalAirlinesConcept.DAL.Implementations;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
@@ -42,7 +43,7 @@ public class FlightWorkflowTests
 
         var flight = TestFlightFabric.GetTestFlight();
 
-        var mockFlightRepository = new Mock<IRepository<Flight>>();
+        var mockFlightRepository = new Mock<Repository<Flight>>();
 
         using var worker = await WorkerHelper.ConfigureWorkerAsync(env, _mapper, mockFlightRepository);
 

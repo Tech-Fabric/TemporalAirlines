@@ -3,9 +3,7 @@ using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Models.Flight;
-using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Activities;
-using Temporalio.Workflows;
 
 namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 
@@ -18,23 +16,6 @@ public class FlightActivities
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-    }
-
-    [Activity]
-    public Task<FlightDetailsModel> MapFlightModel(DAL.Entities.Flight flight)
-    {
-        var flightDetail = _mapper.Map<DAL.Entities.Flight, FlightDetailsModel>(flight, opt => opt.AfterMap((src, dest) =>
-        {
-            //dest.Registered = src.Tickets
-            //    .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Registered)
-            //    .ToList();
-
-            //dest.Boarded = src.Tickets
-            //    .Where(x => x.BoardingStatus == DAL.Enums.BoardingStatus.Boarded)
-            //    .ToList();
-        }));
-
-        return Task.FromResult(flightDetail);
     }
 
     [Activity]
@@ -72,14 +53,18 @@ public class FlightActivities
     {
         foreach (var ticket in saveTicketsModel.Tickets)
         {
+            var seat = await _unitOfWork.Repository<Seat>()
+                .FindAsync(x => x.FlightId == ticket.FlightId && x.Name == ticket.Seat);
+
             var ticketToCreate = new Ticket
             {
-                Id = Guid.NewGuid(),
+                Id = ticket.Id,
                 FlightId = ticket.FlightId,
-                UserId = ticket.UserId,
-                PurchaseId = Workflow.Info.WorkflowId,
-                Seat = null,
-                PaymentStatus = PaymentStatus.Pending
+                UserId = ticket.UserId == Guid.Empty ? null : ticket.UserId,
+                PurchaseId = ticket.PurchaseId,
+                Seat = seat,
+                PaymentStatus = PaymentStatus.Pending,
+                BoardingStatus = ticket.BoardingStatus
             };
 
             _unitOfWork.Repository<Ticket>().Insert(ticketToCreate);

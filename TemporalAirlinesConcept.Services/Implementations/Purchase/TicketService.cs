@@ -31,7 +31,9 @@ public class TicketService : ITicketService
     public async Task<Ticket> GetTicket(Guid ticketId)
     {
         var ticket = await _unitOfWork.Repository<Ticket>()
-            .FindAsync(x => x.Id == ticketId);
+            .Get(x => x.Id == ticketId)
+            .Include(x => x.Seat)
+            .FirstOrDefaultAsync();
 
         return ticket;
     }

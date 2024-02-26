@@ -56,7 +56,7 @@ public class TicketsController : ControllerBase
     public async Task<ActionResult<TicketResponse>> GetTicket([FromRoute] Guid ticketId)
     {
         var ticket = await _ticketService.GetTicket(ticketId);
-        var ticketResponse = _mapper.Map<List<TicketResponse>>(ticket);
+        var ticketResponse = _mapper.Map<TicketResponse>(ticket);
 
         return Ok(ticketResponse);
     }
