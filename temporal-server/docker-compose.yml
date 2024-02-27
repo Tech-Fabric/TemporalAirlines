@@ -101,7 +101,7 @@ services:
       - "10253:10253"  # Port for the emulator's communication with services
       - "10254:10254"  # Port for the emulator's communication with services
     environment:
-      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=2
+      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10
       - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
     healthcheck:
        test: ["CMD", "curl", "-f", "-k", "https://cosmosdb-emulator:8081/_explorer/emulator.pem"]

@@ -18282,12 +18282,12 @@ html, body {
 .mt-64 {
   margin-top: 64px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .mt-64 {
     margin-top: 48px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .mt-64 {
     margin-top: 42px;
   }
@@ -18301,12 +18301,12 @@ html, body {
 .mb-64 {
   margin-bottom: 64px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .mb-64 {
     margin-bottom: 48px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .mb-64 {
     margin-bottom: 42px;
   }
@@ -18320,12 +18320,12 @@ html, body {
 .mb-60 {
   margin-bottom: 60px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .mb-60 {
     margin-bottom: 46px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .mb-60 {
     margin-bottom: 40px;
   }
@@ -18339,12 +18339,12 @@ html, body {
 .mb-50 {
   margin-bottom: 50px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .mb-50 {
     margin-bottom: 44px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .mb-50 {
     margin-bottom: 38px;
   }
@@ -18358,12 +18358,12 @@ html, body {
 .m-48 {
   margin: 48px 0;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .m-48 {
     margin: 42px 0;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .m-48 {
     margin: 32px 0;
   }
@@ -18377,12 +18377,12 @@ html, body {
 .mt-48 {
   margin-top: 48px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .mt-48 {
     margin-top: 42px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .mt-48 {
     margin-top: 32px;
   }
@@ -18396,12 +18396,12 @@ html, body {
 .mb-48 {
   margin-bottom: 48px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .mb-48 {
     margin-bottom: 42px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .mb-48 {
     margin-bottom: 36px;
   }
@@ -18813,12 +18813,12 @@ html, body {
 .p-60 {
   padding: 60px 0;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .p-60 {
     padding: 40px 0;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .p-60 {
     padding: 32px 0;
   }
@@ -18832,12 +18832,12 @@ html, body {
 .p-50 {
   padding: 50px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .p-50 {
     padding: 44px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .p-50 {
     padding: 34px;
   }
@@ -18851,12 +18851,12 @@ html, body {
 .p-48 {
   padding: 48px 0;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .p-48 {
     padding: 42px 0;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .p-48 {
     padding: 32px 0;
   }
@@ -18870,12 +18870,12 @@ html, body {
 .pt-48 {
   padding-top: 48px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .pt-48 {
     padding-top: 42px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .pt-48 {
     padding-top: 32px;
   }
@@ -18889,12 +18889,12 @@ html, body {
 .pb-48 {
   padding-bottom: 48px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .pb-48 {
     padding-bottom: 42px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .pb-48 {
     padding-bottom: 36px;
   }
@@ -19003,12 +19003,12 @@ html, body {
 .p-24 {
   padding: 24px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .p-24 {
     padding: 21px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .p-24 {
     padding: 18px;
   }
@@ -19027,12 +19027,12 @@ html, body {
 .pb-24 {
   padding-bottom: 24px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .pb-24 {
     padding-bottom: 21px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .pb-24 {
     padding-bottom: 18px;
   }
@@ -19051,12 +19051,12 @@ html, body {
 .plr-24 {
   padding: 0 24px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .plr-24 {
     padding: 0 21px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .plr-24 {
     padding: 0 18px;
   }
@@ -19075,12 +19075,12 @@ html, body {
 .p-16 {
   padding: 16px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .p-16 {
     padding: 15px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .p-16 {
     padding: 13px;
   }
@@ -19099,12 +19099,12 @@ html, body {
 .pl-18 {
   padding-left: 18px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .pl-18 {
     padding-left: 16px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .pl-18 {
     padding-left: 14px;
   }
@@ -19123,12 +19123,12 @@ html, body {
 .pl-28 {
   padding-left: 28px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .pl-28 {
     padding-left: 24px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .pl-28 {
     padding-left: 19px;
   }
@@ -19147,12 +19147,12 @@ html, body {
 .pl-16 {
   padding-left: 16px;
 }
-@media only screen and (992px: 992px) and (1199px: 1199px) {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
   .pl-16 {
     padding-left: 15px;
   }
 }
-@media only screen and (768px: 992px) and (991px: 1199px) {
+@media only screen and (min-width: 768px) and (max-width: 991px) {
   .pl-16 {
     padding-left: 13px;
   }
@@ -19168,12 +19168,708 @@ html, body {
   }
 }
 
-.form-flight-booking {
-  margin-top: 300px;
-  background: #f5f5f5;
-  padding: 19px;
-  box-shadow: 0px 10px 100px rgba(0, 0, 0, 0.6);
+.hero-banner-1 {
+  width: 100%;
+  background: linear-gradient(180deg, rgba(248, 248, 255, 0) 0%, #F8F8FF 100%);
+  padding-bottom: 250px;
 }
+.hero-banner-1 .content {
+  padding: 100px 0 35px 0;
+  position: relative;
+}
+@media (max-width: 1399px) {
+  .hero-banner-1 .content {
+    padding: 80px 0 35px 0;
+  }
+}
+@media (max-width: 1199px) {
+  .hero-banner-1 .content {
+    padding: 50px 0 35px 0;
+  }
+}
+@media (max-width: 1099px) {
+  .hero-banner-1 .content {
+    padding: 35px 0 35px 0;
+  }
+}
+.hero-banner-1 .content .content-block {
+  padding-top: 77px;
+}
+@media (max-width: 1199px) {
+  .hero-banner-1 .content .content-block {
+    padding-top: 56px;
+  }
+}
+@media (max-width: 1099px) {
+  .hero-banner-1 .content .content-block {
+    padding-top: 8px;
+  }
+}
+@media (max-width: 576px) {
+  .hero-banner-1 .content .content-block {
+    padding: 16px 0 32px;
+  }
+}
+.hero-banner-1 .content .image,
+.hero-banner-1 .content .content-block {
+  position: relative;
+  z-index: 100;
+}
+.hero-banner-1 .content .vector-image svg {
+  position: absolute;
+  bottom: 4px;
+  right: 153px;
+  width: 80%;
+  z-index: 10;
+}
+@media (max-width: 1799px) {
+  .hero-banner-1 .content .vector-image svg {
+    bottom: 11%;
+    right: 136px;
+    transform: rotate(-13deg);
+  }
+}
+@media (max-width: 1599px) {
+  .hero-banner-1 .content .vector-image svg {
+    bottom: 72px;
+  }
+}
+@media (max-width: 1399px) {
+  .hero-banner-1 .content .vector-image svg {
+    bottom: 20px;
+    right: 8%;
+  }
+}
+@media (max-width: 1099px) {
+  .hero-banner-1 .content .vector-image svg {
+    bottom: 0;
+  }
+}
+@media (max-width: 992px) {
+  .hero-banner-1 .content .vector-image svg {
+    bottom: 16px;
+    transform: rotate(-12deg);
+    right: 4%;
+  }
+}
+@media (max-width: 871px) {
+  .hero-banner-1 .content .vector-image svg {
+    display: none;
+  }
+}
+@media (max-width: 576px) {
+  .hero-banner-1 .content .vector-image svg {
+    display: block;
+    bottom: 2px;
+    transform: rotate(212deg);
+    width: 91%;
+    right: 15%;
+  }
+}
+@media (max-width: 499px) {
+  .hero-banner-1 .content .vector-image svg {
+    bottom: -24px;
+    transform: rotate(218deg);
+  }
+}
+@media (max-width: 430px) {
+  .hero-banner-1 .content .vector-image svg {
+    bottom: -38px;
+  }
+}
+@media (max-width: 378px) {
+  .hero-banner-1 .content .vector-image svg {
+    bottom: -52px;
+    transform: rotate(219deg);
+  }
+}
+.hero-banner-1 .content .vector-image svg .dashed {
+  stroke-dasharray: 22;
+  animation: dash 8s linear alternate infinite;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.hero-banner-1 .content .vector-image svg .path {
+  stroke-dasharray: 22;
+  stroke-dashoffset: 0;
+}
+@keyframes dash {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 500;
+  }
+}
+.hero-banner-1 .content .vector-image .location-image {
+  position: absolute;
+  bottom: 23%;
+  right: 6%;
+}
+@media (max-width: 1599px) {
+  .hero-banner-1 .content .vector-image .location-image {
+    bottom: 52%;
+    right: 8%;
+  }
+}
+@media (max-width: 1399px) {
+  .hero-banner-1 .content .vector-image .location-image {
+    bottom: 54%;
+    right: 6%;
+  }
+}
+@media (max-width: 1199px) {
+  .hero-banner-1 .content .vector-image .location-image {
+    bottom: 57%;
+  }
+}
+@media (max-width: 992px) {
+  .hero-banner-1 .content .vector-image .location-image {
+    bottom: 63%;
+    right: 2%;
+  }
+}
+@media (max-width: 876px) {
+  .hero-banner-1 .content .vector-image .location-image {
+    display: none;
+  }
+}
+
+.booking {
+  margin-top: -244px;
+}
+.booking .content {
+  padding: 64px 92px;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.04), 6px 3px 14px 0px rgba(0, 0, 0, 0.04), 23px 12px 26px 0px rgba(0, 0, 0, 0.03), 53px 27px 35px 0px rgba(0, 0, 0, 0.02), 94px 48px 42px 0px rgba(0, 0, 0, 0.01);
+}
+@media (max-width: 767px) {
+  .booking .content {
+    padding: 48px;
+  }
+}
+@media (max-width: 576px) {
+  .booking .content {
+    padding: 40px 32px;
+  }
+}
+.booking .content .card .card-header .nav-tabs li a svg {
+  transition: all 0.5s ease-in-out;
+}
+.booking .content .card .card-header .nav-tabs li a svg path {
+  transition: all 0.5s ease-in-out;
+}
+.booking .content .card .card-header .nav-tabs li a.active svg path, .booking .content .card .card-header .nav-tabs li a:hover svg path {
+  fill: white;
+}
+.booking .content .card .card-header .nav-tabs li a.active svg.stroke_svg path, .booking .content .card .card-header .nav-tabs li a:hover svg.stroke_svg path {
+  fill: white;
+  stroke: white;
+}
+.booking .content .card .card-body .tab-pane .card .card-header {
+  width: 100%;
+}
+.booking .content .card .card-body .tab-pane .card .card-header .nav-tabs {
+  width: 100%;
+}
+.booking .content .card .card-body .tab-pane .card .card-header .nav-tabs li {
+  background: #ECECF2;
+  width: calc(33.3% - 1px);
+}
+@media (max-width: 1199px) {
+  .booking .content .card .card-body .tab-pane .card .card-header .nav-tabs li {
+    width: calc(50% - 1px);
+  }
+}
+@media (max-width: 838px) {
+  .booking .content .card .card-body .tab-pane .card .card-header .nav-tabs li {
+    width: calc(100% - 1px);
+  }
+}
+.booking .content .card .card-body .tab-pane .card .card-header .nav-tabs li a.primary-light {
+  width: 100%;
+  background: #ECECF2;
+  border-radius: 5px;
+}
+.booking .content .card .card-body .tab-pane .card .card-header .nav-tabs li a.active, .booking .content .card .card-body .tab-pane .card .card-header .nav-tabs li a:hover {
+  background: #FC9C4D;
+}
+.booking .content .card .card-body .tab-pane .card .card-header .nav-tabs li.v-2 {
+  width: calc(50% - 1px);
+}
+.booking .content .card .card-body .booking-bar {
+  display: flex;
+  border: 0px;
+}
+.booking .content .card .card-body .booking-bar .nav-item .nav-link {
+  color: #212627;
+  font-family: "Inter", sans-serif;
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 130%;
+  border: 0;
+  padding: 16px 24px;
+}
+@media (max-width: 1199px) {
+  .booking .content .card .card-body .booking-bar .nav-item .nav-link {
+    padding: 10px 14px;
+  }
+}
+.booking .content .card .card-body .booking-bar .nav-item .nav-link.active {
+  border-bottom: 2px solid #FC9C4D;
+  transition: all 0.5s ease-in-out;
+  background: transparent;
+}
+.booking .content .custom-control {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.booking .content .booking-info {
+  display: flex;
+  padding: 20px 24px;
+  align-items: center;
+  gap: 32px;
+  border-radius: 10px;
+  background: rgba(77, 115, 252, 0.1);
+}
+@media (max-width: 1099px) {
+  .booking .content .booking-info {
+    gap: 16px;
+  }
+}
+@media (max-width: 992px) {
+  .booking .content .booking-info {
+    display: grid;
+    gap: 0;
+  }
+}
+.booking .content .booking-info.v-2 {
+  padding: 8px 24px;
+}
+.booking .content .booking-info.promo-code {
+  padding: 12px 24px;
+  border: 1px solid #7A7F85;
+}
+.booking .content .booking-info.promo-code .sel-input::placeholder {
+  font-size: 16px;
+}
+.booking .content .booking-info .input-date-picker,
+.booking .content .booking-info .custom-sel-input-block {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  position: relative;
+  font-size: 21px;
+  font-weight: 500;
+}
+@media (max-width: 1199px) {
+  .booking .content .booking-info .input-date-picker,
+.booking .content .booking-info .custom-sel-input-block {
+    margin-bottom: 16px;
+  }
+}
+.booking .content .booking-info .input-date-picker.v-2::after,
+.booking .content .booking-info .custom-sel-input-block.v-2::after {
+  content: "";
+  position: absolute;
+  top: -12px;
+  right: 0;
+  height: 56px;
+  width: 1px;
+  background: #9EA2A8;
+}
+@media (max-width: 576px) {
+  .booking .content .booking-info .input-date-picker.v-2::after,
+.booking .content .booking-info .custom-sel-input-block.v-2::after {
+    display: none;
+  }
+}
+.booking .content .booking-info .input-date-picker.location-select,
+.booking .content .booking-info .custom-sel-input-block.location-select {
+  width: 100%;
+}
+.booking .content .booking-info .input-date-picker.location-select i,
+.booking .content .booking-info .custom-sel-input-block.location-select i {
+  position: absolute;
+  bottom: 0;
+  color: #4D73FC;
+  font-size: 24px;
+}
+.booking .content .booking-info .input-date-picker .sel-input,
+.booking .content .booking-info .custom-sel-input-block .sel-input {
+  width: 252px;
+  color: #16191A;
+  font-family: "Inter", sans-serif;
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 130%;
+  border: none;
+  background: transparent;
+  padding: 4px 0 0 0;
+  box-shadow: none;
+}
+@media (max-width: 1799px) {
+  .booking .content .booking-info .input-date-picker .sel-input,
+.booking .content .booking-info .custom-sel-input-block .sel-input {
+    width: 100%;
+  }
+}
+.booking .content .booking-info .input-date-picker .sel-input::placeholder,
+.booking .content .booking-info .custom-sel-input-block .sel-input::placeholder {
+  color: #7A7F85;
+}
+.booking .content .booking-info .input-date-picker .sel-input:focus,
+.booking .content .booking-info .custom-sel-input-block .sel-input:focus {
+  outline: 0;
+}
+.booking .content .booking-info .input-date-picker .sel-input.location-input,
+.booking .content .booking-info .custom-sel-input-block .sel-input.location-input {
+  width: 100%;
+  padding: 0 0 0 32px;
+}
+@media (max-width: 1199px) {
+  .booking .content .booking-info .input-date-picker .sel-input.calendar,
+.booking .content .booking-info .custom-sel-input-block .sel-input.calendar {
+    width: 50%;
+  }
+}
+@media (max-width: 399px) {
+  .booking .content .booking-info .input-date-picker .sel-input.calendar,
+.booking .content .booking-info .custom-sel-input-block .sel-input.calendar {
+    width: 70%;
+  }
+}
+.booking .content .booking-info .input-date-picker .slector-wrapper,
+.booking .content .booking-info .custom-sel-input-block .slector-wrapper {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 60px;
+  z-index: 888;
+  background: #ECECF2;
+  padding-bottom: 16px;
+  overflow: auto;
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.04), 6px 3px 14px 0px rgba(0, 0, 0, 0.04), 23px 12px 26px 0px rgba(0, 0, 0, 0.03), 53px 27px 35px 0px rgba(0, 0, 0, 0.02), 94px 48px 42px 0px rgba(0, 0, 0, 0.01);
+  border-radius: 8px;
+  height: 300px;
+  /* Track */
+  /* Handle */
+}
+.booking .content .booking-info .input-date-picker .slector-wrapper::-webkit-scrollbar,
+.booking .content .booking-info .custom-sel-input-block .slector-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+.booking .content .booking-info .input-date-picker .slector-wrapper::-webkit-scrollbar-track,
+.booking .content .booking-info .custom-sel-input-block .slector-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+  padding: 0 2px;
+  width: 8px;
+}
+.booking .content .booking-info .input-date-picker .slector-wrapper::-webkit-scrollbar-thumb,
+.booking .content .booking-info .custom-sel-input-block .slector-wrapper::-webkit-scrollbar-thumb {
+  width: 8px;
+  background: #7A7F85;
+  border-radius: 6px;
+}
+@media screen and (min-width: 768px) {
+  .booking .content .booking-info .input-date-picker .slector-wrapper,
+.booking .content .booking-info .custom-sel-input-block .slector-wrapper {
+    max-width: 265px !important;
+    min-width: 265px !important;
+    width: auto;
+  }
+}
+.booking .content .booking-info .input-date-picker .slector-wrapper li.top-set,
+.booking .content .booking-info .custom-sel-input-block .slector-wrapper li.top-set {
+  position: sticky;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+.booking .content .booking-info .input-date-picker .slector-wrapper li span,
+.booking .content .booking-info .custom-sel-input-block .slector-wrapper li span {
+  border-radius: 8px 8px 0 0;
+  display: block;
+  padding: 10px 16px;
+  background: white;
+}
+.booking .content .booking-info .input-date-picker .slector-wrapper li .sel-option,
+.booking .content .booking-info .custom-sel-input-block .slector-wrapper li .sel-option {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #16191A;
+  cursor: pointer;
+  transition: all 0.5s ease-in-out;
+}
+.booking .content .booking-info .input-date-picker .slector-wrapper li .sel-option:hover,
+.booking .content .booking-info .custom-sel-input-block .slector-wrapper li .sel-option:hover {
+  background: #7A7F85;
+}
+.booking .content .booking-info .input-date-picker i,
+.booking .content .booking-info .custom-sel-input-block i {
+  font-size: 21px;
+  color: #4D73FC;
+}
+@media (max-width: 1199px) {
+  .booking .content .booking-info .arrows {
+    margin: 32px 0;
+  }
+}
+@media (max-width: 1199px) {
+  .booking .content .booking-info .arrows svg {
+    transform: rotate(90deg);
+  }
+}
+@media (max-width: 992px) {
+  .booking .content .booking-info .arrows svg {
+    transform: rotate(0deg);
+  }
+}
+.booking .content .booking-info .passenger-area {
+  width: 378px;
+  position: absolute;
+  top: 0px;
+  right: 0;
+  display: none;
+  z-index: 99999;
+}
+@media (max-width: 1799px) {
+  .booking .content .booking-info .passenger-area {
+    top: 89px;
+  }
+}
+@media (max-width: 1299px) {
+  .booking .content .booking-info .passenger-area {
+    top: 110px;
+  }
+}
+@media (max-width: 1199px) {
+  .booking .content .booking-info .passenger-area {
+    width: 362px;
+    top: 60px;
+    left: unset;
+    right: 0;
+  }
+}
+@media (max-width: 576px) {
+  .booking .content .booking-info .passenger-area {
+    right: -36px;
+  }
+}
+@media (max-width: 420px) {
+  .booking .content .booking-info .passenger-area {
+    width: 294px;
+  }
+}
+.booking .content .booking-info .vertical-line {
+  width: 1px;
+  height: 56px;
+  background: #9EA2A8;
+  margin: 0 16px;
+}
+@media (max-width: 992px) {
+  .booking .content .booking-info .vertical-line {
+    height: 36px;
+  }
+}
+.booking .input-date-picker.date-time::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: -24px;
+  height: 56px;
+  width: 1px;
+  background: #9EA2A8;
+}
+@media (max-width: 576px) {
+  .booking .input-date-picker.date-time::before {
+    display: none;
+  }
+}
+
+.radio-tile-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+@media (max-width: 420px) {
+  .radio-tile-group {
+    gap: 10px;
+  }
+}
+.radio-tile-group.sidebar {
+  gap: 30px;
+}
+@media (max-width: 1899px) {
+  .radio-tile-group.sidebar {
+    gap: 8px;
+  }
+}
+@media (max-width: 992px) {
+  .radio-tile-group.sidebar {
+    gap: 32px;
+  }
+}
+@media (max-width: 876px) {
+  .radio-tile-group.sidebar {
+    gap: 16px;
+  }
+}
+.radio-tile-group .input-container {
+  position: relative;
+}
+.radio-tile-group .input-container .radio-button {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.radio-tile-group .input-container .radio-button:checked + .radio-tile {
+  background: #4D73FC;
+  border: 1px solid #212627;
+  color: white;
+  transition: all 0.5s ease-in-out;
+}
+.radio-tile-group .input-container .radio-button:checked + .radio-tile .radio-tile-label {
+  color: white;
+}
+.radio-tile-group .input-container .radio-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 152px;
+  height: 52px;
+  border: 1px solid #212627;
+  background: rgba(77, 115, 252, 0.1);
+  border-radius: 5px;
+  padding: 14px 8px;
+  transition: transform 300ms ease;
+}
+@media (max-width: 420px) {
+  .radio-tile-group .input-container .radio-tile {
+    width: 132px;
+    height: 50px;
+  }
+}
+.radio-tile-group .input-container .radio-tile.sidebar-radio {
+  padding: 16px 22px;
+  width: 231px;
+  height: 59px;
+}
+@media (max-width: 1806px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 226px;
+  }
+}
+@media (max-width: 1774px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 214px;
+  }
+}
+@media (max-width: 1704px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 200px;
+  }
+}
+@media (max-width: 1619px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 190px;
+  }
+}
+@media (max-width: 1559px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 180px;
+  }
+}
+@media (max-width: 1499px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 170px;
+  }
+}
+@media (max-width: 1271px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 150px;
+  }
+}
+@media (max-width: 1133px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 140px;
+  }
+}
+@media (max-width: 1074px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 120px;
+  }
+}
+@media (max-width: 992px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 180px;
+  }
+}
+@media (max-width: 437px) {
+  .radio-tile-group .input-container .radio-tile.sidebar-radio {
+    width: 142px;
+  }
+}
+.radio-tile-group .input-container .radio-tile.sidebar-departure-radio {
+  padding: 16px 32px;
+  width: 231px;
+  height: 100px;
+}
+.radio-tile-group .input-container .radio-tile.wizard-page {
+  width: 100%;
+  height: 128px;
+  border-radius: 20px;
+  border: 0;
+}
+@media (max-width: 576px) {
+  .radio-tile-group .input-container .radio-tile.wizard-page {
+    margin-bottom: 16px;
+  }
+}
+.radio-tile-group .input-container .radio-tile i {
+  font-size: 20px;
+}
+.radio-tile-group .input-container .radio-tile-label {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.32px;
+  letter-spacing: 150%;
+  color: #16191A;
+}
+.radio-tile-group .input-container .radio-tile-label.sidebar-label {
+  font-size: 20px;
+  letter-spacing: 130%;
+}
+@media (max-width: 1074px) {
+  .radio-tile-group .input-container .radio-tile-label.sidebar-label {
+    font-size: 16px;
+  }
+}
+.radio-tile-group .input-container .radio-tile-label.departure-radio {
+  color: #4D73FC;
+}
+.radio-tile-group .input-container .radio-tile-label.wizard-label {
+  font-size: 27px;
+}
+
 .form-flight-booking select {
   margin-bottom: 0 !important;
 }
@@ -19772,7 +20468,7 @@ html, body {
 }
 
 body {
-  background: url("/img/20201012_195538.jpg");
+  background-color: #ececf2;
   background-size: cover;
   background-position: center;
   min-height: 100vh;

@@ -1,6 +1,9 @@
 ﻿
 @model TemporalAirlinesConcept.Web.ViewComponents.TicketDetails.TicketDetailsViewModel
 
+
+@Html.Partial("Components/Plane")
+
 <div class="form-flight-booking rounded-3">
     @if (Model.Ticket is not null)
     {
