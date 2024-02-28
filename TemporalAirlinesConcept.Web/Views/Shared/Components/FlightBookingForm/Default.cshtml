@@ -27,7 +27,7 @@
     else
     {
         <section class="mb-20" style="margin-top: -250px;">
-            <div class="container-fluid">
+            <div class="container">
                 <div class="content">
                     <div class="flights flight-listing-page">
                         @Html.Partial("Components/FlightBookingForm/FlightListElement", (Model.Flights.First(f => f.Id == Model.SelectedFlight), true))
@@ -40,7 +40,7 @@
     @if (!Model.PaymentSuccessful && Model.SelectedFlight != null)
     {
         <section class="">
-            <div class="container-fluid">
+            <div class="container">
                 <div class="content">
                     <div class="text-start flight-block bg-white light-shadow p-24 br-10 mb-16 sal-animate">
                         <h4 class="mb-3">Payment</h4>
