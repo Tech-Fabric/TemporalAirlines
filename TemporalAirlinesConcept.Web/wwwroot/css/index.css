@@ -20351,6 +20351,9 @@ html, body {
   transform: none;
 }
 
+.flight-listing-page .flight-block {
+  border-radius: 30px;
+}
 .flight-listing-page .flight-block .flight-area {
   display: flex;
   justify-content: space-between;
@@ -20468,7 +20471,7 @@ html, body {
 }
 
 body {
-  background-color: #ececf2;
+  background-color: #f8f8ff;
   background-size: cover;
   background-position: center;
   min-height: 100vh;

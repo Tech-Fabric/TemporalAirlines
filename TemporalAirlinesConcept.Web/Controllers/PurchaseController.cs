@@ -117,9 +117,9 @@ public class PurchaseController : Controller
 
     [HttpGet("{PurchaseId}/tickets")]
     public async Task<IActionResult> GetTickets(
-        [FromRoute] PurchaseFormViewModel model,
         [FromRoute] string? purchaseId)
     {
+        var model = new PurchaseFormViewModel();
         model.PurchaseId = purchaseId;
         
         model.IsPaymentEmulated = await _ticketService.IsPurchasePaid(purchaseId);
@@ -130,7 +130,7 @@ public class PurchaseController : Controller
         model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
         
         if (Request.IsHtmx())
-            return ViewComponent(typeof(PurchaseFormViewComponent), model);
+            return PartialView("Components/PurchaseForm/PurchaseTickets", model);
 
         return View("~/Views/Purchase/Index.cshtml", model);
     }

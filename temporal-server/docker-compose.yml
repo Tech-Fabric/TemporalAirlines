@@ -91,8 +91,8 @@ services:
   temporalairlinesconcept.api:  
     container_name: temporalairlinesconcept.api
     build:
-      context: ./../  # Specify the path to your .NET application
-      dockerfile: TemporalAirlinesConcept.Api/Dockerfile  # Replace with the actual name of your Dockerfile
+      context: ./../
+      dockerfile: TemporalAirlinesConcept.Api/Dockerfile
     ports:
       - 5222:5050
     environment:
@@ -106,8 +106,8 @@ services:
   temporalairlinesconcept.web:
     container_name: temporalairlinesconcept.web
     build:
-      context: ./../  # Specify the path to your .NET application
-      dockerfile: TemporalAirlinesConcept.Web/Dockerfile  # Replace with the actual name of your Dockerfile
+      context: ./../
+      dockerfile: TemporalAirlinesConcept.Web/Dockerfile
     ports:
       - 5223:5050
     environment:
@@ -116,6 +116,7 @@ services:
     depends_on:
       - temporal
       - postgresql
+      - temporalairlinesconcept.api # let api project run database migrations first
     networks:
       - temporal-network
 

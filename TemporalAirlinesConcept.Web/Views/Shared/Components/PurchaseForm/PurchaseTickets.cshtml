@@ -1,0 +1,41 @@
+@model TemporalAirlinesConcept.Web.ViewComponents.PurchaseForm.PurchaseFormViewModel
+
+@if (Model.Tickets.Any())
+{
+    <div class="d-flex justify-content-between align-items-center">
+        <h4>Tickets details:</h4>
+    </div>
+
+    @foreach (var ticket in Model.Tickets)
+    {
+        <div>
+            <p>Ticket ID: @ticket.Id</p>
+
+            <p>Status: @ticket.PaymentStatus.ToString()</p>
+
+            @if (ticket.Seat != null)
+            {
+                <p>Seat: @ticket.Seat</p>
+            }
+            else
+            {
+                <p>No seat selected</p>
+            }
+
+            @if (ticket.Passenger != null)
+            {
+                <p>Seat: @ticket.Passenger</p>
+            }
+            else
+            {
+                <p>No passenger assigned</p>
+            }
+
+            <img src="data:image/png;base64,@ticket.Code" style="height: 275px;" alt="Ticket Code">
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-primary">Tickets have not been generated yet, please wait a second...</div>
+}

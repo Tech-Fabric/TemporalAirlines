@@ -25,7 +25,7 @@
     <section class="">
         <div class="container">
             <div class="content">
-                <div class="seats text-start flight-block bg-white light-shadow p-24 br-10 mb-16 sal-animate">
+                <div class="seats text-start flight-block bg-white light-shadow br-30 p-24 mb-16 sal-animate">
                     @if (!Model.IsPaymentEmulated)
                     {
                         <h4 class="mb-5">Please select seats:</h4>
@@ -99,61 +99,15 @@
                         }
                     </div>
 
-                    @if (Model.Tickets.Any())
-                    {
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h4>Tickets details:</h4>
+                    <div id="tickets-container"
+                         hx-get="/purchase/@Model.PurchaseId/tickets"
+                         hx-trigger="load, every 1s"
+                         hx-swap="innerHTML"
+                         hx-push-url="false"
+                         hx-target="#tickets-container">
+                        @Html.Partial("Components/PurchaseForm/PurchaseTickets", Model)
+                    </div>
 
-                            <button class="btn btn-success btn-lg flight-select-action"
-                                    hx-get="/purchase/@Model.PurchaseId/tickets"
-                                    hx-swap="outerHTML"
-                                    hx-push-url="false"
-                                    hx-target="#form-purchase">
-                                Refresh tickets
-                            </button>
-                        </div>
-
-                        @foreach (var ticket in Model.Tickets)
-                        {
-                            <div>
-                                <p>Ticket ID: @ticket.Id</p>
-
-                                <p>Status: @ticket.PaymentStatus.ToString()</p>
-
-                                @if (ticket.Seat != null)
-                                {
-                                    <p>Seat: @ticket.Seat</p>
-                                }
-                                else
-                                {
-                                    <p>No seat selected</p>
-                                }
-
-                                @if (ticket.Passenger != null)
-                                {
-                                    <p>Seat: @ticket.Passenger</p>
-                                }
-                                else
-                                {
-                                    <p>No passenger assigned</p>
-                                }
-
-                                <img src="data:image/png;base64,@ticket.Code" style="height: 275px;" alt="Ticket Code">
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="text-end">
-                            <button class="btn btn-success btn-lg flight-select-action"
-                                    hx-get="/purchase/@Model.PurchaseId/tickets"
-                                    hx-swap="outerHTML"
-                                    hx-push-url="false"
-                                    hx-target="#form-purchase">
-                                Load tickets
-                            </button>
-                        </div>
-                    }
                 </div>
             </div>
         </div>
