@@ -47,7 +47,7 @@ public class FlightController : Controller
     {
         FlightBookingFormViewModel model = new FlightBookingFormViewModel();
 
-        return Flight(model, selectedFlight);
+        return await Flight(model, selectedFlight);
     }
 
     [HttpPost("{SelectedFlight}")]

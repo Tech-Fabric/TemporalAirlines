@@ -18,7 +18,7 @@
     @Html.Partial("Components/Plane")
 
 
-    @if (string.IsNullOrEmpty(Model.SelectedFlight))
+    @if (Model.SelectedFlight is null)
     {
         @Html.Partial("Components/FlightBookingForm/StartSection", Model)
 
@@ -98,7 +98,7 @@
                             </div>
                         </div>
 
-                        <hr class="mb-4"/>
+                        <hr class="mb-4" />
 
                         <div class="text-end">
                             <button class="btn btn-success btn-lg flight-select-action"
