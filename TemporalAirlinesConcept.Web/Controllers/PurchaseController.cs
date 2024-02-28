@@ -18,7 +18,7 @@ public class PurchaseController : Controller
         _ticketService = ticketService;
         _flightService = flightService;
     }
-    
+
     [HttpGet("form")]
     public Task<IActionResult> Form()
     {
@@ -37,20 +37,25 @@ public class PurchaseController : Controller
     )
     {
         model.PurchaseId = purchaseId;
-        
+
+        model.IsPurchaseRunning = await _ticketService.IsPurchaseRunning(purchaseId);
+
+        if (!model.IsPurchaseRunning)
+            return Error(model);
+
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
 
         model.IsPaymentEmulated = await _ticketService.IsPurchasePaid(purchaseId);
         model.IsConfirmed = await _ticketService.IsSeatsReserved(purchaseId);
 
         model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
-        
+
         if (Request.IsHtmx())
             return ViewComponent(typeof(PurchaseFormViewComponent), model);
 
         return View("~/Views/Purchase/Index.cshtml", model);
     }
-    
+
     [HttpPost("{PurchaseId}/confirm")]
     public async Task<IActionResult> Confirm(
         [FromForm] PurchaseFormViewModel model,
@@ -58,13 +63,18 @@ public class PurchaseController : Controller
     )
     {
         model.PurchaseId = purchaseId;
-        
+
+        model.IsPurchaseRunning = await _ticketService.IsPurchaseRunning(purchaseId);
+
+        if (!model.IsPurchaseRunning)
+            return Error(model);
+
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
-        
+
         var tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
 
         model.NumberOfTickets = tickets.Count;
-        
+
         var seatsList = model.SelectedSeats?.Where(s => s.Value)
             .Select(s => s.Key).ToList();
 
@@ -72,11 +82,11 @@ public class PurchaseController : Controller
         {
             ModelState.AddModelError(nameof(model.NumberOfTickets), "Too many seats selected");
         }
-        
+
         if (ModelState.IsValid)
         {
             model.Tickets = tickets;
-            
+
             await _ticketService.RequestSeatReservation(new SeatReservationInputModel
             {
                 FlightId = model.Flight.Id,
@@ -92,24 +102,29 @@ public class PurchaseController : Controller
 
         return View("~/Views/Purchase/Index.cshtml", model);
     }
-    
+
     [HttpPost("{PurchaseId}/payment")]
     public async Task<IActionResult> MarkAsPaid(
         [FromForm] PurchaseFormViewModel model,
         [FromRoute] string? purchaseId)
     {
         model.PurchaseId = purchaseId;
-        
+
+        model.IsPurchaseRunning = await _ticketService.IsPurchaseRunning(purchaseId);
+
+        if (!model.IsPurchaseRunning)
+            return Error(model);
+
         model.IsPaymentEmulated = true;
         model.IsConfirmed = true;
 
         model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(model.PurchaseId);
 
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
-        
+
         await _ticketService.MarkAsPaid(purchaseId);
-        
-        if (!Request.IsHtmx()) 
+
+        if (!Request.IsHtmx())
             return View("~/Views/Purchase/Index.cshtml", model);
 
         return ViewComponent(typeof(PurchaseFormViewComponent), model);
@@ -121,16 +136,29 @@ public class PurchaseController : Controller
     {
         var model = new PurchaseFormViewModel();
         model.PurchaseId = purchaseId;
-        
+
+        model.IsPurchaseRunning = await _ticketService.IsPurchaseRunning(purchaseId);
+
+        if (!model.IsPurchaseRunning)
+            return Error(model);
+
         model.IsPaymentEmulated = await _ticketService.IsPurchasePaid(purchaseId);
         model.IsConfirmed = await _ticketService.IsSeatsReserved(purchaseId);
-        
+
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
-        
+
         model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
-        
+
         if (Request.IsHtmx())
             return PartialView("Components/PurchaseForm/PurchaseTickets", model);
+
+        return View("~/Views/Purchase/Index.cshtml", model);
+    }
+
+    private IActionResult Error(PurchaseFormViewModel model)
+    {
+        if (Request.IsHtmx())
+            return PartialView("Components/PurchaseForm/Error");
 
         return View("~/Views/Purchase/Index.cshtml", model);
     }

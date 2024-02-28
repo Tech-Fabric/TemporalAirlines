@@ -26,4 +26,6 @@ public interface ITicketService
     Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel);
 
     Task<bool> BoardPassenger(BoardingInputModel boardingInputModel);
+
+    Task<bool> IsPurchaseRunning(string purchaseId);
 }

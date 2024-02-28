@@ -32,9 +32,9 @@ public class TicketService : ITicketService
     public async Task<Ticket> GetTicket(Guid ticketId)
     {
         var ticket = await _unitOfWork.Repository<Ticket>()
-           .Get(x => x.Id == ticketId)
-           .Include(x => x.Seat)
-           .FirstOrDefaultAsync();
+            .Get(x => x.Id == ticketId)
+            .Include(x => x.Seat)
+            .FirstOrDefaultAsync();
 
         return ticket;
     }
@@ -42,9 +42,9 @@ public class TicketService : ITicketService
     public async Task<TicketWithCode> GetTicketWithCode(Guid ticketId)
     {
         var ticket = await _unitOfWork.Repository<Ticket>()
-          .Get(x => x.Id == ticketId)
-          .Include(x => x.Seat)
-          .FirstOrDefaultAsync();
+            .Get(x => x.Id == ticketId)
+            .Include(x => x.Seat)
+            .FirstOrDefaultAsync();
 
         var ticketWithCode = ticket == null ? null : GetTicketWithCode(ticket);
 
@@ -91,6 +91,13 @@ public class TicketService : ITicketService
             .ToList();
 
         return ticketsWithCode;
+    }
+
+    public async Task<bool> IsPurchaseRunning(string purchaseId)
+    {
+        var isPurchaseRunning = await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId);
+
+        return isPurchaseRunning;
     }
 
     public async Task<bool> IsPurchasePaid(string purchaseId)
@@ -159,11 +166,11 @@ public class TicketService : ITicketService
             .ToList();
 
         var seatReservations = tickets.Select((t, i) =>
-            new SeatReservationSignalModel
-            {
-                TicketId = t.Id,
-                Seat = seatReservationInputModel.Seats[i]
-            })
+                new SeatReservationSignalModel
+                {
+                    TicketId = t.Id,
+                    Seat = seatReservationInputModel.Seats[i]
+                })
             .ToList();
 
         var signalModel = new PurchaseTicketReservationSignal

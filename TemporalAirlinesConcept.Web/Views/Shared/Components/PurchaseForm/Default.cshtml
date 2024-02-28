@@ -1,6 +1,5 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Htmx.TagHelpers
-@using Humanizer
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @model TemporalAirlinesConcept.Web.ViewComponents.PurchaseForm.PurchaseFormViewModel
 
@@ -12,104 +11,112 @@
 
     @Html.Partial("Components/Plane")
 
-    <section class="mb-20" style="margin-top: -250px;">
-        <div class="container">
-            <div class="content">
-                <div class="flights flight-listing-page">
-                    @Html.Partial("Components/FlightBookingForm/FlightListElement", (Model.Flight, true))
+    @if (Model.IsPurchaseRunning)
+    {
+        <section class="mb-20" style="margin-top: -250px;">
+            <div class="container">
+                <div class="content">
+                    <div class="flights flight-listing-page">
+                        @Html.Partial("Components/FlightBookingForm/FlightListElement", (Model.Flight, true))
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="">
-        <div class="container">
-            <div class="content">
-                <div class="seats text-start flight-block bg-white light-shadow br-30 p-24 mb-16 sal-animate">
-                    @if (!Model.IsPaymentEmulated)
-                    {
-                        <h4 class="mb-5">Please select seats:</h4>
+        <section class="">
+            <div class="container">
+                <div class="content">
+                    <div class="seats text-start flight-block bg-white light-shadow br-30 p-24 mb-16 sal-animate">
+                        @if (!Model.IsPaymentEmulated)
+                        {
+                            <h4 class="mb-5">Please select seats:</h4>
 
-                        var flight = Model.Flight;
+                            var flight = Model.Flight;
 
-                        <div class="seat-select">
-                            @for (var i = 0; i < 20; i++)
+                            <div class="seat-select">
+                                @for (var i = 0; i < 20; i++)
+                                {
+                                    <div class="seat-row d-flex flex-row justify-content-around">
+                                        @for (var j = 0; j < 6; j++)
+                                        {
+                                            <div class="seat">
+
+                                                @{
+                                                    var seat = flight.Seats.ElementAt(i * 6 + j);
+
+                                                    if (!Model.SelectedSeats.ContainsKey(seat.Name))
+                                                    {
+                                                        Model.SelectedSeats.Add(seat.Name, false);
+                                                    }
+
+                                                    if (seat.TicketId is null)
+                                                    {
+                                                        <input type="checkbox" class="" asp-for="@Model.SelectedSeats[seat.Name]">
+                                                        <div class="seat-indicator btn btn-primary">@seat.Name</div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="seat-indicator btn btn-warning" disabled>@seat.Name</div>
+                                                    }
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+
+                            if (ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid &&
+                                ViewContext.ViewData.ModelState[nameof(Model.NumberOfTickets)].Errors.Count > 0)
                             {
-                                <div class="seat-row d-flex flex-row justify-content-around">
-                                    @for (var j = 0; j < 6; j++)
-                                    {
-                                        <div class="seat">
-
-                                            @{
-                                                var seat = flight.Seats.ElementAt(i * 6 + j);
-
-                                                if (!Model.SelectedSeats.ContainsKey(seat.Name))
-                                                {
-                                                    Model.SelectedSeats.Add(seat.Name, false);
-                                                }
-
-                                                if (seat.TicketId is null)
-                                                {
-                                                    <input type="checkbox" class="" asp-for="@Model.SelectedSeats[seat.Name]">
-                                                    <div class="seat-indicator btn btn-primary">@seat.Name</div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="seat-indicator btn btn-warning" disabled>@seat.Name</div>
-                                                }
-                                            }
-                                        </div>
-                                    }
+                                <div class="alert alert-danger mt-5">
+                                    <span asp-validation-for="@Model.NumberOfTickets"></span>
                                 </div>
+                            }
+                        }
+
+                        <div class="text-end mb-20">
+                            @if (!Model.IsPaymentEmulated)
+                            {
+                                @if (Model.IsConfirmed)
+                                {
+                                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                                            hx-post="/purchase/@Model.PurchaseId/payment"
+                                            hx-swap="outerHTML"
+                                            hx-push-url="false"
+                                            hx-target="#form-purchase">
+                                        Emulate payment
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-success btn-lg mt-3 flight-select-action"
+                                            hx-post="/purchase/@Model.PurchaseId/confirm"
+                                            hx-swap="outerHTML"
+                                            hx-push-url="false"
+                                            hx-target="#form-purchase">
+                                        Confirm seat selection
+                                    </button>
+                                }
                             }
                         </div>
 
-                        if (ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid &&
-                        ViewContext.ViewData.ModelState[nameof(Model.NumberOfTickets)].Errors.Count > 0)
-                        {
-                            <div class="alert alert-danger mt-5">
-                                <span asp-validation-for="@Model.NumberOfTickets"></span>
-                            </div>
-                        }
-                    }
-
-                    <div class="text-end mb-20">
-                        @if (!Model.IsPaymentEmulated)
-                        {
-                            @if (Model.IsConfirmed)
-                            {
-                                <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                                        hx-post="/purchase/@Model.PurchaseId/payment"
-                                        hx-swap="outerHTML"
-                                        hx-push-url="false"
-                                        hx-target="#form-purchase">
-                                    Emulate payment
-                                </button>
-                            }
-                            else
-                            {
-                                <button class="btn btn-success btn-lg mt-3 flight-select-action"
-                                        hx-post="/purchase/@Model.PurchaseId/confirm"
-                                        hx-swap="outerHTML"
-                                        hx-push-url="false"
-                                        hx-target="#form-purchase">
-                                    Confirm seat selection
-                                </button>
-                            }
-                        }
+                        <div id="tickets-container"
+                             hx-get="/purchase/@Model.PurchaseId/tickets"
+                             hx-trigger="load, every 1s"
+                             hx-swap="innerHTML"
+                             hx-push-url="false"
+                             hx-target="#tickets-container">
+                            @Html.Partial("Components/PurchaseForm/PurchaseTickets", Model)
+                        </div>
                     </div>
-
-                    <div id="tickets-container"
-                         hx-get="/purchase/@Model.PurchaseId/tickets"
-                         hx-trigger="load, every 1s"
-                         hx-swap="innerHTML"
-                         hx-push-url="false"
-                         hx-target="#tickets-container">
-                        @Html.Partial("Components/PurchaseForm/PurchaseTickets", Model)
-                    </div>
-
                 </div>
             </div>
+        </section>
+    }
+    else
+    {
+        <div style="margin-top: -250px;">
+            @Html.Partial("Components/PurchaseForm/Error")
         </div>
-    </section>
+    }
 </form>
