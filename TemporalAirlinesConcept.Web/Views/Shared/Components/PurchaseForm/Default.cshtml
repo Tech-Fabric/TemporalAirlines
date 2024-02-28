@@ -99,15 +99,18 @@
                                 }
                             }
                         </div>
+                        @if (Model.IsPaymentEmulated)
+                        {
+                            <div id="tickets-container"
+                                 hx-get="/purchase/@Model.PurchaseId/tickets"
+                                 hx-trigger="load, every 1s"
+                                 hx-swap="innerHTML"
+                                 hx-push-url="false"
+                                 hx-target="#tickets-container">
+                                @Html.Partial("Components/PurchaseForm/PurchaseTickets", Model)
+                            </div>
+                        }
 
-                        <div id="tickets-container"
-                             hx-get="/purchase/@Model.PurchaseId/tickets"
-                             hx-trigger="load, every 1s"
-                             hx-swap="innerHTML"
-                             hx-push-url="false"
-                             hx-target="#tickets-container">
-                            @Html.Partial("Components/PurchaseForm/PurchaseTickets", Model)
-                        </div>
                     </div>
                 </div>
             </div>

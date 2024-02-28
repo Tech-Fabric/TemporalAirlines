@@ -48,7 +48,7 @@ public class PurchaseController : Controller
         model.IsPaymentEmulated = await _ticketService.IsPurchasePaid(purchaseId);
         model.IsConfirmed = await _ticketService.IsSeatsReserved(purchaseId);
 
-        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
+        model.Tickets = await _ticketService.GetPurchasePaidTickets(purchaseId);
 
         if (Request.IsHtmx())
             return ViewComponent(typeof(PurchaseFormViewComponent), model);
@@ -71,7 +71,7 @@ public class PurchaseController : Controller
 
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
 
-        var tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
+        var tickets = await _ticketService.GetPurchaseTickets(purchaseId);
 
         model.NumberOfTickets = tickets.Count;
 
@@ -85,8 +85,6 @@ public class PurchaseController : Controller
 
         if (ModelState.IsValid)
         {
-            model.Tickets = tickets;
-
             await _ticketService.RequestSeatReservation(new SeatReservationInputModel
             {
                 FlightId = model.Flight.Id,
@@ -118,7 +116,7 @@ public class PurchaseController : Controller
         model.IsPaymentEmulated = true;
         model.IsConfirmed = true;
 
-        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(model.PurchaseId);
+        model.Tickets = await _ticketService.GetPurchasePaidTickets(model.PurchaseId);
 
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
 
@@ -147,7 +145,7 @@ public class PurchaseController : Controller
 
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
 
-        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
+        model.Tickets = await _ticketService.GetPurchasePaidTickets(purchaseId);
 
         if (Request.IsHtmx())
             return PartialView("Components/PurchaseForm/PurchaseTickets", model);

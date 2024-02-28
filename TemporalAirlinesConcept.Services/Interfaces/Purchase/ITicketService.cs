@@ -11,7 +11,9 @@ public interface ITicketService
 
     Task<List<Ticket>> GetTickets(Guid userId, Guid flightId);
 
-    Task<List<TicketWithCode>> GetPurchaseWorkflowTickets(string purchaseId);
+    Task<List<TicketWithCode>> GetPurchaseTickets(string purchaseId);
+
+    Task<List<TicketWithCode>> GetPurchasePaidTickets(string purchaseId);
 
     Task<Ticket> GetTicket(Guid ticketId);
 

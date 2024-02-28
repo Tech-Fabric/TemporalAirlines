@@ -69,24 +69,20 @@ public class TicketService : ITicketService
         return tickets;
     }
 
-    public async Task<List<TicketWithCode>> GetPurchaseWorkflowTickets(string purchaseId)
+    public async Task<List<TicketWithCode>> GetPurchaseTickets(string purchaseId)
     {
-        if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
-            return [];
-
-        var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
-
-        var flightId = await purchaseHandle.QueryAsync(wf => wf.GetFlightId());
-
-        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId))
-            return [];
-
-        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
-
-        var tickets = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
-
-        var ticketsWithCode = tickets
+        var ticketsWithCode = (await GetTickets(purchaseId))
             .Where(t => t.PurchaseId == purchaseId)
+            .Select(GetTicketWithCode)
+            .ToList();
+
+        return ticketsWithCode;
+    }
+
+    public async Task<List<TicketWithCode>> GetPurchasePaidTickets(string purchaseId)
+    {
+        var ticketsWithCode = (await GetTickets(purchaseId))
+            .Where(t => t.PurchaseId == purchaseId && t.PaymentStatus == DAL.Enums.PaymentStatus.Paid)
             .Select(GetTicketWithCode)
             .ToList();
 
@@ -237,4 +233,24 @@ public class TicketService : ITicketService
             })
         };
     }
+
+    private async Task<List<TicketDetailsModel>> GetTickets(string purchaseId)
+    {
+        if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
+            return [];
+
+        var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
+
+        var flightId = await purchaseHandle.QueryAsync(wf => wf.GetFlightId());
+
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId))
+            return [];
+
+        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
+
+        var tickets = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
+
+        return tickets;
+    }
+
 }
