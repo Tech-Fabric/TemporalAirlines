@@ -1,5 +1,5 @@
-﻿using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.DAL.Models.Seat;
+﻿using TemporalAirlinesConcept.Api.Models.Tickets;
+using TemporalAirlinesConcept.DAL.Enums;
 
 namespace TemporalAirlinesConcept.Api.Models.Flights;
 
@@ -17,11 +17,9 @@ public class FlightResponse
 
     public decimal Price { get; set; }
 
-    public List<Seat> Seats { get; set; }
+    public List<SeatResponse> Seats { get; set; }
 
-    public List<string> Registered { get; set; }
-
-    public List<string> Boarded { get; set; }
+    public List<TicketResponse> Tickets { get; set; }
 
     public FlightStatus Status { get; set; }
 }

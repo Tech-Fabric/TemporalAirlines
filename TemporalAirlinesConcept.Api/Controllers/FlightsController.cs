@@ -31,7 +31,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
 
         // GET: api/flights/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<FlightResponse>> GetFlight(string id)
+        public async Task<ActionResult<FlightResponse>> GetFlight(Guid id)
         {
             var flight = await _flightService.GetFlight(id);
             var flightResponse = _mapper.Map<FlightResponse>(flight);
@@ -51,7 +51,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
 
         // DELETE: api/flights/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFlight(string id)
+        public async Task<IActionResult> DeleteFlight(Guid id)
         {
             await _flightService.RemoveFlight(id);
 

@@ -35,7 +35,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
 
         // GET: api/users/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserResponse>> GetUser(string id)
+        public async Task<ActionResult<UserResponse>> GetUser(Guid id)
         {
             var user = await _userService.GetUser(id);
             var userResponse = _mapper.Map<UserResponse>(user);
@@ -79,7 +79,7 @@ namespace TemporalAirlinesConcept.Api.Controllers
 
         // DELETE: api/users/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
             await _userService.RemoveUser(id);
 

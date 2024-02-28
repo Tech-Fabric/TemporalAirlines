@@ -28,7 +28,7 @@ services:
     ports:
       - 5455:5432
     volumes:
-      - ./data/postgresql/:/var/lib/postgresql/data
+       - ./data/postgresql/:/var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
     ports:
@@ -88,31 +88,6 @@ services:
       - temporal-network
     ports:
       - 8080:8080
-  cosmosdb-emulator:
-    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
-    tty: true
-    container_name: cosmosdb-emulator
-    restart: always
-    ports:
-      - "8081:8081"  # Port for the emulator's Data Explorer
-      - "10250:10250"
-      - "10251:10251"  # Port for the emulator's communication with clients
-      - "10252:10252"  # Port for the emulator's communication with services
-      - "10253:10253"  # Port for the emulator's communication with services
-      - "10254:10254"  # Port for the emulator's communication with services
-    environment:
-      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10
-      - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
-    healthcheck:
-       test: ["CMD", "curl", "-f", "-k", "https://cosmosdb-emulator:8081/_explorer/emulator.pem"]
-       interval: 15s
-       timeout: 15s
-       retries: 15
-    networks:
-      - temporal-network
-    volumes:
-       - ./data/cosmosdb:/tmp/cosmos/appdata # linux path
-       # - ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
   temporalairlinesconcept.api:  
     container_name: temporalairlinesconcept.api
     build:
@@ -120,20 +95,14 @@ services:
       dockerfile: TemporalAirlinesConcept.Api/Dockerfile  # Replace with the actual name of your Dockerfile
     ports:
       - 5222:5050
-    healthcheck:
-      test: curl -f https://cosmosdb-emulator:8081/_explorer/index.html || exit 1
-      interval: 15s
-      timeout: 15s
-      retries: 15
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5050
     depends_on:
-      - cosmosdb-emulator
       - temporal
+      - postgresql
     networks:
       - temporal-network
-
   temporalairlinesconcept.web:
     container_name: temporalairlinesconcept.web
     build:
@@ -141,17 +110,12 @@ services:
       dockerfile: TemporalAirlinesConcept.Web/Dockerfile  # Replace with the actual name of your Dockerfile
     ports:
       - 5223:5050
-    healthcheck:
-      test: curl -f https://cosmosdb-emulator:8081/_explorer/index.html || exit 1
-      interval: 15s
-      timeout: 15s
-      retries: 15
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5050
     depends_on:
-      - cosmosdb-emulator
       - temporal
+      - postgresql
     networks:
       - temporal-network
 

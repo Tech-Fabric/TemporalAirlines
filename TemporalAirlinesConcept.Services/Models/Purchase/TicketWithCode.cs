@@ -1,11 +1,11 @@
-﻿using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.DAL.Models.Seat;
+﻿using TemporalAirlinesConcept.DAL.Entities;
+using TemporalAirlinesConcept.DAL.Enums;
 
 namespace TemporalAirlinesConcept.Services.Models.Purchase;
 
 public class TicketWithCode
 {
-    public string Id { get; set; }
+    public Guid Id { get; set; }
     
     public string PurchaseId { get; set; }
     
@@ -13,7 +13,7 @@ public class TicketWithCode
 
     public PaymentStatus PaymentStatus { get; set; }
 
-    public Seat Seat { get; set; }
+    public string Seat { get; set; }
 
     public string Code { get; set; }
 }

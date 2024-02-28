@@ -1,5 +1,4 @@
 ﻿using TemporalAirlinesConcept.Common.Helpers;
-using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
@@ -95,7 +94,7 @@ public class PurchaseWorkflow
     [WorkflowRun]
     public async Task<bool> Run(PurchaseModel purchaseModel)
     {
-        _flightId = purchaseModel.FlightId;
+        _flightId = purchaseModel.FlightId.ToString();
 
         try
         {
@@ -182,11 +181,11 @@ public class PurchaseWorkflow
         }
     }
 
-    private static Task<Ticket> GetTicket(PurchaseModel purchaseModel)
+    private static Task<TicketDetailsModel> GetTicket(PurchaseModel purchaseModel)
     {
-        return Task.FromResult(new Ticket
+        return Task.FromResult(new TicketDetailsModel
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid(),
             FlightId = purchaseModel.FlightId,
             UserId = purchaseModel.UserId,
             PurchaseId = Workflow.Info.WorkflowId,
@@ -205,7 +204,7 @@ public class PurchaseWorkflow
                 (PurchaseActivities act) => act.ConfirmWithdrawCompensation(), _activityOptions));
     }
 
-    private async Task BookTicket(Ticket ticket)
+    private async Task BookTicket(TicketDetailsModel ticket)
     {
         await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.BookTicket(ticket),
             _activityOptions);

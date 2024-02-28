@@ -6,7 +6,7 @@ public interface IFlightService
 {
     public Task<List<DAL.Entities.Flight>> GetFlights();
 
-    public Task<DAL.Entities.Flight> GetFlight(string id);
+    public Task<DAL.Entities.Flight> GetFlight(Guid id);
 
     Task<DAL.Entities.Flight> GetFlightDetailsByPurchaseId(string purchaseId);
 
@@ -14,5 +14,5 @@ public interface IFlightService
 
     public Task<DAL.Entities.Flight> CreateFlight(FlightInputModel model);
 
-    public Task RemoveFlight(string id);
+    public Task RemoveFlight(Guid id);
 }

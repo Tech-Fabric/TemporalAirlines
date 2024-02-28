@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Extensions;
 using TemporalAirlinesConcept.Common.Settings;
@@ -7,6 +8,7 @@ using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Implementations.QRCodeGeneration;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
+using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using TemporalAirlinesConcept.Services.Models.QRCodeGeneration;
 using Temporalio.Client;
@@ -17,38 +19,52 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase;
 public class TicketService : ITicketService
 {
     private readonly ITemporalClient _temporalClient;
-    private readonly ITicketRepository _ticketRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly UrlSettings _urlSettings;
 
-    public TicketService(ITemporalClient temporalClient, ITicketRepository ticketRepository, IOptions<UrlSettings> urlSettings)
+    public TicketService(ITemporalClient temporalClient, IUnitOfWork unitOfWork, IOptions<UrlSettings> urlSettings)
     {
         _temporalClient = temporalClient;
-        _ticketRepository = ticketRepository;
+        _unitOfWork = unitOfWork;
         _urlSettings = urlSettings.Value;
     }
 
-    public async Task<Ticket> GetTicket(string ticketId)
+    public async Task<Ticket> GetTicket(Guid ticketId)
     {
-        return await _ticketRepository.GetTicketAsync(ticketId);
+        var ticket = await _unitOfWork.Repository<Ticket>()
+           .Get(x => x.Id == ticketId)
+           .Include(x => x.Seat)
+           .FirstOrDefaultAsync();
+
+        return ticket;
     }
 
-    public async Task<TicketWithCode> GetTicketWithCode(string ticketId)
+    public async Task<TicketWithCode> GetTicketWithCode(Guid ticketId)
     {
-        var ticket = await _ticketRepository.GetTicketAsync(ticketId);
+        var ticket = await _unitOfWork.Repository<Ticket>()
+          .Get(x => x.Id == ticketId)
+          .Include(x => x.Seat)
+          .FirstOrDefaultAsync();
 
-        return ticket == null ? null : GetTicketWithCode(ticket);
+        var ticketWithCode = ticket == null ? null : GetTicketWithCode(ticket);
+
+        return ticketWithCode;
     }
 
-    public async Task<List<Ticket>> GetTickets(string userId)
+    public async Task<List<Ticket>> GetTickets(Guid userId)
     {
-        var tickets = await _ticketRepository.GetTicketsByUserIdAsync(userId);
+        var tickets = await _unitOfWork.Repository<Ticket>()
+            .Get(x => x.UserId == userId)
+            .ToListAsync();
 
         return tickets;
     }
 
-    public async Task<List<Ticket>> GetTickets(string userId, string flightId)
+    public async Task<List<Ticket>> GetTickets(Guid userId, Guid flightId)
     {
-        var tickets = await _ticketRepository.GetTicketsByUserIdFlightAsync(userId, flightId);
+        var tickets = await _unitOfWork.Repository<Ticket>()
+            .Get(x => x.UserId == userId && x.FlightId == flightId)
+            .ToListAsync();
 
         return tickets;
     }
@@ -66,12 +82,13 @@ public class TicketService : ITicketService
             return [];
 
         var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
-        
+
         var tickets = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
 
         var ticketsWithCode = tickets
             .Where(t => t.PurchaseId == purchaseId)
-            .Select(GetTicketWithCode).ToList();
+            .Select(GetTicketWithCode)
+            .ToList();
 
         return ticketsWithCode;
     }
@@ -95,7 +112,7 @@ public class TicketService : ITicketService
 
         return await handle.QueryAsync(wf => wf.IsSeatsReserved());
     }
-    
+
     public async Task MarkAsPaid(string purchaseId)
     {
         var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
@@ -125,25 +142,34 @@ public class TicketService : ITicketService
 
     public async Task<bool> RequestSeatReservation(SeatReservationInputModel seatReservationInputModel)
     {
-        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(seatReservationInputModel.FlightId)
-            || !await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(seatReservationInputModel.PurchaseId))
+        var purchaseId = seatReservationInputModel.PurchaseId;
+        var flightId = seatReservationInputModel.FlightId.ToString();
+
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId)
+            || !await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
             return false;
 
-        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(seatReservationInputModel.FlightId);
-        var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(seatReservationInputModel.PurchaseId);
+        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId);
+        var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
 
         var registered = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
 
-        var tickets = registered.Where(t =>
-            t.PurchaseId == seatReservationInputModel.PurchaseId).ToList();
+        var tickets = registered
+            .Where(t => t.PurchaseId == seatReservationInputModel.PurchaseId)
+            .ToList();
 
         var seatReservations = tickets.Select((t, i) =>
-            new SeatReservationSignalModel { TicketId = t.Id, Seat = seatReservationInputModel.Seats[i] }).ToList();
+            new SeatReservationSignalModel
+            {
+                TicketId = t.Id,
+                Seat = seatReservationInputModel.Seats[i]
+            })
+            .ToList();
 
         var signalModel = new PurchaseTicketReservationSignal
         {
             SeatReservations = seatReservations,
-            FlightId = seatReservationInputModel.FlightId
+            FlightId = seatReservationInputModel.FlightId.ToString()
         };
 
         await purchaseHandle.SignalAsync(x => x.TicketReservation(signalModel));
@@ -153,10 +179,10 @@ public class TicketService : ITicketService
 
     public async Task<bool> BoardPassenger(BoardingInputModel boardingInputModel)
     {
-        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(boardingInputModel.FlightId))
+        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(boardingInputModel.FlightId.ToString()))
             return false;
 
-        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(boardingInputModel.FlightId);
+        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(boardingInputModel.FlightId.ToString());
 
         var tickets = await handle.QueryAsync(wf => wf.GetRegisteredTickets());
 
@@ -174,6 +200,22 @@ public class TicketService : ITicketService
     }
 
     private TicketWithCode GetTicketWithCode(Ticket ticket)
+    {
+        return new TicketWithCode
+        {
+            Id = ticket.Id,
+            PurchaseId = ticket.PurchaseId,
+            PaymentStatus = ticket.PaymentStatus,
+            Seat = ticket.Seat?.Name,
+            Passenger = ticket.Passenger,
+            Code = QRCodeGeneratorService.Generate(new QRDataModel
+            {
+                Data = $"{_urlSettings.TicketPage}/{ticket.Id}"
+            })
+        };
+    }
+
+    private TicketWithCode GetTicketWithCode(TicketDetailsModel ticket)
     {
         return new TicketWithCode
         {

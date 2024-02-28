@@ -1,19 +1,28 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using TemporalAirlinesConcept.DAL.Interfaces;
 
 namespace TemporalAirlinesConcept.DAL.Entities;
 
-public class User
+public class User : IEntity<Guid>
 {
-    public const string Container = "users";
+    #region Properties
 
     [Key]
-    [JsonProperty("id")]
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     public string Name { get; set; }
 
     public string Email { get; set; }
 
     public string Role { get; set; }
+
+    #endregion
+
+    #region Navigation Properties
+
+    [InverseProperty("User")]
+    public virtual ICollection<Ticket> Tickets { get; set; } = [];
+
+    #endregion
 }

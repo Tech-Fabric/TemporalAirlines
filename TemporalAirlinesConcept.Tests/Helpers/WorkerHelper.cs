@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Moq;
 using TemporalAirlinesConcept.Common.Constants;
+using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Implementations;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -12,15 +13,22 @@ namespace TemporalAirlinesConcept.Tests.Helpers;
 public static class WorkerHelper
 {
     public static async Task<TemporalWorker> ConfigureWorkerAsync(WorkflowEnvironment env,
-        IMapper mapper, IMock<IFlightRepository>? mockFlightRepository = null)
+        IMapper mapper,
+        IMock<IRepository<Flight>> flightMockRepository = null,
+        IMock<IRepository<Ticket>> ticketMockRepository = null)
     {
-        mockFlightRepository ??= new Mock<IFlightRepository>();
+        flightMockRepository ??= new Mock<IRepository<Flight>>();
+        ticketMockRepository ??= new Mock<IRepository<Ticket>>();
 
-        var mockUnitOfWork = new Mock<UnitOfWork>(
-            mockFlightRepository.Object,
-            new Mock<ITicketRepository>().Object,
-            new Mock<IUserRepository>().Object
-        );
+        var mockUnitOfWork = new Mock<IUnitOfWork>();
+
+        mockUnitOfWork
+            .Setup(x => x.Repository<Flight>())
+            .Returns(flightMockRepository.Object);
+
+        mockUnitOfWork
+          .Setup(x => x.Repository<Ticket>())
+          .Returns(ticketMockRepository.Object);
 
         var flightActivities = new FlightActivities(mockUnitOfWork.Object, mapper);
 

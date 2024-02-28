@@ -4,6 +4,7 @@ using Moq;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
+using TemporalAirlinesConcept.DAL.Implementations;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
@@ -42,7 +43,7 @@ public class FlightWorkflowTests
 
         var flight = TestFlightFabric.GetTestFlight();
 
-        var mockFlightRepository = new Mock<IFlightRepository>();
+        var mockFlightRepository = new Mock<Repository<Flight>>();
 
         using var worker = await WorkerHelper.ConfigureWorkerAsync(env, _mapper, mockFlightRepository);
 
@@ -50,7 +51,12 @@ public class FlightWorkflowTests
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
             var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
-                new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
+                new WorkflowOptions
+                {
+                    Id = flight.Id.ToString(),
+                    TaskQueue = Temporal.DefaultQueue,
+                    RetryPolicy = _retryPolicy
+                });
 
             await handle.GetResultAsync();
         });
@@ -58,7 +64,7 @@ public class FlightWorkflowTests
         // Assert
         await workflowExecution.Should().NotThrowAsync();
 
-        mockFlightRepository.Verify(x => x.UpdateFlightAsync(It.IsAny<Flight>()), Times.Once);
+        mockFlightRepository.Verify(x => x.Insert(It.IsAny<Flight>()), Times.Once);
     }
 
     [Fact]
@@ -81,7 +87,12 @@ public class FlightWorkflowTests
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
             var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
-                new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
+                new WorkflowOptions
+                {
+                    Id = flight.Id.ToString(),
+                    TaskQueue = Temporal.DefaultQueue,
+                    RetryPolicy = _retryPolicy
+                });
 
             await env.DelayAsync(TimeSpan.FromMinutes(1));
 
@@ -120,7 +131,7 @@ public class FlightWorkflowTests
 
         var markTicketPaidRequestModel = new MarkTicketPaidSignalModel
         {
-            FlightId = flight.Id,
+            FlightId = flight.Id.ToString(),
             PurchaseId = ticket.PurchaseId
         };
 
@@ -134,7 +145,12 @@ public class FlightWorkflowTests
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
             var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
-                new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
+                new WorkflowOptions
+                {
+                    Id = flight.Id.ToString(),
+                    TaskQueue = Temporal.DefaultQueue,
+                    RetryPolicy = _retryPolicy
+                });
 
             await env.DelayAsync(TimeSpan.FromMinutes(1));
 
@@ -156,7 +172,7 @@ public class FlightWorkflowTests
 
         flightDetailsModelWithPaidTicket.Registered.Should().Contain(
             t => t.Id == ticket.Id && t.PaymentStatus == PaymentStatus.Paid);
-        
+
         // Assert cancellation
         flightDetailsModelWithCancelledTicket.Registered.Should().Contain(
             t => t.Id == ticket.Id && t.PaymentStatus == PaymentStatus.Cancelled);
@@ -171,15 +187,15 @@ public class FlightWorkflowTests
         var flight = TestFlightFabric.GetTestFlight();
 
         var ticket = TestTicketFabric.GetTestTicket(flight.Id);
-        
+
         var bookingRequestModel = new BookingSignalModel(ticket);
 
         var seat = flight.Seats.First();
 
         seat.TicketId = ticket.Id;
-        
+
         var seatReservationRequestModel = new SeatReservationSignalModel(ticket.Id, seat.Name);
-            
+
         using var worker = await WorkerHelper.ConfigureWorkerAsync(env, _mapper);
 
         var flightDetailsModelWithReservedSeat = new FlightDetailsModel();
@@ -190,12 +206,17 @@ public class FlightWorkflowTests
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
             var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
-                new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
+                new WorkflowOptions
+                {
+                    Id = flight.Id.ToString(),
+                    TaskQueue = Temporal.DefaultQueue,
+                    RetryPolicy = _retryPolicy
+                });
 
             await env.DelayAsync(TimeSpan.FromMinutes(1));
 
             await handle.SignalAsync(wf => wf.Book(bookingRequestModel));
-            
+
             await handle.SignalAsync(wf => wf.ReserveSeat(seatReservationRequestModel));
 
             flightDetailsModelWithReservedSeat = await handle.QueryAsync(wf => wf.GetFlightDetails());
@@ -209,13 +230,13 @@ public class FlightWorkflowTests
 
         // Assert
         await workflowExecution.Should().NotThrowAsync();
-        
+
         flightDetailsModelWithReservedSeat.Seats.Should().Contain(
             s => s.Name == seat.Name && s.TicketId == ticket.Id);
 
         flightDetailsModelWithReservedSeat.Registered.Should().Contain(
             t => t.Id == ticket.Id && t.Seat.Equals(seat));
-        
+
         // Assert cancellation
         flightDetailsModelWithEmptySeat.Seats.Should().Contain(
             s => s.Name == seat.Name && s.TicketId == null);
@@ -231,7 +252,7 @@ public class FlightWorkflowTests
         await using var env = await WorkflowEnvironment.StartTimeSkippingAsync();
 
         var flight = TestFlightFabric.GetTestFlight();
-        
+
         var boardingRequestModel = new BoardingSignalModel(TestTicketFabric.GetTestTicket(flight.Id));
 
         using var worker = await WorkerHelper.ConfigureWorkerAsync(env, _mapper);
@@ -242,7 +263,12 @@ public class FlightWorkflowTests
         var workflowExecution = async () => await worker.ExecuteAsync(async () =>
         {
             var handle = await env.Client.StartWorkflowAsync((FlightWorkflow wf) => wf.Run(flight),
-                new WorkflowOptions { Id = flight.Id, TaskQueue = Temporal.DefaultQueue, RetryPolicy = _retryPolicy });
+                new WorkflowOptions
+                {
+                    Id = flight.Id.ToString(),
+                    TaskQueue = Temporal.DefaultQueue,
+                    RetryPolicy = _retryPolicy
+                });
 
             await env.DelayAsync(TimeSpan.FromMinutes(1));
 

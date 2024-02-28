@@ -43,17 +43,17 @@ public class FlightController : Controller
     }
 
     [HttpGet("{SelectedFlight}")]
-    public IActionResult Flight([FromRoute] string? selectedFlight)
+    public async Task<IActionResult> Flight([FromRoute] Guid? selectedFlight)
     {
         FlightBookingFormViewModel model = new FlightBookingFormViewModel();
 
-        return Flight(model, selectedFlight);
+        return await Flight(model, selectedFlight);
     }
 
     [HttpPost("{SelectedFlight}")]
-    public IActionResult Flight([FromForm] FlightBookingFormViewModel model, [FromRoute] string? selectedFlight)
+    public async Task<IActionResult> Flight([FromForm] FlightBookingFormViewModel model, [FromRoute] Guid? selectedFlight)
     {
-        if (!string.IsNullOrEmpty(selectedFlight))
+        if (selectedFlight is not null)
         {
             model.SelectedFlight = selectedFlight;
         }
@@ -69,10 +69,10 @@ public class FlightController : Controller
     [HttpPost("{SelectedFlight}/purchase")]
     public async Task<IActionResult> Purchase(
         [FromForm] FlightBookingFormViewModel model,
-        [FromRoute] string? selectedFlight
+        [FromRoute] Guid? selectedFlight
     )
     {
-        if (!string.IsNullOrEmpty(selectedFlight))
+        if (selectedFlight is null)
         {
             model.SelectedFlight = selectedFlight;
         }
@@ -82,7 +82,7 @@ public class FlightController : Controller
             model.PurchaseId = await _ticketService.StartTicketPurchase(
                 new PurchaseModel
                 {
-                    FlightId = model.SelectedFlight,
+                    FlightId = model.SelectedFlight.Value,
                     NumberOfTickets = model.NumberOfSeats
                 }
             );

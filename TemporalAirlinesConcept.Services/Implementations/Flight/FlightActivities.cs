@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using TemporalAirlinesConcept.DAL.Entities;
+using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using Temporalio.Activities;
@@ -8,22 +10,12 @@ namespace TemporalAirlinesConcept.Services.Implementations.Flight;
 public class FlightActivities
 {
     private readonly IMapper _mapper;
-    private readonly IFlightRepository _flightRepository;
-    private readonly ITicketRepository _ticketRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public FlightActivities(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _mapper = mapper;
-        _flightRepository = unitOfWork.GetFlightRepository();
-        _ticketRepository = unitOfWork.GetTicketRepository();
-    }
-
-    [Activity]
-    public Task<FlightDetailsModel> MapFlightModel(DAL.Entities.Flight flight)
-    {
-        var flightDetail = _mapper.Map<FlightDetailsModel>(flight);
-
-        return Task.FromResult(flightDetail);
+        _unitOfWork = unitOfWork;
     }
 
     [Activity]
@@ -36,7 +28,7 @@ public class FlightActivities
 
             var seat = flight.Seats.FirstOrDefault(s => s.TicketId is null);
 
-            ticket.Seat = seat;
+            ticket.Seat = seat.Name;
 
             seat.TicketId = ticket.Id;
         }
@@ -49,7 +41,9 @@ public class FlightActivities
     {
         var flight = _mapper.Map<DAL.Entities.Flight>(flightDetailsModel);
 
-        await _flightRepository.UpdateFlightAsync(flight);
+        _unitOfWork.Repository<DAL.Entities.Flight>().Update(flight);
+
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -59,8 +53,24 @@ public class FlightActivities
     {
         foreach (var ticket in saveTicketsModel.Tickets)
         {
-            await _ticketRepository.AddTicketAsync(ticket);
+            var seat = await _unitOfWork.Repository<Seat>()
+                .FindAsync(x => x.FlightId == ticket.FlightId && x.Name == ticket.Seat);
+
+            var ticketToCreate = new Ticket
+            {
+                Id = ticket.Id,
+                FlightId = ticket.FlightId,
+                UserId = ticket.UserId == Guid.Empty ? null : ticket.UserId,
+                PurchaseId = ticket.PurchaseId,
+                Seat = seat,
+                PaymentStatus = PaymentStatus.Pending,
+                BoardingStatus = ticket.BoardingStatus
+            };
+
+            _unitOfWork.Repository<Ticket>().Insert(ticketToCreate);
         }
+
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -70,11 +80,14 @@ public class FlightActivities
     {
         foreach (var ticket in saveTicketsModel.Tickets)
         {
-            var ticketToDelete = await _ticketRepository.GetTicketAsync(ticket.Id);
+            var ticketToDelete = await _unitOfWork.Repository<Ticket>()
+                .FindAsync(x => x.Id == ticket.Id);
 
             if (ticketToDelete != null)
-                await _ticketRepository.DeleteTicketAsync(ticket.Id);
+                _unitOfWork.Repository<Ticket>().Remove(ticketToDelete);
         }
+
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }

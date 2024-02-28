@@ -34,7 +34,7 @@ public class FlightBookingFormViewModel
 
     public CreditCardDetails? CreditCardDetails { get; set; }
 
-    public string? SelectedFlight { get; set; }
+    public Guid? SelectedFlight { get; set; }
 
     public bool PaymentSuccessful { get; set; }
 

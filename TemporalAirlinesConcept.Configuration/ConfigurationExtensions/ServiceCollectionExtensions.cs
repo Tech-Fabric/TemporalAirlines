@@ -1,4 +1,4 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -6,6 +6,7 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Trace;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Settings;
+using TemporalAirlinesConcept.DAL.Contexts;
 using TemporalAirlinesConcept.DAL.Implementations;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
@@ -37,22 +38,11 @@ public static class ServiceCollectionExtensions
                     TracingInterceptor.ActivitiesSource.Name);
             });
 
-        services.AddScoped(x => new CosmosClient(configuration["DatabaseSettings:ConnectionString"], new CosmosClientOptions
+        services.AddDbContext<DataContext>(options =>
         {
-            HttpClientFactory = () =>
-            {
-                var httpMessageHandler = new HttpClientHandler()
-                {
-                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                };
-
-                return new HttpClient(httpMessageHandler);
-            },
-            ConnectionMode = ConnectionMode.Gateway,
-            LimitToEndpoint = true,
-            MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(30),
-            MaxRetryAttemptsOnRateLimitedRequests = 10
-        }));
+            options.UseNpgsql(configuration["DatabaseSettings:ConnectionString"]);
+            options.EnableSensitiveDataLogging(false);
+        });
 
         services.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
         services.Configure<UrlSettings>(configuration.GetSection("UrlSettings"));
@@ -60,15 +50,13 @@ public static class ServiceCollectionExtensions
         services.AddAutoMapper(typeof(UserProfile));
         services.AddAutoMapper(typeof(TicketProfile));
         services.AddAutoMapper(typeof(FlightProfile));
+        services.AddAutoMapper(typeof(SeatProfile));
 
         services.AddScoped<IFlightService, FlightService>();
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<IUserService, UserService>();
 
-        services.AddScoped<IFlightRepository, FlightRepository>();
-        services.AddScoped<ITicketRepository, TicketRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IUserRegistrationService, UserRegistrationService>();

@@ -1,8 +1,16 @@
-﻿namespace TemporalAirlinesConcept.DAL.Interfaces;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 
-public interface IUnitOfWork
+namespace TemporalAirlinesConcept.DAL.Interfaces;
+
+public interface IUnitOfWork : IDisposable
 {
-    IFlightRepository GetFlightRepository();
-    ITicketRepository GetTicketRepository();
-    IUserRepository GetUserRepository();
+    IRepository<T> Repository<T>() where T : class;
+
+    int SaveChanges();
+
+    Task<int> SaveChangesAsync();
+
+    Task<IDbContextTransaction> BeginTransactionAsync();
+
+    Task<int> ExecSqlAsync(string sql);
 }

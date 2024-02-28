@@ -1,8 +1,5 @@
-﻿using TemporalAirlinesConcept.Common.Helpers;
-using TemporalAirlinesConcept.DAL.Entities;
+﻿using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.DAL.Models.Seat;
-using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Exceptions;
@@ -21,10 +18,9 @@ public class FlightWorkflow
     private FlightDetailsModel _flight;
 
     [WorkflowRun]
-    public async Task Run(DAL.Entities.Flight flight)
+    public async Task Run(FlightDetailsModel flight)
     {
-        _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) => act.MapFlightModel(flight),
-            _activityOptions);
+        _flight = flight;
 
         await ChangeStatusAtTime(FlightStatus.CheckIn, _flight.Depart.Value.Subtract(TimeSpan.FromDays(1)));
 
@@ -104,6 +100,11 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task Book(BookingSignalModel bookingSignalModel)
     {
+        if (bookingSignalModel?.Ticket?.BoardingStatus is null)
+            return Task.CompletedTask;
+
+        bookingSignalModel.Ticket.BoardingStatus = BoardingStatus.Registered;
+
         _flight.Registered.Add(bookingSignalModel.Ticket);
 
         return Task.CompletedTask;
@@ -175,7 +176,7 @@ public class FlightWorkflow
         if (ticket is null)
             throw new ApplicationFailureException($"Ticket {seatReservationSignalModel.TicketId} was not found.");
 
-        ticket.Seat = seat;
+        ticket.Seat = seat.Name;
 
         return Task.CompletedTask;
     }
@@ -211,6 +212,11 @@ public class FlightWorkflow
     [WorkflowSignal]
     public Task BoardPassenger(BoardingSignalModel boardingSignalModel)
     {
+        if (boardingSignalModel?.Ticket?.BoardingStatus is null)
+            return Task.CompletedTask;
+
+        boardingSignalModel.Ticket.BoardingStatus = BoardingStatus.Boarded;
+
         _flight.Boarded.Add(boardingSignalModel.Ticket);
 
         return Task.CompletedTask;
@@ -227,13 +233,13 @@ public class FlightWorkflow
     }
 
     [WorkflowQuery]
-    public List<Ticket> GetRegisteredTickets()
+    public List<TicketDetailsModel> GetRegisteredTickets()
     {
         return _flight.Registered;
     }
 
     [WorkflowQuery]
-    public List<Seat> GetSeats()
+    public List<SeatDetailsModel> GetSeats()
     {
         return _flight.Seats;
     }

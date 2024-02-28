@@ -1,4 +1,5 @@
 ﻿using TemporalAirlinesConcept.DAL.Entities;
+using TemporalAirlinesConcept.Services.Models.Flight;
 
 namespace TemporalAirlinesConcept.Services.Models.Purchase;
 
@@ -9,10 +10,10 @@ public class BoardingSignalModel
         
     }
     
-    public BoardingSignalModel(Ticket ticket)
+    public BoardingSignalModel(TicketDetailsModel ticket)
     {
         Ticket = ticket;
     }
     
-    public Ticket Ticket { get; set; }
+    public TicketDetailsModel Ticket { get; set; }
 }
