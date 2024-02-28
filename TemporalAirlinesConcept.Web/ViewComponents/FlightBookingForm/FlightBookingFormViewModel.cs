@@ -22,7 +22,9 @@ public class FlightBookingFormViewModel
 
     public string? ArrivalAirport { get; set; }
 
-    public DateTime? When { get; set; }
+    public DateTime? Departing { get; set; }
+    
+    public DateTime? ReturnDate { get; set; }
 
     public List<Flight>? Flights { get; set; }
 

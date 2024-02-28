@@ -42,6 +42,8 @@ public class PurchaseController : Controller
 
         model.IsPaymentEmulated = await _ticketService.IsPurchasePaid(purchaseId);
         model.IsConfirmed = await _ticketService.IsSeatsReserved(purchaseId);
+
+        model.Tickets = await _ticketService.GetPurchaseWorkflowTickets(purchaseId);
         
         if (Request.IsHtmx())
             return ViewComponent(typeof(PurchaseFormViewComponent), model);

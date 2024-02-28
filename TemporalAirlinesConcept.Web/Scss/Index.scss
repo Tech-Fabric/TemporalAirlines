@@ -86,6 +86,8 @@ $enable-dark-mode: false;
 @import "datetime";
 @import "classes";
 @import "spacing";
+@import "hero-banner";
+@import "booking";
 
 @import "../Views/Shared/Components/FlightBookingForm/Default.scss";
 
@@ -94,7 +96,9 @@ html, body {
 }
 
 body {
-  background: url("/img/20201012_195538.jpg");
+  background-color: #ececf2;
+
+  //background: url("/img/20201012_195538.jpg");
   background-size: cover;
   background-position: center;
   min-height: 100vh;

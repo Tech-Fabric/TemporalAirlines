@@ -88,6 +88,31 @@ services:
       - temporal-network
     ports:
       - 8080:8080
+  cosmosdb-emulator:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
+    tty: true
+    container_name: cosmosdb-emulator
+    restart: always
+    ports:
+      - "8081:8081"  # Port for the emulator's Data Explorer
+      - "10250:10250"
+      - "10251:10251"  # Port for the emulator's communication with clients
+      - "10252:10252"  # Port for the emulator's communication with services
+      - "10253:10253"  # Port for the emulator's communication with services
+      - "10254:10254"  # Port for the emulator's communication with services
+    environment:
+      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10
+      - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
+    healthcheck:
+       test: ["CMD", "curl", "-f", "-k", "https://cosmosdb-emulator:8081/_explorer/emulator.pem"]
+       interval: 15s
+       timeout: 15s
+       retries: 15
+    networks:
+      - temporal-network
+    volumes:
+       - ./data/cosmosdb:/tmp/cosmos/appdata # linux path
+       # - ./db_data:C:/CosmosDB.Emulator/bind-mount # windows path
   temporalairlinesconcept.api:  
     container_name: temporalairlinesconcept.api
     build:

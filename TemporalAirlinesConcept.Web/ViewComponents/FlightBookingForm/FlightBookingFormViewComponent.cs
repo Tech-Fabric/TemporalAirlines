@@ -87,9 +87,9 @@ public class FlightBookingFormViewComponent : ViewComponent
             model = new FlightBookingFormViewModel();
         }
 
-        if (model.When == null)
+        if (model.Departing == null)
         {
-            model.When = DateTime.Now;
+            model.Departing = DateTime.Now;
         }
 
         model.Airports = _airports;

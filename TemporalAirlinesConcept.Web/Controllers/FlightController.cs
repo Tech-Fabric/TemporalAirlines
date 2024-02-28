@@ -16,7 +16,7 @@ public class FlightController : Controller
         _ticketService = ticketService;
     }
 
-    [HttpGet("form")]
+    [HttpGet]
     public async Task<IActionResult> Form()
     {
         if (Request.IsHtmx())
@@ -25,7 +25,20 @@ public class FlightController : Controller
         }
         else
         {
-            return View("~/Views/Home/Index.cshtml");
+            return View("~/Views/Flight/Index.cshtml");
+        }
+    }
+
+    [HttpPost]
+    public IActionResult Form([FromForm] FlightBookingFormViewModel model)
+    {
+        if (Request.IsHtmx())
+        {
+            return ViewComponent(typeof(FlightBookingFormViewComponent), model);
+        }
+        else
+        {
+            return View("~/Views/Flight/Index.cshtml", model);
         }
     }
 
@@ -34,7 +47,7 @@ public class FlightController : Controller
     {
         FlightBookingFormViewModel model = new FlightBookingFormViewModel();
 
-        return await Flight(model, selectedFlight);
+        return Flight(model, selectedFlight);
     }
 
     [HttpPost("{SelectedFlight}")]
@@ -73,11 +86,6 @@ public class FlightController : Controller
                     NumberOfTickets = model.NumberOfSeats
                 }
             );
-        }
-
-        if (!Request.IsHtmx())
-        {
-            return View("~/Views/Flight/Index.cshtml", model);
         }
 
         if (!string.IsNullOrEmpty(model.PurchaseId))
