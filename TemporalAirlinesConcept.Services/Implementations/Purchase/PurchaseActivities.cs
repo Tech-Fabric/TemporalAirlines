@@ -1,5 +1,6 @@
 ﻿using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.Common.Extensions;
+using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
@@ -28,7 +29,8 @@ public class PurchaseActivities
     [Activity]
     public async Task<bool> IsFlightAvailable(FlightAvailabilityModel flightAvailabilityModel)
     {
-        var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightAvailabilityModel.FlightId.ToString());
+        var flightHandle =
+            _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightAvailabilityModel.FlightId.ToString());
 
         var flight = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
 
@@ -263,5 +265,19 @@ public class PurchaseActivities
         {
             await flightHandle.SignalAsync(wf => wf.ReserveSeatCompensation(seatReservation));
         }
+    }
+
+    [Activity]
+    public Task<TicketDetailsModel> GetTicket(GetTicketModel getTicketModel)
+    {
+        return Task.FromResult(new TicketDetailsModel
+        {
+            Id = Guid.NewGuid(),
+            FlightId = getTicketModel.Purchase.FlightId,
+            UserId = getTicketModel.Purchase.UserId,
+            PurchaseId = getTicketModel.PurchaseId,
+            Seat = null,
+            PaymentStatus = PaymentStatus.Pending
+        });
     }
 }

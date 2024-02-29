@@ -4,8 +4,8 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "composeLaunchAction": "LaunchBrowser",
-      "composeLaunchServiceName": "temporalairlinesconcept.api",
-      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
+      "composeLaunchServiceName": "temporalairlinesconcept.web",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}",
       "serviceActions": {
         "temporalairlinesconcept.api": "StartDebugging",
         "temporalairlinesconcept.web": "StartDebugging",

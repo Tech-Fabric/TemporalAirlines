@@ -1,5 +1,4 @@
 ﻿using TemporalAirlinesConcept.Common.Helpers;
-using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Common;
@@ -16,7 +15,7 @@ public class PurchaseWorkflow
     private string _flightId;
 
     private bool _isSeatsReserved;
-    
+
     private bool _isPaid;
 
     private bool _isCancelled;
@@ -31,7 +30,7 @@ public class PurchaseWorkflow
             MaximumAttempts = 2
         }
     };
-    
+
     /// <summary>
     /// Sets the paid status to true.
     /// </summary>
@@ -90,7 +89,7 @@ public class PurchaseWorkflow
     {
         return _isSeatsReserved;
     }
-    
+
     [WorkflowRun]
     public async Task<bool> Run(PurchaseModel purchaseModel)
     {
@@ -121,7 +120,7 @@ public class PurchaseWorkflow
             throw;
         }
     }
-    
+
     private async Task<bool> ProcessPurchase(PurchaseModel purchaseModel)
     {
         var isFlightsAvailable = await Workflow.ExecuteActivityAsync(
@@ -175,23 +174,16 @@ public class PurchaseWorkflow
     {
         for (var i = 0; i < purchaseModel.NumberOfTickets; i++)
         {
-            var ticket = await GetTicket(purchaseModel);
+            var ticket = await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.GetTicket(
+                    new GetTicketModel
+                    {
+                        Purchase = purchaseModel,
+                        PurchaseId = Workflow.Info.WorkflowId
+                    }),
+                _activityOptions);
 
             await BookTicket(ticket);
         }
-    }
-
-    private static Task<TicketDetailsModel> GetTicket(PurchaseModel purchaseModel)
-    {
-        return Task.FromResult(new TicketDetailsModel
-        {
-            Id = Guid.NewGuid(),
-            FlightId = purchaseModel.FlightId,
-            UserId = purchaseModel.UserId,
-            PurchaseId = Workflow.Info.WorkflowId,
-            Seat = null,
-            PaymentStatus = PaymentStatus.Pending
-        });
     }
 
     private async Task ConfirmWithdrawal()
@@ -273,6 +265,7 @@ public class PurchaseWorkflow
             _activityOptions);
 
         _saga.AddCompensation(async () =>
-            await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SaveTicketsCompensation(saveSignal), _activityOptions));
+            await Workflow.ExecuteActivityAsync((PurchaseActivities act) => act.SaveTicketsCompensation(saveSignal),
+                _activityOptions));
     }
 }
