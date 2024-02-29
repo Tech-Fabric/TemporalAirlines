@@ -13,7 +13,7 @@
     @Html.Partial("Components/Plane")
 
     <section class="mb-20" style="margin-top: -250px;">
-        <div class="container">
+        <div class="container-fluid">
             <div class="content">
                 <div class="flights flight-listing-page">
                     @Html.Partial("Components/FlightBookingForm/FlightListElement", (Model.Flight, true))
@@ -23,7 +23,7 @@
     </section>
 
     <section class="">
-        <div class="container">
+        <div class="container-fluid">
             <div class="content">
                 <div class="seats text-start flight-block bg-white light-shadow br-30 p-24 mb-16 sal-animate">
                     @if (!Model.IsPaymentEmulated)
