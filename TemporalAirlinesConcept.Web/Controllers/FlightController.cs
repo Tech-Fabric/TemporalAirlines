@@ -10,10 +10,12 @@ namespace TemporalAirlinesConcept.Web.Controllers;
 public class FlightController : Controller
 {
     private readonly ITicketService _ticketService;
+    private readonly IPurchaseService _purchaseService;
 
-    public FlightController(ITicketService ticketService)
+    public FlightController(ITicketService ticketService, IPurchaseService purchaseService)
     {
         _ticketService = ticketService;
+        _purchaseService = purchaseService;
     }
 
     [HttpGet]
@@ -51,7 +53,8 @@ public class FlightController : Controller
     }
 
     [HttpPost("{SelectedFlight}")]
-    public async Task<IActionResult> Flight([FromForm] FlightBookingFormViewModel model, [FromRoute] Guid? selectedFlight)
+    public async Task<IActionResult> Flight([FromForm] FlightBookingFormViewModel model,
+        [FromRoute] Guid? selectedFlight)
     {
         if (selectedFlight is not null)
         {
@@ -79,7 +82,7 @@ public class FlightController : Controller
 
         if (!string.IsNullOrEmpty(model.CreditCardDetails?.CardNumber))
         {
-            model.PurchaseId = await _ticketService.StartTicketPurchase(
+            model.PurchaseId = await _purchaseService.StartPurchase(
                 new PurchaseModel
                 {
                     FlightId = model.SelectedFlight.Value,
