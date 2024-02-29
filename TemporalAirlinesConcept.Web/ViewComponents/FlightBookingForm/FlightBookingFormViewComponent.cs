@@ -45,7 +45,7 @@ public class FlightBookingFormViewComponent : ViewComponent
 
         var minutesFlightTime = new[] { 15, 30, 45 };
 
-        for (var i = 0; i < 10; i++)
+        for (var i = 0; i < 100; i++)
         {
             var departureFrom = _airports.ElementAt(i).Key;
             var arrivalTo = GetRandomValueExcluding(departureFrom);

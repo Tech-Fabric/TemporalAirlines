@@ -12,24 +12,25 @@
     @Html.Partial("Components/Plane")
 
     @if (Model.IsPurchaseRunning)
+    <section class="mb-20" style="margin-top: -250px;">
     {
-        <section class="mb-20" style="margin-top: -250px;">
-            <div class="container">
-                <div class="content">
-                    <div class="flights flight-listing-page">
+        <div class="container-fluid">
+            <div class="content">
+                <div class="flights flight-listing-page">
+                   
                         @Html.Partial("Components/FlightBookingForm/FlightListElement", (Model.Flight, true))
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="">
-            <div class="container">
-                <div class="content">
-                    <div class="seats text-start flight-block bg-white light-shadow br-30 p-24 mb-16 sal-animate">
-                        @if (!Model.IsPaymentEmulated)
-                        {
-                            <h4 class="mb-5">Please select seats:</h4>
+    <section class="">
+        <div class="container-fluid">
+            <div class="content">
+                <div class="seats text-start flight-block bg-white light-shadow br-30 p-24 mb-16 sal-animate">
+                    @if (!Model.IsPaymentEmulated)
+                    {
+                        <h4 class="mb-5">Please select seats:</h4>
 
                             var flight = Model.Flight;
 
