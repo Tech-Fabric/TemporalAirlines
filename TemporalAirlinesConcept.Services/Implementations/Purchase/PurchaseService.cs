@@ -125,7 +125,7 @@ public class PurchaseService : IPurchaseService
         WorkflowHandle<FlightWorkflow> flightHandle,
         WorkflowHandle<PurchaseWorkflow> purchaseHandle)
     {
-        if (await flightHandle.IsWorkflowRunning() && await purchaseHandle.IsWorkflowRunning())
+        if (!await flightHandle.IsWorkflowRunning() || !await purchaseHandle.IsWorkflowRunning())
             return;
 
         var registered = await flightHandle.QueryAsync(wf => wf.GetRegisteredTickets());
