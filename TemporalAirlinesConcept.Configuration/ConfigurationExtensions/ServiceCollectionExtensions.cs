@@ -54,6 +54,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IFlightService, FlightService>();
         services.AddScoped<ITicketService, TicketService>();
+        services.AddScoped<IPurchaseService, PurchaseService>();
         services.AddScoped<IUserService, UserService>();
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

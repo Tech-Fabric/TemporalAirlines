@@ -12,19 +12,21 @@ namespace TemporalAirlinesConcept.Api.Controllers;
 public class TicketsController : ControllerBase
 {
     private readonly ITicketService _ticketService;
+    private readonly IPurchaseService _purchaseService;
     private readonly IMapper _mapper;
 
-    public TicketsController(ITicketService ticketService, IMapper mapper)
+    public TicketsController(ITicketService ticketService, IMapper mapper, IPurchaseService purchaseService)
     {
         _ticketService = ticketService;
         _mapper = mapper;
+        _purchaseService = purchaseService;
     }
 
     [HttpPost("purchase")]
     public async Task<ActionResult<IdResponse>> StartTicketPurchase(StartPurchaseRequest startPurchaseRequest)
     {
         var purchaseModel = _mapper.Map<PurchaseModel>(startPurchaseRequest);
-        var workflowId = await _ticketService.StartTicketPurchase(purchaseModel);
+        var workflowId = await _purchaseService.StartPurchase(purchaseModel);
 
         var response = new IdResponse
         {
@@ -64,28 +66,23 @@ public class TicketsController : ControllerBase
     [HttpPatch("{purchaseId}")]
     public async Task<IActionResult> MarkAsPaid([FromRoute] string purchaseId)
     {
-        await _ticketService.MarkAsPaid(purchaseId);
+        await _purchaseService.MarkAsPaid(purchaseId);
 
         return Ok();
     }
 
     [HttpPost("check-in")]
-    public async Task<ActionResult<ResultStatusResponse>> ReserveSeat(SeatReservationInputModel seatReservationInputModel)
+    public async Task<IActionResult> ReserveSeat(SeatReservationInputModel seatReservationInputModel)
     {
-        var reservationResult = await _ticketService.RequestSeatReservation(seatReservationInputModel);
+        await _purchaseService.RequestSeatReservation(seatReservationInputModel);
 
-        var result = new ResultStatusResponse
-        {
-            Result = reservationResult
-        };
-
-        return Ok(result);
+        return Ok();
     }
 
     [HttpPost("board")]
     public async Task<ActionResult<ResultStatusResponse>> BoardPassenger(BoardingInputModel boardingInputModel)
     {
-        var boardResult = await _ticketService.BoardPassenger(boardingInputModel);
+        var boardResult = await _purchaseService.BoardPassenger(boardingInputModel);
 
         var result = new ResultStatusResponse
         {

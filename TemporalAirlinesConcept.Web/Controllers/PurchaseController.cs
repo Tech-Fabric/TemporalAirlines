@@ -12,11 +12,13 @@ public class PurchaseController : Controller
 {
     private readonly ITicketService _ticketService;
     private readonly IFlightService _flightService;
+    private readonly IPurchaseService _purchaseService;
 
-    public PurchaseController(ITicketService ticketService, IFlightService flightService)
+    public PurchaseController(ITicketService ticketService, IFlightService flightService, IPurchaseService purchaseService)
     {
         _ticketService = ticketService;
         _flightService = flightService;
+        _purchaseService = purchaseService;
     }
 
     [HttpGet("form")]
@@ -38,15 +40,14 @@ public class PurchaseController : Controller
     {
         model.PurchaseId = purchaseId;
 
-        model.IsPurchaseRunning = await _ticketService.IsPurchaseRunning(purchaseId);
+        model.IsPurchaseRunning = await _purchaseService.IsPurchaseRunning(purchaseId);
 
         if (!model.IsPurchaseRunning)
             return Error(model);
 
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
 
-        model.IsPaymentEmulated = await _ticketService.IsPurchasePaid(purchaseId);
-        model.IsConfirmed = await _ticketService.IsSeatsReserved(purchaseId);
+        model.IsReservedAndPaid = await _purchaseService.IsReservedAndPaid(purchaseId);
 
         model.Tickets = await _ticketService.GetPurchasePaidTickets(purchaseId);
 
@@ -56,76 +57,50 @@ public class PurchaseController : Controller
         return View("~/Views/Purchase/Index.cshtml", model);
     }
 
-    [HttpPost("{PurchaseId}/confirm")]
-    public async Task<IActionResult> Confirm(
+    [HttpPost("{PurchaseId}/reserve-and-pay")]
+    public async Task<IActionResult> ReserveAndPay(
         [FromForm] PurchaseFormViewModel model,
         [FromRoute] string? purchaseId
     )
     {
         model.PurchaseId = purchaseId;
 
-        model.IsPurchaseRunning = await _ticketService.IsPurchaseRunning(purchaseId);
+        model.IsPurchaseRunning = await _purchaseService.IsPurchaseRunning(purchaseId);
 
         if (!model.IsPurchaseRunning)
             return Error(model);
 
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
+        model.NumberOfTickets = (await _ticketService.GetPurchaseTickets(purchaseId)).Count;
 
-        var tickets = await _ticketService.GetPurchaseTickets(purchaseId);
+        var seatsList = model.SelectedSeats?
+            .Where(s => s.Value)
+            .Select(s => s.Key)
+            .ToList();
 
-        model.NumberOfTickets = tickets.Count;
-
-        var seatsList = model.SelectedSeats?.Where(s => s.Value)
-            .Select(s => s.Key).ToList();
-
-        if (seatsList is not null && seatsList.Count > tickets.Count)
+        if (seatsList?.Count > model.NumberOfTickets)
         {
             ModelState.AddModelError(nameof(model.NumberOfTickets), "Too many seats selected");
         }
 
         if (ModelState.IsValid)
         {
-            await _ticketService.RequestSeatReservation(new SeatReservationInputModel
+            await _purchaseService.ReserveAndPaySeats(new SeatReservationInputModel
             {
                 FlightId = model.Flight.Id,
                 PurchaseId = model.PurchaseId,
                 Seats = seatsList
             });
 
-            model.IsConfirmed = true;
+            model.IsReservedAndPaid = true;
+
+            model.Tickets = await _ticketService.GetPurchasePaidTickets(model.PurchaseId);
         }
 
         if (Request.IsHtmx())
             return ViewComponent(typeof(PurchaseFormViewComponent), model);
 
         return View("~/Views/Purchase/Index.cshtml", model);
-    }
-
-    [HttpPost("{PurchaseId}/payment")]
-    public async Task<IActionResult> MarkAsPaid(
-        [FromForm] PurchaseFormViewModel model,
-        [FromRoute] string? purchaseId)
-    {
-        model.PurchaseId = purchaseId;
-
-        model.IsPurchaseRunning = await _ticketService.IsPurchaseRunning(purchaseId);
-
-        if (!model.IsPurchaseRunning)
-            return Error(model);
-
-        model.IsPaymentEmulated = true;
-        model.IsConfirmed = true;
-
-        model.Tickets = await _ticketService.GetPurchasePaidTickets(model.PurchaseId);
-
-        model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
-
-        await _ticketService.MarkAsPaid(purchaseId);
-
-        if (!Request.IsHtmx())
-            return View("~/Views/Purchase/Index.cshtml", model);
-
-        return ViewComponent(typeof(PurchaseFormViewComponent), model);
     }
 
     [HttpGet("{PurchaseId}/tickets")]
@@ -135,13 +110,12 @@ public class PurchaseController : Controller
         var model = new PurchaseFormViewModel();
         model.PurchaseId = purchaseId;
 
-        model.IsPurchaseRunning = await _ticketService.IsPurchaseRunning(purchaseId);
+        model.IsPurchaseRunning = await _purchaseService.IsPurchaseRunning(purchaseId);
 
         if (!model.IsPurchaseRunning)
             return Error(model);
 
-        model.IsPaymentEmulated = await _ticketService.IsPurchasePaid(purchaseId);
-        model.IsConfirmed = await _ticketService.IsSeatsReserved(purchaseId);
+        model.IsReservedAndPaid = await _purchaseService.IsReservedAndPaid(purchaseId);
 
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
 

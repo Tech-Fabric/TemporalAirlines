@@ -13,9 +13,7 @@ public class PurchaseFormViewModel
 
     public Dictionary<string, bool>? SelectedSeats { get; set; } = new();
 
-    public bool IsPaymentEmulated { get; set; }
-
-    public bool IsConfirmed { get; set; }
+    public bool IsReservedAndPaid { get; set; }
 
     public int NumberOfTickets { get; set; }
 
