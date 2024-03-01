@@ -5,7 +5,6 @@ using TemporalAirlinesConcept.Api.Configuration;
 using TemporalAirlinesConcept.Api.Profiles;
 using TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
