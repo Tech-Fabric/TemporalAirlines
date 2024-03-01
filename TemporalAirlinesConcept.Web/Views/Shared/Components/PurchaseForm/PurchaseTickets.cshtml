@@ -1,4 +1,11 @@
+@using TemporalAirlinesConcept.Common.Settings
+@using Microsoft.Extensions.Options
 @model TemporalAirlinesConcept.Web.ViewComponents.PurchaseForm.PurchaseFormViewModel
+@inject IOptions<UrlSettings> UrlSettingsOptions;
+
+@{
+    var urlSettings = UrlSettingsOptions.Value;
+}
 
 @if (Model.Tickets.Any())
 {
@@ -43,7 +50,7 @@ else
 <hr class="bg-light-gray mt-24 mb-24"/>
 <div class="text-end mb-20">
     See this purchase's
-    <a href="https://temporal.temporal-airlines.cloudfabric.co/namespaces/default/workflows?query=WorkflowId%3D%22@(Model.PurchaseId)%22"
+    <a href="@(urlSettings.TemporalDashboard)/namespaces/default/workflows?query=WorkflowId%3D%22@(Model.PurchaseId)%22"
        target="_blank"
        class="text-decoration-underline">
         Temporal workflow

@@ -1,4 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.Extensions.Options
+@using TemporalAirlinesConcept.Common.Settings
+@inject IOptions<UrlSettings> UrlSettingsOptions;
+
+@{
+    var urlSettings = UrlSettingsOptions.Value;
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,13 +21,13 @@
 
             <div class="ms-auto">
                 <button class="btn btn-primary btn"
-                        onclick="window.open('https://temporal.temporal-airlines.cloudfabric.co', '_blank');">
+                        onclick="window.open('@(urlSettings.TemporalDashboard)', '_blank');">
                     Temporal Dashboard
                 </button>
 
                 <button class="btn btn-primary btn ms-2"
-                        onclick="window.open('https://pgadmin.temporal-airlines.cloudfabric.co', '_blank');"
-                        title="Login: temporal@temporal.io Password: temporal">
+                        onclick="window.open('@(urlSettings.Database)', '_blank');"
+                        title="Login: readonly@temporal.io Password: readonly_password">
                     pgAdmin
                 </button>
 
