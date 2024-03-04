@@ -121,10 +121,10 @@ public class TicketService : ITicketService
 
     private async Task<List<TicketDetailsModel>> GetTickets(string purchaseId)
     {
-        if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
-            return [];
-
         var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
+
+        if (!await purchaseHandle.IsWorkflowRunningOrCompleted())
+            return [];
 
         var flightId = await purchaseHandle.QueryAsync(wf => wf.GetFlightId());
 

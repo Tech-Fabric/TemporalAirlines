@@ -20,5 +20,5 @@ public interface IPurchaseService
 
     Task<bool> BoardPassenger(BoardingInputModel boardingInputModel);
 
-    Task<bool> IsPurchaseRunning(string purchaseId);
+    Task<bool> IsPurchaseRunningOrCompleted(string purchaseId);
 }
