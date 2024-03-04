@@ -20,8 +20,6 @@ public class TicketDetailsModel
 
     public string Seat { get; set; }
 
-    #region Methods
-
     public override bool Equals(object obj)
     {
         if (obj is not TicketDetailsModel ticket)
@@ -38,6 +36,4 @@ public class TicketDetailsModel
 
         return comparisonResult;
     }
-
-    #endregion
 }
