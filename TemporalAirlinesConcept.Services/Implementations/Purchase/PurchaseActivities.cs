@@ -1,7 +1,5 @@
 ﻿using TemporalAirlinesConcept.Common.Constants;
-using TemporalAirlinesConcept.Common.Extensions;
 using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;

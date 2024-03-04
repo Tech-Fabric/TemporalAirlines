@@ -150,9 +150,6 @@ public class PurchaseWorkflow
 
         await MarkTicketsAsPaid();
 
-        // var flight = await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
-        //     act.GetFlight(purchaseModel.FlightId), _activityOptions);
-
         await GenerateBlobTickets();
 
         await SendTickets();
@@ -160,12 +157,6 @@ public class PurchaseWorkflow
         await SaveTickets();
 
         await ConfirmWithdrawal();
-
-        // var timeUntilDepart = flight.Depart.Subtract(Workflow.UtcNow);
-        // var isCancelled = await Workflow.WaitConditionAsync(() => _isCancelled, timeUntilDepart);
-
-        // if (isCancelled)
-        //     throw new ApplicationFailureException("Purchase has being cancelled");
 
         return true;
     }
