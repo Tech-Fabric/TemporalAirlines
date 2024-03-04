@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.Services.Models.Flight;
-using TemporalAirlinesConcept.Services.Models.Purchase;
 
 namespace TemporalAirlinesConcept.Services.Profiles;
 
