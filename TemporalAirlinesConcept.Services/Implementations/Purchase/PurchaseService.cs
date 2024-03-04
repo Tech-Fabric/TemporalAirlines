@@ -83,9 +83,9 @@ public class PurchaseService : IPurchaseService
         return true;
     }
 
-    public async Task<bool> IsPurchaseRunning(string purchaseId)
+    public async Task<bool> IsPurchaseRunningOrCompleted(string purchaseId)
     {
-        var isPurchaseRunning = await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId);
+        var isPurchaseRunning = await _temporalClient.IsWorkflowRunningOrCompleted<PurchaseWorkflow>(purchaseId);
 
         return isPurchaseRunning;
     }
@@ -155,7 +155,7 @@ public class PurchaseService : IPurchaseService
     {
         var handle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
 
-        if (!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
+        if (!await _temporalClient.IsWorkflowRunningOrCompleted<PurchaseWorkflow>(purchaseId))
             throw new InvalidOperationException("Purchase workflow is not running.");
 
         return handle;

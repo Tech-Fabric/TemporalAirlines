@@ -13,12 +13,10 @@ namespace TemporalAirlinesConcept.Services.Implementations.Purchase;
 public class PurchaseActivities
 {
     private readonly ITemporalClient _temporalClient;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public PurchaseActivities(ITemporalClient temporalClient, IUnitOfWork unitOfWork)
+    public PurchaseActivities(ITemporalClient temporalClient)
     {
         _temporalClient = temporalClient;
-        _unitOfWork = unitOfWork;
     }
 
     /// <summary>
@@ -167,6 +165,12 @@ public class PurchaseActivities
     {
         var flightHandle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(saveTicketsSignal.FlightId);
 
+        var flightDetails = await flightHandle.QueryAsync(wf => wf.GetFlightDetails());
+
+        if (string.Equals(flightDetails?.From, Airports.ErrorCode) ||
+            string.Equals(flightDetails?.To, Airports.ErrorCode))
+            throw new Exception("Artificial error exception");
+
         var saveSignal = new SavePurchaseTicketsSignalModel
         {
             PurchaseId = saveTicketsSignal.PurchaseId
@@ -210,33 +214,6 @@ public class PurchaseActivities
     public Task<bool> ConfirmWithdrawCompensation()
     {
         return Task.FromResult(true);
-    }
-
-    /// <summary>
-    /// Retrieves the last flight from the given list of flight IDs.
-    /// </summary>
-    /// <param name="flightId"></param>
-    [Activity]
-    public async Task<DAL.Entities.Flight> GetFlight(Guid flightId)
-    {
-        var flight = await _unitOfWork.Repository<DAL.Entities.Flight>()
-            .FindAsync(x => x.Id == flightId);
-
-        if (string.Equals(flight?.From, Airports.ErrorCode) || string.Equals(flight?.To, Airports.ErrorCode))
-            throw new Exception("Artificial error exception");
-
-        return flight;
-    }
-
-    [Activity]
-    public async Task<FlightDetailsModel> GetFlightDetails(Guid flightId)
-    {
-        if (!await _temporalClient.IsWorkflowRunning<FlightWorkflow>(flightId.ToString()))
-            throw new ApplicationException("Flight workflow is not running.");
-
-        var handle = _temporalClient.GetWorkflowHandle<FlightWorkflow>(flightId.ToString());
-
-        return await handle.QueryAsync(wf => wf.GetFlightDetails());
     }
 
     [Activity]

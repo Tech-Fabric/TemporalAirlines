@@ -9,12 +9,10 @@ namespace TemporalAirlinesConcept.Web.Controllers;
 [Route("flights")]
 public class FlightController : Controller
 {
-    private readonly ITicketService _ticketService;
     private readonly IPurchaseService _purchaseService;
 
-    public FlightController(ITicketService ticketService, IPurchaseService purchaseService)
+    public FlightController(IPurchaseService purchaseService)
     {
-        _ticketService = ticketService;
         _purchaseService = purchaseService;
     }
 
@@ -25,10 +23,8 @@ public class FlightController : Controller
         {
             return ViewComponent(typeof(FlightBookingFormViewComponent));
         }
-        else
-        {
-            return View("~/Views/Flight/Index.cshtml");
-        }
+
+        return View("~/Views/Flight/Index.cshtml");
     }
 
     [HttpPost]
@@ -38,16 +34,14 @@ public class FlightController : Controller
         {
             return ViewComponent(typeof(FlightBookingFormViewComponent), model);
         }
-        else
-        {
-            return View("~/Views/Flight/Index.cshtml", model);
-        }
+
+        return View("~/Views/Flight/Index.cshtml", model);
     }
 
     [HttpGet("{SelectedFlight}")]
     public async Task<IActionResult> Flight([FromRoute] Guid? selectedFlight)
     {
-        FlightBookingFormViewModel model = new FlightBookingFormViewModel();
+        FlightBookingFormViewModel model = new();
 
         return await Flight(model, selectedFlight);
     }
