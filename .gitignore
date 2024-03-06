@@ -367,3 +367,4 @@ FodyWeavers.xsd
 /temporal-server/db_data
 /.idea
 /temporal-server/temporal_db_data
+/temporal-server/.env

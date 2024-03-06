@@ -25,7 +25,8 @@ namespace TemporalAirlinesConcept.Configuration.ConfigurationExtensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration, ConsoleExporterOutputTargets targets)
+    public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration,
+        ConsoleExporterOutputTargets targets)
     {
         services.AddOpenTelemetry()
             .WithTracing(builder =>
@@ -40,6 +41,7 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContext<DataContext>(options =>
         {
+            var test = configuration["DatabaseSettings:ConnectionString"];
             options.UseNpgsql(configuration["DatabaseSettings:ConnectionString"]);
             options.EnableSensitiveDataLogging(false);
         });
