@@ -141,17 +141,14 @@ public class PurchaseWorkflow
         if (!isPaid)
             throw new ApplicationFailureException("Tickets was not paid in 15 min.");
 
-        return await ProceedPayment(purchaseModel);
+        return await ProceedPayment();
     }
 
-    private async Task<bool> ProceedPayment(PurchaseModel purchaseModel)
+    private async Task<bool> ProceedPayment()
     {
         await HoldMoney();
 
         await MarkTicketsAsPaid();
-
-        var flight = await Workflow.ExecuteActivityAsync((PurchaseActivities act) =>
-            act.GetFlight(purchaseModel.FlightId), _activityOptions);
 
         await GenerateBlobTickets();
 
@@ -160,12 +157,6 @@ public class PurchaseWorkflow
         await SaveTickets();
 
         await ConfirmWithdrawal();
-
-        var timeUntilDepart = flight.Depart.Subtract(Workflow.UtcNow);
-        var isCancelled = await Workflow.WaitConditionAsync(() => _isCancelled, timeUntilDepart);
-
-        if (isCancelled)
-            throw new ApplicationFailureException("Purchase has being cancelled");
 
         return true;
     }

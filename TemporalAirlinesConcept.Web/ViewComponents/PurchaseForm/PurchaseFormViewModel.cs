@@ -17,5 +17,5 @@ public class PurchaseFormViewModel
 
     public int NumberOfTickets { get; set; }
 
-    public bool IsPurchaseRunning { get; set; }
+    public bool IsPurchaseRunningOrCompleted { get; set; }
 }

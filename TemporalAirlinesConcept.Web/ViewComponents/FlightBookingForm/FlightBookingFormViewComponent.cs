@@ -13,20 +13,7 @@ public class FlightBookingFormViewComponent : ViewComponent
         { "LAX", "Los Angeles International Airport" },
         { "JFK", "John F. Kennedy International Airport" },
         { "LHR", "London Heathrow Airport" },
-        { "HND", "Tokyo International Airport" },
-        { "ATL", "Hartsfield Jackson Atlanta International" },
-        { "CDG", "Charles de Gaulle Airport" },
-        { "FRA", "Frankfurt Airport" },
-        { "AMS", "Amsterdam Airport Schiphol" },
-        { Airports.ErrorCode, Airports.ErrorName },
-        { "IST", "Istanbul Airport" },
-        { "MAD", "Madrid Barajas Airport" },
-        { "BCN", "Barcelona–El Prat Airport" },
-        { "DUB", "Dublin Airport" },
-        { "ZRH", "Zurich Airport" },
-        { "LIS", "Lisbon Airport" },
-        { "FCO", "Fiumicino" },
-        { "SVO", "Sheremetyevo" },
+        { Airports.ErrorCode, Airports.ErrorName }
     };
 
     private readonly IFlightService _flightService;
@@ -45,38 +32,49 @@ public class FlightBookingFormViewComponent : ViewComponent
 
         var minutesFlightTime = new[] { 15, 30, 45 };
 
-        for (var i = 0; i < 100; i++)
+        for (var i = 0; i < _airports.Count; i++)
         {
             var departureFrom = _airports.ElementAt(i).Key;
-            var arrivalTo = GetRandomValueExcluding(departureFrom);
 
-            var departureTime = DateTime.UtcNow.AddDays(new Random().Next(90, 180));
-            var arrivalTime = departureTime.AddHours(new Random().Next(0, 3)).AddMinutes(minutesFlightTime[new Random().Next(0, 2)]);
-
-            var seatRowsCount = 20;
-            var seatColumnsCount = columnIdentifiers.Count;
-
-            var flightToCreate = new FlightInputModel()
+            for (var j = 0; j < _airports.Count; j++)
             {
-                From = departureFrom,
-                To = arrivalTo,
-                Depart = departureTime,
-                Arrival = arrivalTime,
-                Seats = []
-            };
-
-            for (var x = 0; x < seatRowsCount; x++)
-            {
-                for (var y = 0; y < seatColumnsCount; y++)
+                if (i == j)
                 {
-                    flightToCreate.Seats.Add(new SeatInputModel
-                    {
-                        Name = $"{columnIdentifiers[y]}{x + 1}"
-                    });
+                    continue;
                 }
-            }
 
-            await _flightService.CreateFlight(flightToCreate);
+                var arrivalTo = _airports.ElementAt(j).Key;
+
+                var departureTime = DateTime.UtcNow.AddDays(new Random().Next(90, 180));
+                var arrivalTime = departureTime.AddHours(new Random().Next(0, 3)).AddMinutes(minutesFlightTime[new Random().Next(0, 2)]);
+
+                var seatRowsCount = 20;
+                var seatColumnsCount = columnIdentifiers.Count;
+
+                var flightToCreate = new FlightInputModel()
+                {
+                    From = departureFrom,
+                    To = arrivalTo,
+                    Depart = departureTime,
+                    Arrival = arrivalTime,
+                    Seats = []
+                };
+
+                for (var x = 0; x < seatRowsCount; x++)
+                {
+                    for (var y = 0; y < seatColumnsCount; y++)
+                    {
+                        flightToCreate.Seats.Add(
+                            new SeatInputModel
+                            {
+                                Name = $"{columnIdentifiers[y]}{x + 1}"
+                            }
+                        );
+                    }
+                }
+
+                await _flightService.CreateFlight(flightToCreate);
+            }
         }
     }
 

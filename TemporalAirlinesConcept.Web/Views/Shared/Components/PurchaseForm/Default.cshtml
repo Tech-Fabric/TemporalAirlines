@@ -11,7 +11,7 @@
 
     @Html.Partial("Components/Plane")
 
-    @if (Model.IsPurchaseRunning)
+    @if (Model.IsPurchaseRunningOrCompleted)
     {
         <section class="mb-20" style="margin-top: -250px;">
             <div class="container-fluid">

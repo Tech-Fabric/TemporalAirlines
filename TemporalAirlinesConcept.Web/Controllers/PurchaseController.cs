@@ -40,9 +40,9 @@ public class PurchaseController : Controller
     {
         model.PurchaseId = purchaseId;
 
-        model.IsPurchaseRunning = await _purchaseService.IsPurchaseRunning(purchaseId);
+        model.IsPurchaseRunningOrCompleted = await _purchaseService.IsPurchaseRunningOrCompleted(purchaseId);
 
-        if (!model.IsPurchaseRunning)
+        if (!model.IsPurchaseRunningOrCompleted)
             return Error(model);
 
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
@@ -65,9 +65,9 @@ public class PurchaseController : Controller
     {
         model.PurchaseId = purchaseId;
 
-        model.IsPurchaseRunning = await _purchaseService.IsPurchaseRunning(purchaseId);
+        model.IsPurchaseRunningOrCompleted = await _purchaseService.IsPurchaseRunningOrCompleted(purchaseId);
 
-        if (!model.IsPurchaseRunning)
+        if (!model.IsPurchaseRunningOrCompleted)
             return Error(model);
 
         model.Flight = await _flightService.GetFlightDetailsByPurchaseId(purchaseId);
@@ -110,9 +110,9 @@ public class PurchaseController : Controller
         var model = new PurchaseFormViewModel();
         model.PurchaseId = purchaseId;
 
-        model.IsPurchaseRunning = await _purchaseService.IsPurchaseRunning(purchaseId);
+        model.IsPurchaseRunningOrCompleted = await _purchaseService.IsPurchaseRunningOrCompleted(purchaseId);
 
-        if (!model.IsPurchaseRunning)
+        if (!model.IsPurchaseRunningOrCompleted)
             return Error(model);
 
         model.IsReservedAndPaid = await _purchaseService.IsReservedAndPaid(purchaseId);

@@ -49,7 +49,7 @@ public class FlightService : IFlightService
 
     public async Task<DAL.Entities.Flight> GetFlightDetailsByPurchaseId(string purchaseId)
     {
-        if(!await _temporalClient.IsWorkflowRunning<PurchaseWorkflow>(purchaseId))
+        if(!await _temporalClient.IsWorkflowRunningOrCompleted<PurchaseWorkflow>(purchaseId))
             throw new EntityNotFoundException("Purchase workflow is not running.");
 
         var purchaseHandle = _temporalClient.GetWorkflowHandle<PurchaseWorkflow>(purchaseId);
