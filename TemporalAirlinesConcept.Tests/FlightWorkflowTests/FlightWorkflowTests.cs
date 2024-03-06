@@ -4,7 +4,6 @@ using Moq;
 using TemporalAirlinesConcept.Common.Constants;
 using TemporalAirlinesConcept.DAL.Entities;
 using TemporalAirlinesConcept.DAL.Enums;
-using TemporalAirlinesConcept.DAL.Implementations;
 using TemporalAirlinesConcept.DAL.Interfaces;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Models.Flight;
@@ -30,7 +29,11 @@ public class FlightWorkflowTests
 
     public FlightWorkflowTests()
     {
-        var config = new MapperConfiguration(cfg => { cfg.AddProfile(new FlightProfile()); });
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile(new FlightProfile());
+            cfg.AddProfile(new SeatProfile());
+        });
 
         _mapper = config.CreateMapper();
     }
@@ -43,7 +46,7 @@ public class FlightWorkflowTests
 
         var flight = TestFlightFabric.GetTestFlight();
 
-        var mockFlightRepository = new Mock<Repository<Flight>>();
+        var mockFlightRepository = new Mock<IRepository<Flight>>();
 
         using var worker = await WorkerHelper.ConfigureWorkerAsync(env, _mapper, mockFlightRepository);
 
@@ -64,7 +67,7 @@ public class FlightWorkflowTests
         // Assert
         await workflowExecution.Should().NotThrowAsync();
 
-        mockFlightRepository.Verify(x => x.Insert(It.IsAny<Flight>()), Times.Once);
+        mockFlightRepository.Verify(x => x.Update(It.IsAny<Flight>()), Times.Once);
     }
 
     [Fact]
@@ -76,6 +79,9 @@ public class FlightWorkflowTests
         var flight = TestFlightFabric.GetTestFlight();
 
         var bookingRequestModel = new BookingSignalModel(TestTicketFabric.GetTestTicket(flight.Id));
+
+        var registeredTicket = bookingRequestModel.Ticket;
+        registeredTicket.BoardingStatus = BoardingStatus.Registered;
 
         using var worker = await WorkerHelper.ConfigureWorkerAsync(env, _mapper);
 
@@ -109,8 +115,8 @@ public class FlightWorkflowTests
 
         // Assert
         await workflowExecution.Should().NotThrowAsync();
-
-        flightDetailsModelWithTicket.Registered.Should().Contain(bookingRequestModel.Ticket);
+        
+        flightDetailsModelWithTicket.Registered.Should().Contain(registeredTicket);
 
         flightDetailsModelWithoutTicket.Registered.Should().NotContain(bookingRequestModel.Ticket);
     }
@@ -235,7 +241,7 @@ public class FlightWorkflowTests
             s => s.Name == seat.Name && s.TicketId == ticket.Id);
 
         flightDetailsModelWithReservedSeat.Registered.Should().Contain(
-            t => t.Id == ticket.Id && t.Seat.Equals(seat));
+            t => t.Id == ticket.Id && t.Seat.Equals(seat.Name));
 
         // Assert cancellation
         flightDetailsModelWithEmptySeat.Seats.Should().Contain(
@@ -254,6 +260,9 @@ public class FlightWorkflowTests
         var flight = TestFlightFabric.GetTestFlight();
 
         var boardingRequestModel = new BoardingSignalModel(TestTicketFabric.GetTestTicket(flight.Id));
+
+        var boardedTicket = boardingRequestModel.Ticket;
+        boardedTicket.BoardingStatus = BoardingStatus.Boarded;
 
         using var worker = await WorkerHelper.ConfigureWorkerAsync(env, _mapper);
 
@@ -282,6 +291,6 @@ public class FlightWorkflowTests
         // Assert
         await workflowExecution.Should().NotThrowAsync();
 
-        flightDetailsModelWithBoardedPassenger.Boarded.Should().Contain(boardingRequestModel.Ticket);
+        flightDetailsModelWithBoardedPassenger.Boarded.Should().Contain(boardedTicket);
     }
 }

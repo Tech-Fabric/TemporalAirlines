@@ -1,5 +1,4 @@
-﻿using TemporalAirlinesConcept.DAL.Entities;
-using TemporalAirlinesConcept.DAL.Enums;
+﻿using TemporalAirlinesConcept.DAL.Enums;
 using TemporalAirlinesConcept.Services.Models.Flight;
 using TemporalAirlinesConcept.Services.Models.Purchase;
 using Temporalio.Exceptions;
@@ -21,7 +20,7 @@ public class FlightWorkflow
     public async Task Run(FlightDetailsModel flight)
     {
         _flight = flight;
-
+        
         await ChangeStatusAtTime(FlightStatus.CheckIn, _flight.Depart.Value.Subtract(TimeSpan.FromDays(1)));
 
         _flight = await Workflow.ExecuteActivityAsync((FlightActivities act) =>
