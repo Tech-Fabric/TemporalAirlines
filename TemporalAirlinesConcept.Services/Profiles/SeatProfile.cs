@@ -12,6 +12,6 @@ public class SeatProfile : Profile
         CreateMap<SeatInputModel, Seat>()
             .ForMember(x => x.Flight, x => x.Ignore());
 
-        CreateMap<Seat, SeatDetailsModel>();
+        CreateMap<Seat, SeatDetailsModel>().ReverseMap();
     }
 }
