@@ -41,7 +41,6 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContext<DataContext>(options =>
         {
-            var test = configuration["DatabaseSettings:ConnectionString"];
             options.UseNpgsql(configuration["DatabaseSettings:ConnectionString"]);
             options.EnableSensitiveDataLogging(false);
         });
