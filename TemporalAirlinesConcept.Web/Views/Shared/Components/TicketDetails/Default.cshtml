@@ -1,0 +1,42 @@
+﻿
+@model TemporalAirlinesConcept.Web.ViewComponents.TicketDetails.TicketDetailsViewModel
+
+
+@Html.Partial("Components/Plane")
+
+<div class="form-flight-booking rounded-3">
+    @if (Model.Ticket is not null)
+    {
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>Ticket details:</h4>
+        </div>
+
+        var ticket = Model.Ticket;
+
+        <p>Ticket ID: @ticket.Id</p>
+
+        <p>Purchase ID: @ticket.PurchaseId</p>
+
+        <p>Status: @ticket.PaymentStatus.ToString()</p>
+
+        @if (ticket.Seat != null)
+        {
+            <p>Seat: @ticket.Seat</p>
+        }
+        else
+        {
+            <p>No seat selected</p>
+        }
+        
+        @if (ticket.Passenger != null)
+        {
+            <p>Seat: @ticket.Passenger</p>
+        }
+        else
+        {
+            <p>No passenger assigned</p>
+        }
+        
+        <img src="data:image/png;base64,@ticket.Code" style="height: 275px;" alt="Ticket Code">
+    }
+</div>

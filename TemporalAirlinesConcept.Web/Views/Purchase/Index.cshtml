@@ -1,0 +1,9 @@
+@model TemporalAirlinesConcept.Web.ViewComponents.PurchaseForm.PurchaseFormViewModel
+
+@{
+    ViewData["Title"] = "Purchase";
+}
+
+<div class="text-center">
+    @await Component.InvokeAsync("PurchaseForm", Model)
+</div>

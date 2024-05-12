@@ -1,0 +1,20 @@
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+
+@{
+    var problemDetailsTitle = ViewContext.ViewData.ModelState["ProblemDetails.Title"]?.Errors.First();
+    var problemDetailsDetail = ViewContext.ViewData.ModelState["ProblemDetails.Detail"]?.Errors.First();
+}
+
+@if (ViewContext.ViewData.ModelState.ValidationState == ModelValidationState.Invalid &&
+     problemDetailsTitle != null)
+{
+    <div class="alert alert-danger">
+        <span>problemDetailsTitle.ErrorMessage</span>
+        
+        @if (problemDetailsDetail != null)
+        {
+            <br/>
+            <span>problemDetailsDetail.ErrorMessage</span>
+        }
+    </div>
+}

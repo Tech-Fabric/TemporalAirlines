@@ -1,0 +1,63 @@
+@using Htmx.TagHelpers
+@using Humanizer
+@model (TemporalAirlinesConcept.DAL.Entities.Flight, bool)
+
+<div class="flight-block bg-white light-shadow p-24 mb-16 sal-animate">
+    <div class="flight-area">
+        <div class="airline-name">
+            <div>
+                <h5 class="lightest-black mb-8">United Dubai Airlines</h5>
+                <h6 class="dark-gray">Boeing 777-90</h6>
+            </div>
+        </div>
+        <div class="flight-detail">
+            <div class="flight-departure">
+                <h5 class="color-black">@Model.Item1.Depart.ToString("t")</h5>
+                <h5 class="dark-gray text-end">@Model.Item1.From</h5>
+            </div>
+            <div class="d-inline-flex align-items-center gap-8">
+
+                <div class="from-to text-center">
+                    <h5 class="dark-gray">@((Model.Item1.Arrival - @Model.Item1.Depart).Humanize())</h5>
+                    <img src="/img/route-plan.png" alt="">
+                    <h6 class="color-black">1 Stop</h6>
+                </div>
+
+            </div>
+            <div class="flight-departure">
+                <h5 class="color-black">@Model.Item1.Arrival.ToString("t")</h5>
+                <h5 class="dark-gray">@Model.Item1.To</h5>
+            </div>
+        </div>
+        <div class="flight-button">
+            <div class="amount">
+                <h5 class="color-black">$240</h5>
+                <h6 class="dark-gray text-end">Price</h6>
+            </div>
+
+            @if (Model.Item2)
+            {
+                <button class="btn btn-light btn-lg flight-select-action"
+                        disabled="disabled"
+                        hx-post="/flights/@Model.Item1.Id"
+                        hx-swap="outerHTML" hx-push-url="true"
+                        hx-target="#form-flight-booking">
+                    Selected
+                </button>
+            } 
+            else
+            {
+                <button class="btn btn-primary btn-lg flight-select-action"
+                        hx-post="/flights/@Model.Item1.Id"
+                        hx-swap="outerHTML" hx-push-url="true"
+                        hx-target="#form-flight-booking">
+                    Book Now
+                </button>
+            }
+        </div>
+    </div>
+    <hr class="bg-light-gray mt-24 mb-24">
+    <div class="d-flex justify-content-between align-items-center">
+        <h5 class="color-black">@Model.Item1.Depart.Date.ToString("m")</h5>
+    </div>
+</div>

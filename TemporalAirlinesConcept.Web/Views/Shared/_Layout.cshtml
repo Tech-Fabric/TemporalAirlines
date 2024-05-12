@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.Extensions.Options
+@using TemporalAirlinesConcept.Common.Settings
+@inject IOptions<UrlSettings> UrlSettingsOptions;
+
+@{
+    var urlSettings = UrlSettingsOptions.Value;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+@await Html.PartialAsync("_Head")
+<body>
+
+<header class="p-3 mb-3 border-bottom">
+    <div class="container-fluid">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a class="navbar-brand text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                <img src="/img/logo.png"/>
+            </a>
+
+            <div class="ms-auto">
+                <button class="btn btn-primary btn"
+                        onclick="window.open('@(urlSettings.TemporalDashboard)', '_blank');">
+                    Temporal Dashboard
+                </button>
+
+                <button class="btn btn-primary btn ms-2"
+                        onclick="window.open('@(urlSettings.Database)', '_blank');"
+                        title="Login: readonly@temporal.io Password: readonly_password">
+                    pgAdmin
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+</header>
+
+<div class="main-wrapper mr-4">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="border-top footer text-muted">
+    <div class="container-fluid">
+        &copy; 2023 - TechFabric - Flight Tickets Proof of Concept
+    </div>
+</footer>
+
+@await Html.PartialAsync("_FooterScripts")
+</body>
+</html>

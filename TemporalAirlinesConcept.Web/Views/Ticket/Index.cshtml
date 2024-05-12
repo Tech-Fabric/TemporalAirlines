@@ -1,0 +1,9 @@
+﻿@model TemporalAirlinesConcept.Web.ViewComponents.TicketDetails.TicketDetailsViewModel
+
+@{
+    ViewData["Title"] = "Ticket";
+}
+
+<div class="text-center">
+    @await Component.InvokeAsync("TicketDetails", Model);
+</div>
