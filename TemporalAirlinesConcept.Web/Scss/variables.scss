@@ -1,0 +1,37 @@
+$font-primary: "Inter", sans-serif;
+$font-sec: "Open Sans", sans-serif;
+$font-sec-2: "Inter", sans-serif;
+$accent-1: #4D73FC;
+$accent-2: #FC9C4D;
+$black: #0B0C0D;
+$white: white;
+$lightest-gray: #ECECF2;
+$transition: all 0.5s ease-in-out;
+$shadow: 4px 4px 10px 0px rgba(77, 115, 252, 0.3);
+$light-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.04), 6px 3px 14px 0px rgba(0, 0, 0, 0.04), 23px 12px 26px 0px rgba(0, 0, 0, 0.03), 53px 27px 35px 0px rgba(0, 0, 0, 0.02), 94px 48px 42px 0px rgba(0, 0, 0, 0.01);
+$text-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.04), 6px 3px 14px 0px rgba(0, 0, 0, 0.04), 23px 12px 26px 0px rgba(0, 0, 0, 0.03), 53px 27px 35px 0px rgba(0, 0, 0, 0.02), 94px 48px 42px 0px rgba(0, 0, 0, 0.01);
+$dark-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+$light-black: #212627;
+$lightest-black: #16191A;
+$light-gray: #C6CBD2;
+$medium-gray: #9EA2A8;
+$dark-gray: #7A7F85;
+$dark-black:#0D0D0D;
+
+
+@mixin widther( $length ) {
+  @media screen and (min-width: $length)  {
+    @content;
+  }
+}
+
+@mixin media-query( $length ) {
+  @media (max-width: $length) {
+    @content;
+  }
+}
+@mixin short-query( $min , $max ) {
+  @media only screen and (min-width: $min) and (max-width: $max) {
+    @content;
+  }
+}

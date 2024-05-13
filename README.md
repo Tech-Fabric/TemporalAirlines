@@ -1,20 +1,46 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+This repository provides code used for short demonstration of Temporal basic concepts and features applied to business cases
+
+# Usage
+
+Prerequisites:
+
+* .NET 8
+* Temporal server running
 
 # Build and Test
-TODO: Describe and show how to build your code and run the tests. 
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+Build the Project
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Build:
+
+    dotnet build
+
+Run Temporal Cluster + API (from temporal-server folder):
+
+    docker compose up
+
+Run tests:
+
+    dotnet test
+
+Run API:
+
+    dotnet TemporalAirlinesConcept.Api.dll
+
+# Links 
+
+* [API](http://localhost:5222/swagger) 
+* [Temporal UI](http://localhost:8080/)
+* [Temporal Server](http://localhost:7233/)
+* [Cosmos DB explorer](https://localhost:8081/_explorer/index.html)
+
+# Environment
+
+You can launch Temporal Cluster + API with Docker Compose using IDE + docker-compose project or manually from temporal-server folder using docker compose up command
+
+In docker-compose API service could be commented and API could be launched separately. Change the connection strings in this case.
+
+Alternatively, you can launch an environment for this code using a local developemnt environment using  
+[these instructions](https://learn.temporal.io/getting_started/typescript/dev_environment/#set-up-a-local-temporal-development-cluster)

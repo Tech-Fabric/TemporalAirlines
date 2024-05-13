@@ -1,0 +1,83 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Common", "TemporalAirlinesConcept.Common\TemporalAirlinesConcept.Common.csproj", "{9DA8CBFB-9CD8-4A16-B585-406EDFFCC0E1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.DAL", "TemporalAirlinesConcept.DAL\TemporalAirlinesConcept.DAL.csproj", "{C434BCC5-D2F3-4157-B42B-21A25930F8A6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Services", "TemporalAirlinesConcept.Services\TemporalAirlinesConcept.Services.csproj", "{DB2637BD-CF24-4F27-A506-D46703991735}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Worker", "TemporalAirlinesConcept.Worker\TemporalAirlinesConcept.Worker.csproj", "{9ED537E0-BB40-4CB5-B4C4-8F9F2D1287C0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Api", "TemporalAirlinesConcept.Api\TemporalAirlinesConcept.Api.csproj", "{BA191BB5-385B-481C-A368-243791F50CBF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Configuration", "TemporalAirlinesConcept.Configuration\TemporalAirlinesConcept.Configuration.csproj", "{13152A05-BF9D-4848-94CB-CD4BC4AB697D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Web", "TemporalAirlinesConcept.Web\TemporalAirlinesConcept.Web.csproj", "{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "temporal-server", "temporal-server", "{8CFE4D4C-48C7-472D-AB50-80D834E14526}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "temporal-server\docker-compose.dcproj", "{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A8B793F6-DF42-4A0A-96F7-1CA0219330C5}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemporalAirlinesConcept.Tests", "TemporalAirlinesConcept.Tests\TemporalAirlinesConcept.Tests.csproj", "{A7B62D91-D72A-4FD0-AF43-FFE4F56D87A5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DA8CBFB-9CD8-4A16-B585-406EDFFCC0E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DA8CBFB-9CD8-4A16-B585-406EDFFCC0E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DA8CBFB-9CD8-4A16-B585-406EDFFCC0E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DA8CBFB-9CD8-4A16-B585-406EDFFCC0E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C434BCC5-D2F3-4157-B42B-21A25930F8A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C434BCC5-D2F3-4157-B42B-21A25930F8A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C434BCC5-D2F3-4157-B42B-21A25930F8A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C434BCC5-D2F3-4157-B42B-21A25930F8A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB2637BD-CF24-4F27-A506-D46703991735}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB2637BD-CF24-4F27-A506-D46703991735}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB2637BD-CF24-4F27-A506-D46703991735}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB2637BD-CF24-4F27-A506-D46703991735}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9ED537E0-BB40-4CB5-B4C4-8F9F2D1287C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ED537E0-BB40-4CB5-B4C4-8F9F2D1287C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ED537E0-BB40-4CB5-B4C4-8F9F2D1287C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9ED537E0-BB40-4CB5-B4C4-8F9F2D1287C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA191BB5-385B-481C-A368-243791F50CBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA191BB5-385B-481C-A368-243791F50CBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA191BB5-385B-481C-A368-243791F50CBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA191BB5-385B-481C-A368-243791F50CBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13152A05-BF9D-4848-94CB-CD4BC4AB697D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13152A05-BF9D-4848-94CB-CD4BC4AB697D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13152A05-BF9D-4848-94CB-CD4BC4AB697D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13152A05-BF9D-4848-94CB-CD4BC4AB697D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9FF0F37-E468-480E-9370-67EC2F7ECDF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7B62D91-D72A-4FD0-AF43-FFE4F56D87A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7B62D91-D72A-4FD0-AF43-FFE4F56D87A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7B62D91-D72A-4FD0-AF43-FFE4F56D87A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7B62D91-D72A-4FD0-AF43-FFE4F56D87A5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D8C574C5-30D5-441D-AC2E-1449CD01BF2A} = {8CFE4D4C-48C7-472D-AB50-80D834E14526}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5F11674D-EC18-4A8D-97B7-629912010BC8}
+	EndGlobalSection
+EndGlobal
