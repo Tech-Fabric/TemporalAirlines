@@ -105,7 +105,7 @@ services:
     networks:
       - temporal-network
     volumes:
-          - ./test-results:/app/TestResults  # Mount the volume to access test results
+      - ./test-results:/app/TestResults  # Mount the volume to access test results
   temporalairlinesconcept.web:
     container_name: temporalairlinesconcept.web
     build:
