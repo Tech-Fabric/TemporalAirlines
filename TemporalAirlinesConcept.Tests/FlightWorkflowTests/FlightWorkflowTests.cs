@@ -115,7 +115,7 @@ public class FlightWorkflowTests
 
         // Assert
         await workflowExecution.Should().NotThrowAsync();
-        
+
         flightDetailsModelWithTicket.Registered.Should().Contain(registeredTicket);
 
         flightDetailsModelWithoutTicket.Registered.Should().NotContain(bookingRequestModel.Ticket);

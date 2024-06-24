@@ -28,7 +28,7 @@ services:
     ports:
       - 5455:${POSTGRES_PORT}
     volumes:
-      - ./data/postgresql/:/var/lib/postgresql/data
+      - /var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
     ports:
@@ -104,6 +104,8 @@ services:
       - postgresql
     networks:
       - temporal-network
+    volumes:
+          - ./test-results:/app/TestResults  # Mount the volume to access test results
   temporalairlinesconcept.web:
     container_name: temporalairlinesconcept.web
     build:
