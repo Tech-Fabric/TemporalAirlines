@@ -29,6 +29,14 @@ Run API:
 
     dotnet TemporalAirlinesConcept.Api.dll
 
+# Run
+
+Run Locally: 
+    run docker-compose project
+
+Run on server: 
+    run docker-compose up in temporal-server directory
+
 # Links 
 
 * [API](http://localhost:5222/swagger) 
