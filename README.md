@@ -31,11 +31,14 @@ Run API:
 
 # Run
 
+Important:
+    Replace PGADMIN_DEFAULT_EMAIL=EMAIL and POSTGRES_PASSWORD=PASSWORD in the .env file with the actual value 
+
 Run Locally: 
-    run docker-compose project
+    chose docker-compose project as the start-up project and run or use docker-compose up in temporal-server directory
 
 Run on server: 
-    run docker-compose up in temporal-server directory
+    use docker-compose up in temporal-server directory
 
 # Links 
 
