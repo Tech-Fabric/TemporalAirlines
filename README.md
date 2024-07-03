@@ -29,6 +29,17 @@ Run API:
 
     dotnet TemporalAirlinesConcept.Api.dll
 
+# Run
+
+Important:
+    Replace PGADMIN_DEFAULT_EMAIL=EMAIL and POSTGRES_PASSWORD=PASSWORD in the .env file with the actual value 
+
+Run Locally: 
+    chose docker-compose project as the start-up project and run or use docker-compose up in temporal-server directory
+
+Run on server: 
+    use docker-compose up in temporal-server directory
+
 # Links 
 
 * [API](http://localhost:5222/swagger) 
