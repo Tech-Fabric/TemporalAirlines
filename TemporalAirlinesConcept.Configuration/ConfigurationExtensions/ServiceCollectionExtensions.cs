@@ -9,10 +9,12 @@ using TemporalAirlinesConcept.Common.Settings;
 using TemporalAirlinesConcept.DAL.Contexts;
 using TemporalAirlinesConcept.DAL.Implementations;
 using TemporalAirlinesConcept.DAL.Interfaces;
+using TemporalAirlinesConcept.Services.Implementations.Assistant;
 using TemporalAirlinesConcept.Services.Implementations.Flight;
 using TemporalAirlinesConcept.Services.Implementations.Purchase;
 using TemporalAirlinesConcept.Services.Implementations.User;
 using TemporalAirlinesConcept.Services.Implementations.UserRegistration;
+using TemporalAirlinesConcept.Services.Interfaces.Assistant;
 using TemporalAirlinesConcept.Services.Interfaces.Flight;
 using TemporalAirlinesConcept.Services.Interfaces.Purchase;
 using TemporalAirlinesConcept.Services.Interfaces.User;
@@ -57,11 +59,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<IPurchaseService, PurchaseService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAssistantService, AssistantService>();
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IUserRegistrationService, UserRegistrationService>();
+
+        services.AddMemoryCache(); 
+        services.AddHttpClient();
 
         return services;
     }
